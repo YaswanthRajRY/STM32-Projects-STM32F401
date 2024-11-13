@@ -17,7 +17,7 @@ void timerConfig(void);
 void GPIOconfig(void);
 void Delay_us(uint16_t);
 void Delay_ms(uint16_t);
-void UART1_init(uint32_t);
+//void UART1_init(uint32_t);
 void UART1_Tx(uint8_t);
 
 int main(void)
@@ -25,17 +25,27 @@ int main(void)
     SysClockConfig_42Mhz();
     GPIOconfig();
     timerConfig();
-    UART1_init(9600);
+    
+    UART_Typedef UART1_config = {
+        .baudRate = 9600,       // baud rate
+        .peripheralClock = SysCoreClk,  // peripheral clock
+        .mode = UART_TX,        // UART communication mode
+        .ParityEnable = 0,      // enable parity
+        .Parity = 0     // even parity
+    };
+
+    UART_init(USART1_BASE_ADDR, &UART1_config);
+
 
     while (1)
     {
-        char* s = "Hello World\n\r";
+        char* s = "Hello World :)\n\r";
         while (*s)
         {
-            UART1_Tx(*s);
+            UART_send(UART1, *s);
             s++;
         }
-        Delay_ms(1000);                                                    // 1sec delay
+        Delay_ms(1000);      // 1sec delay
     }
 }
 
@@ -63,12 +73,10 @@ void SysClockConfig_42Mhz()
 
 void GPIOconfig()
 {
-    RCC->AHB1ENR |= GPIOC_EN;                                    // Enable GPIO PORT C
-
-    GPIOC->MODER |= MODER_PIN_13;                                           // Set PIN 13 of PORT C as general purpose output mode
-
-    GPIOC->OTYPER = 0;                                                      // Set output type as no pull-push
-    GPIOC->OSPEEDR = 0;                                                     // Set low speed
+    RCC->AHB1ENR |= 1;      // enable gpio port A clock
+    GPIOA->MODER |= (0xA << 18);    
+    GPIOA->OSPEEDR |= (0xA << 18);
+    GPIOA->AFR[1] = (0x77 << 4);
 }
 
 void timerConfig()
@@ -96,26 +104,4 @@ void Delay_ms(uint16_t ms)
     {
         Delay_us(1000);                                                    // for 1ms
     }
-}
-
-void UART1_init(uint32_t BaudRate)
-{
-    RCC->AHB1ENR |= 1;
-    RCC->APB2ENR |= (1 << 4);
-    GPIOA->MODER |= (0xA << 18);
-    GPIOA->OSPEEDR |= (0xA << 18);
-    GPIOA->AFR[1] = (0x77 << 4);
-
-    UART1->CR1 |= (1 << 13);
-    UART1->CR2 &= ~(3 << 12);
-    UART1->BRR = (SysCoreClk/BaudRate) + 1;
-    UART1->CR1 |= (1 << 3);
-}
-
-void UART1_Tx(uint8_t data)
-{
-    //while (!(USART1_SR & (1 << 7)));
-
-    UART1->DR = data;
-    while (!(UART1->SR & (1 << 6)));
 }

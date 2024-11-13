@@ -139,6 +139,8 @@ typedef struct
 #define TIM11_BASE_ADDR     (0x40014800)
 
 #define USART1_BASE_ADDR    (0x40011000)
+#define USART2_BASE_ADDR    (0x40004400)
+#define USART6_BASE_ADDR    (0x40011400)
 
 /*********************************************************************************************************************/
 /*      Peripheral declaration                                                                                               */
@@ -155,7 +157,9 @@ typedef struct
 
 #define TIM11       ((TIM_TypeDef*) TIM11_BASE_ADDR)
 
-#define UART1       ((USART_TypeDef*) USART1_BASE_ADDR)
+#define USART1       ((USART_TypeDef*) USART1_BASE_ADDR)
+#define USART2       ((USART_TypeDef*) USART2_BASE_ADDR)
+#define USART6       ((USART_TypeDef*) USART6_BASE_ADDR)
 
 /*********************************************************************************************************************/
 /*      Bit definition                                                                                               */
