@@ -58,13 +58,15 @@ MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 AS_DEFS = 
 
 # C defines
-C_DEFS =
+C_DEFS =	-DSTM32F401xC
 
 # AS includes
 AS_INCLUDES = 
 
 # C includes
-C_INCLUDES = -Iinc/
+C_INCLUDES =	-Idriver/Core/ \
+				-Idriver/Device/ \
+				-Iinc
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

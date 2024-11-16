@@ -1,6 +1,11 @@
-#include "stm32f401.h"
+#include "stm32f401xc.h"
 
-void SystemInit()
+void SystemInit(void)
 {
-    
+
+}
+
+void SystemCoreClockUpdate(void)
+{
+
 }
