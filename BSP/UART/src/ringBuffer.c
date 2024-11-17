@@ -38,5 +38,5 @@ uint8_t ringBuffer_Read(ringBuffer_Typedef* buff)
         return data;
     }
     
-    return '\0';
+    return 0xFF;
 }

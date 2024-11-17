@@ -14,7 +14,7 @@
 /*
     set value as 1 to enable interrupt
 */
-#define UART1_INTERRUPT_ENABLE 1
+#define UART1_INTERRUPT_ENABLE 0
 #define UART2_INTERRUPT_ENABLE 0
 #define UART6_INTERRUPT_ENABLE 1
 

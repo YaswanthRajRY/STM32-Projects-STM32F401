@@ -125,15 +125,11 @@ void USART1_IRQHandler(void)
 
     if (USART1->SR & USART_SR_RXNE)
     {
+        uint8_t Rx_data = USART1->DR;
         if (!(ringBuffer_isFull(&UART1_Buff)))
         {
-            uint8_t Rx_data = USART1->DR;
             ringBuffer_Write(&UART1_Buff, Rx_data);
         }
-    }
-    else
-    {
-        //uint8_t discard = USART1->DR;
     }
 }
 #endif
@@ -156,15 +152,11 @@ void USART2_IRQHandler(void)
 
     if (USART2->SR & USART_SR_RXNE)
     {
+        uint8_t Rx_data = USART2->DR;
         if (!(ringBuffer_isFull(&UART2_Buff)))
         {
-            uint8_t Rx_data = USART2->DR;
             ringBuffer_Write(&UART2_Buff, Rx_data);
         }
-    }
-    else
-    {
-        //uint8_t discard = USART2->DR;
     }
 }
 #endif
@@ -187,15 +179,11 @@ void USART6_IRQHandler(void)
 
     if (USART6->SR & USART_SR_RXNE)
     {
+        uint8_t Rx_data = USART6->DR;
         if (!(ringBuffer_isFull(&UART6_Buff)))
         {
-            uint8_t Rx_data = USART6->DR;
             ringBuffer_Write(&UART6_Buff, Rx_data);
         }
-    }
-    else
-    {
-        //uint8_t discard = USART2->DR;
     }
 }
 #endif

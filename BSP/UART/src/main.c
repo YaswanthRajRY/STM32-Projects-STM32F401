@@ -18,7 +18,6 @@ UART_Typedef UART6_config = {
         .NoStopBit = 1                  // stop bit
 };
 
-ringBuffer_Typedef UART1_Buff;
 ringBuffer_Typedef UART6_Buff;
 
 int main(void)
@@ -32,27 +31,21 @@ int main(void)
     UART_init(UART1, &UART1_config);    // setup UART 1
     UART_init(UART6, &UART6_config);    // setup UART 1
 
-    ringBuffer_init(&UART1_Buff);       // setup ring buffer for UART 1 
     ringBuffer_init(&UART6_Buff);       // setup ring buffer for UART 2
 
     while (1)
     {
+        UART_EnableInterrupts_Rx(UART6);     // enable interrupts to receive incoming data
         char* s = "Vanakam da maplai! UART 1 la irunthu :)\n\r";
         while (*s)
         {
-            ringBuffer_Write(&UART1_Buff, *s);          // write data into buffer 
+            UART_Write(UART1, *s);          // write data into buffer 
             s++;
         }
-        UART_EnableInterrupts(UART1);                   // enable interrupts to start transmission
 
-        UART_EnableInterrupts(UART6);                   // enable interrupts to receive incoming data
-        while (!ringBuffer_isEmpty(&UART6_Buff))
-        {
-            uint8_t data = ringBuffer_Read(&UART6_Buff);
-            ringBuffer_Write(&UART6_Buff, data);        // write received data into UART 6 buffer
-        }
-        
-        Delay_ms(1000);                                 // 1sec delay
+        UART_EnableInterrupts_Tx(UART6);    // enable interrupts to transmit data
+      
+        Delay_ms(1000);                     // 1sec delay
     }
 }
 
