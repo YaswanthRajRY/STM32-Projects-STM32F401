@@ -1,20 +1,4 @@
 #include "main.h"
-#include "UART.h"
-#include "ringBuffer.h"
-
-#define PLLM            (25U)
-#define PLLN            (252U << 6)
-#define PLLP            (1U << 17)
-#define PSC_VALUE       41
-#define ARR_VALUE       0xFFFF
-#define SysCoreClk      42000000UL
-
-void SysClockConfig_42Mhz(void);
-void timerConfig(void);
-void GPIOconfig(void);
-void Delay_us(uint16_t);
-void Delay_ms(uint16_t);
-void UART1_Tx(uint8_t);
 
 UART_Typedef UART1_config = {
         .baudRate = 9600,               // baud rate
@@ -102,15 +86,15 @@ void SysClockConfig_42Mhz()
 
 void GPIOconfig()
 {
-    RCC->AHB1ENR |= 1;              // enable gpio port A clock
+    RCC->AHB1ENR |= 1;                      // enable gpio port A clock
 
-    GPIOA->MODER |= (0xA << 18);    // mode as alternate function 
-    GPIOA->OSPEEDR |= (0xA << 18);  // high speed mode
-    GPIOA->AFR[1] |= (0x77 << 4);   // AF7 for UART 1
+    GPIOA->MODER |= (0xA << 18);            // mode as alternate function 
+    GPIOA->OSPEEDR |= (0xA << 18);          // high speed mode
+    GPIOA->AFR[1] |= (0x77 << 4);           // AF7 for UART 1
 
-    GPIOA->MODER |= (0xA << 22);    // mode as alternate function 
-    GPIOA->OSPEEDR |= (0xA << 22);  // high speed mode
-    GPIOA->AFR[1] |= 0x00088000;    // AF7 for UART 1
+    GPIOA->MODER |= (0xA << 22);            // mode as alternate function 
+    GPIOA->OSPEEDR |= (0xA << 22);          // high speed mode
+    GPIOA->AFR[1] |= 0x00088000;            // AF7 for UART 1
 }
 
 void timerConfig()
