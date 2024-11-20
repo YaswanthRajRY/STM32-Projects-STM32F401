@@ -1,25 +1,69 @@
 #include "main.h"
 
 SPIconfig_Typedef SPI1_config = {
-    .peripheralClock = SysCoreClk,
-    .baudRatePrescaler = PRE_2,
-    .operationMode = MASTER,
-    .dataOrder = 0,
-    .dataFrameFormat = Bit_8,
-    .SPImode = MODE_0,
-    .TIenable = 0
+    .baudRatePrescaler = PRE_256,       // BR 256
+    .operationMode = MASTER,            // SPI as master
+    .dataOrder = 0,                     // MSB first
+    .dataFrameFormat = Bit_8,           // 8 bit data frame
+    .SPImode = MODE_2,                  // CPOL->1 & CPHA->0
+    .TIenable = 0,                      // Motorola mode
+    .softwareNSS = 0                    // Software NSS diabled
 };
+
+SPIconfig_Typedef SPI2_config = {
+    .operationMode = SLAVE,             // SPI as slave
+    .dataOrder = 0,                     // MSB first
+    .dataFrameFormat = Bit_8,           // 8 bit data frame
+    .SPImode = MODE_2,                  // CPOL->1 & CPHA->0
+    .TIenable = 0,                      // Motorola mode
+    .softwareNSS = 0                    // Software NSS diabled
+};
+
+/*
+UART_Typedef UART1_config = {
+    .baudRate = 9600,
+    .peripheralClock = SysCoreClk,
+    .mode = UART_TX,
+    .NoStopBit = 1
+};
+*/
 
 int main(void)
 {
-    SysClockConfig_42Mhz();
-    timerConfig();
-    GPIOconfig();
-    SPI_init(SPI_1, &SPI1_config);
+    SysClockConfig_42Mhz();                     // set clock
+
+    timerConfig();                              // timer configuration for delay
+
+    GPIOconfig();                               // config gpio ports for SPI opertion
+
+    //UART_init(UART1, &UART1_config);
+
+    SPI_init(SPI_1, &SPI1_config);              // Setup SPI 1
+    SPI_init(SPI_2, &SPI2_config);              // Setup SPI 2
+
+    uint8_t data;
 
     while (1)
     {
-        
+        SPI_Enable(SPI_1);                      // enable SPI
+        SPI_Enable(SPI_2);
+
+        char* str = "Hello World\n\r";
+        while (*str)
+        {
+            SPI_Write(SPI_1, *str++);           // transmit data from SPI 1
+            if (GPIOB->IDR & GPIO_IDR_ID12)     // if NSS goes Low to High (i.e) Master deselects the slave
+            {
+                break;
+            }
+            data = SPI_Read(SPI_2);             // receive data from SPI 2
+            //UART_Write(UART1, data);            // UART to see the receive data in serial monitor
+        }
+
+        SPI_Disable(SPI_1);                     // disable SPI
+        SPI_Disable(SPI_2);
+
+        Delay_ms(1000);                         // 1s delay
     }
 }
 
@@ -54,14 +98,55 @@ void SysClockConfig_42Mhz()
 void GPIOconfig()
 {
     RCC->AHB1ENR |= 1;                      // enable gpio port A clock
-
+    RCC->AHB1ENR |= (1 << 1);               // enable gpio port B clock
+/*
     GPIOA->MODER |= (0xA << 18);            // mode as alternate function 
     GPIOA->OSPEEDR |= (0xA << 18);          // high speed mode
     GPIOA->AFR[1] |= (0x77 << 4);           // AF7 for UART 1
+*/    
+    // For SPI-1 port A
+    // mode as alternate function
+    GPIOA->MODER |= GPIO_MODER_MODE4_1 |                // NSS
+                    GPIO_MODER_MODE5_1 |                // Clk
+                    GPIO_MODER_MODE6_1 |                // MISO
+                    GPIO_MODER_MODE7_1;                 // MOSI
+    
+    GPIOA->PUPDR |= GPIO_PUPDR_PUPD6_1;                 // MISO Set Pull-Up
+    GPIOA->PUPDR |= GPIO_PUPDR_PUPD4_0;                 // NSS Set Pull-Up
 
-    GPIOA->MODER |= (0xA << 22);            // mode as alternate function 
-    GPIOA->OSPEEDR |= (0xA << 22);          // high speed mode
-    GPIOA->AFR[1] |= 0x00088000;            // AF7 for UART 1
+    //high speed mode
+    GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR4_1 |        // NSS
+                      GPIO_OSPEEDER_OSPEEDR5_1 |        // Clk
+                      GPIO_OSPEEDER_OSPEEDR6_1 |        // MISO
+                      GPIO_OSPEEDER_OSPEEDR7_1;         // MOSI
+
+    // AF5 for SPI 1
+    GPIOA->AFR[0] |= (5 << GPIO_AFRL_AFSEL4_Pos) |      // NSS
+                     (5 << GPIO_AFRL_AFSEL5_Pos) |      // Clk
+                     (5 << GPIO_AFRL_AFSEL6_Pos) |      // MISO
+                     (5 << GPIO_AFRL_AFSEL7_Pos);       // MOSI
+
+    // For SPI-2 port B
+    // mode as alternate function
+    GPIOB->MODER |= GPIO_MODER_MODE12_1 |               // NSS
+                    GPIO_MODER_MODE13_1 |               // Clk
+                    GPIO_MODER_MODE14_1 |               // MISO
+                    GPIO_MODER_MODE15_1;                // MOSI
+    
+    GPIOB->PUPDR |= GPIO_PUPDR_PUPD14_1;                // MISO Set Pull-Up
+    GPIOB->PUPDR |= GPIO_PUPDR_PUPD12_0;                // NSS Set Pull-Up
+
+    // high speed mode
+    GPIOB->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR12_1 |       // NSS
+                      GPIO_OSPEEDER_OSPEEDR13_1 |       // Clk
+                      GPIO_OSPEEDER_OSPEEDR14_1 |       // MISO
+                      GPIO_OSPEEDER_OSPEEDR15_1;        // MOSI
+
+    // AF5 for SPI 2
+    GPIOB->AFR[1] |= (5 << GPIO_AFRH_AFSEL12_Pos) |     // NSS
+                     (5 << GPIO_AFRH_AFSEL13_Pos) |     // Clk
+                     (5 << GPIO_AFRH_AFSEL14_Pos) |     // MISO
+                     (5 << GPIO_AFRH_AFSEL15_Pos);      // MOSI
 }
 
 void timerConfig()

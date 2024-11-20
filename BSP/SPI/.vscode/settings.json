@@ -1,0 +1,7 @@
+{
+    "C_Cpp.errorSquiggles": "enabled",
+    "files.associations": {
+        "main.h": "c",
+        "stm32f401xc.h": "c"
+    }
+}
