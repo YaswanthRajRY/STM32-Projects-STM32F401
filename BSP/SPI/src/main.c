@@ -36,7 +36,7 @@ int main(void)
 
     GPIOconfig();                               // config gpio ports for SPI opertion
 
-    //UART_init(UART1, &UART1_config);
+    //UART_init(UART1, &UART1_config);            // UART to see the receive data in serial monitor
 
     SPI_init(SPI_1, &SPI1_config);              // Setup SPI 1
     SPI_init(SPI_2, &SPI2_config);              // Setup SPI 2
@@ -52,10 +52,12 @@ int main(void)
         while (*str)
         {
             SPI_Write(SPI_1, *str++);           // transmit data from SPI 1
+            SPI_Read(SPI_1);                    // Read DR to clear over right flag being set
             if (GPIOB->IDR & GPIO_IDR_ID12)     // if NSS goes Low to High (i.e) Master deselects the slave
             {
                 break;
             }
+            SPI_Write(SPI_2, 0xFF);             // Send dummy data from MISO salve to master
             data = SPI_Read(SPI_2);             // receive data from SPI 2
             //UART_Write(UART1, data);            // UART to see the receive data in serial monitor
         }

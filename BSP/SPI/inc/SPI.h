@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 #include "stm32f401xc.h"
+//#include "ringringBuffer.h"
+
+#define SPI_BUFFER_SIZE 64
 
 /*
     macros contains SPI address
@@ -10,6 +13,29 @@
 #define SPI_1 (void*)(SPI1_BASE)
 #define SPI_2 (void*)(SPI2_BASE)
 #define SPI_3 (void*)(SPI3_BASE)
+
+/*
+    set value as 1 to enable interrupt
+*/
+#define SPI1_INTERRUPT_ENABLE 0
+#define SPI2_INTERRUPT_ENABLE 0
+#define SPI3_INTERRUPT_ENABLE 0
+
+/*
+    use SPIx_Buff to create ring buffer
+    ex: (in main code)
+    ringBuffer_Typedef SPI1_Buff;
+*/
+#if SPI1_INTERRUPT_ENABLE
+extern ringBuffer_Typedef SPI1_Buff;
+#endif
+#if SPI2_INTERRUPT_ENABLE
+extern ringBuffer_Typedef SPI2_Buff;
+#endif
+#if SPI3_INTERRUPT_ENABLE
+extern ringBuffer_Typedef SPI3_Buff;
+#endif
+
 
 /*
     use declared enum to select SPI operation mode
