@@ -1,0 +1,311 @@
+ARM GAS  /tmp/cc2JSegv.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"ringBuffer.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.ringBuffer_init,"ax",%progbits
+  18              		.align	1
+  19              		.global	ringBuffer_init
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	ringBuffer_init:
+  27              	.LVL0:
+  28              	.LFB0:
+  29              		.file 1 "src/ringBuffer.c"
+   1:src/ringBuffer.c **** #include "ringBuffer.h"
+   2:src/ringBuffer.c **** 
+   3:src/ringBuffer.c **** /****************************** Buffer initialization *******************************/
+   4:src/ringBuffer.c **** void ringBuffer_init(ringBuffer_Typedef* buff)
+   5:src/ringBuffer.c **** {
+  30              		.loc 1 5 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+   6:src/ringBuffer.c ****     buff->head = 0;
+  35              		.loc 1 6 5 view .LVU1
+  36              		.loc 1 6 16 is_stmt 0 view .LVU2
+  37 0000 0023     		movs	r3, #0
+  38 0002 80F84030 		strb	r3, [r0, #64]
+   7:src/ringBuffer.c ****     buff->tail = 0;
+  39              		.loc 1 7 5 is_stmt 1 view .LVU3
+  40              		.loc 1 7 16 is_stmt 0 view .LVU4
+  41 0006 80F84130 		strb	r3, [r0, #65]
+   8:src/ringBuffer.c **** }
+  42              		.loc 1 8 1 view .LVU5
+  43 000a 7047     		bx	lr
+  44              		.cfi_endproc
+  45              	.LFE0:
+  47              		.section	.text.ringBuffer_isFull,"ax",%progbits
+  48              		.align	1
+  49              		.global	ringBuffer_isFull
+  50              		.syntax unified
+  51              		.thumb
+ARM GAS  /tmp/cc2JSegv.s 			page 2
+
+
+  52              		.thumb_func
+  53              		.fpu fpv4-sp-d16
+  55              	ringBuffer_isFull:
+  56              	.LVL1:
+  57              	.LFB1:
+   9:src/ringBuffer.c **** 
+  10:src/ringBuffer.c **** /********************************** Buffer flags *************************************/
+  11:src/ringBuffer.c **** uint8_t ringBuffer_isFull(ringBuffer_Typedef* buff)
+  12:src/ringBuffer.c **** {
+  58              		.loc 1 12 1 is_stmt 1 view -0
+  59              		.cfi_startproc
+  60              		@ args = 0, pretend = 0, frame = 0
+  61              		@ frame_needed = 0, uses_anonymous_args = 0
+  62              		@ link register save eliminated.
+  13:src/ringBuffer.c ****     uint8_t nextHead = (buff->head + 1) % MAX_SIZE_RING_BUFFER;
+  63              		.loc 1 13 5 view .LVU7
+  64              		.loc 1 13 29 is_stmt 0 view .LVU8
+  65 0000 90F84030 		ldrb	r3, [r0, #64]	@ zero_extendqisi2
+  66              		.loc 1 13 36 view .LVU9
+  67 0004 0133     		adds	r3, r3, #1
+  68              		.loc 1 13 41 view .LVU10
+  69 0006 5A42     		rsbs	r2, r3, #0
+  70 0008 03F03F03 		and	r3, r3, #63
+  71 000c 02F03F02 		and	r2, r2, #63
+  72 0010 58BF     		it	pl
+  73 0012 5342     		rsbpl	r3, r2, #0
+  74              		.loc 1 13 13 view .LVU11
+  75 0014 DBB2     		uxtb	r3, r3
+  76              	.LVL2:
+  14:src/ringBuffer.c ****     return (nextHead == buff->tail);
+  77              		.loc 1 14 5 is_stmt 1 view .LVU12
+  78              		.loc 1 14 29 is_stmt 0 view .LVU13
+  79 0016 90F84100 		ldrb	r0, [r0, #65]	@ zero_extendqisi2
+  80              	.LVL3:
+  15:src/ringBuffer.c **** }
+  81              		.loc 1 15 1 view .LVU14
+  82 001a 9842     		cmp	r0, r3
+  83 001c 14BF     		ite	ne
+  84 001e 0020     		movne	r0, #0
+  85 0020 0120     		moveq	r0, #1
+  86 0022 7047     		bx	lr
+  87              		.cfi_endproc
+  88              	.LFE1:
+  90              		.section	.text.ringBuffer_isEmpty,"ax",%progbits
+  91              		.align	1
+  92              		.global	ringBuffer_isEmpty
+  93              		.syntax unified
+  94              		.thumb
+  95              		.thumb_func
+  96              		.fpu fpv4-sp-d16
+  98              	ringBuffer_isEmpty:
+  99              	.LVL4:
+ 100              	.LFB2:
+  16:src/ringBuffer.c **** 
+  17:src/ringBuffer.c **** uint8_t ringBuffer_isEmpty(ringBuffer_Typedef* buff)
+  18:src/ringBuffer.c **** {
+ 101              		.loc 1 18 1 is_stmt 1 view -0
+ARM GAS  /tmp/cc2JSegv.s 			page 3
+
+
+ 102              		.cfi_startproc
+ 103              		@ args = 0, pretend = 0, frame = 0
+ 104              		@ frame_needed = 0, uses_anonymous_args = 0
+ 105              		@ link register save eliminated.
+  19:src/ringBuffer.c ****     return (buff->head == buff->tail);
+ 106              		.loc 1 19 5 view .LVU16
+ 107              		.loc 1 19 17 is_stmt 0 view .LVU17
+ 108 0000 90F84020 		ldrb	r2, [r0, #64]	@ zero_extendqisi2
+ 109              		.loc 1 19 31 view .LVU18
+ 110 0004 90F84100 		ldrb	r0, [r0, #65]	@ zero_extendqisi2
+ 111              	.LVL5:
+  20:src/ringBuffer.c **** }
+ 112              		.loc 1 20 1 view .LVU19
+ 113 0008 8242     		cmp	r2, r0
+ 114 000a 14BF     		ite	ne
+ 115 000c 0020     		movne	r0, #0
+ 116 000e 0120     		moveq	r0, #1
+ 117 0010 7047     		bx	lr
+ 118              		.cfi_endproc
+ 119              	.LFE2:
+ 121              		.section	.text.ringBuffer_Write,"ax",%progbits
+ 122              		.align	1
+ 123              		.global	ringBuffer_Write
+ 124              		.syntax unified
+ 125              		.thumb
+ 126              		.thumb_func
+ 127              		.fpu fpv4-sp-d16
+ 129              	ringBuffer_Write:
+ 130              	.LVL6:
+ 131              	.LFB3:
+  21:src/ringBuffer.c **** 
+  22:src/ringBuffer.c **** /****************************** Buffer read and write *******************************/
+  23:src/ringBuffer.c **** void ringBuffer_Write(ringBuffer_Typedef* buff, uint8_t data)
+  24:src/ringBuffer.c **** {
+ 132              		.loc 1 24 1 is_stmt 1 view -0
+ 133              		.cfi_startproc
+ 134              		@ args = 0, pretend = 0, frame = 0
+ 135              		@ frame_needed = 0, uses_anonymous_args = 0
+ 136              		.loc 1 24 1 is_stmt 0 view .LVU21
+ 137 0000 38B5     		push	{r3, r4, r5, lr}
+ 138              	.LCFI0:
+ 139              		.cfi_def_cfa_offset 16
+ 140              		.cfi_offset 3, -16
+ 141              		.cfi_offset 4, -12
+ 142              		.cfi_offset 5, -8
+ 143              		.cfi_offset 14, -4
+ 144 0002 0446     		mov	r4, r0
+ 145 0004 0D46     		mov	r5, r1
+  25:src/ringBuffer.c ****     if (!(ringBuffer_isFull(buff)))
+ 146              		.loc 1 25 5 is_stmt 1 view .LVU22
+ 147              		.loc 1 25 11 is_stmt 0 view .LVU23
+ 148 0006 FFF7FEFF 		bl	ringBuffer_isFull
+ 149              	.LVL7:
+ 150              		.loc 1 25 8 view .LVU24
+ 151 000a 60B9     		cbnz	r0, .L4
+  26:src/ringBuffer.c ****     {
+  27:src/ringBuffer.c ****         buff->buffer[buff->head] = data;
+ARM GAS  /tmp/cc2JSegv.s 			page 4
+
+
+ 152              		.loc 1 27 9 is_stmt 1 view .LVU25
+ 153              		.loc 1 27 26 is_stmt 0 view .LVU26
+ 154 000c 94F84030 		ldrb	r3, [r4, #64]	@ zero_extendqisi2
+ 155              		.loc 1 27 34 view .LVU27
+ 156 0010 E554     		strb	r5, [r4, r3]
+  28:src/ringBuffer.c ****         buff->head = ((buff->head + 1) % MAX_SIZE_RING_BUFFER);
+ 157              		.loc 1 28 9 is_stmt 1 view .LVU28
+ 158              		.loc 1 28 35 is_stmt 0 view .LVU29
+ 159 0012 0133     		adds	r3, r3, #1
+ 160              		.loc 1 28 40 view .LVU30
+ 161 0014 5A42     		rsbs	r2, r3, #0
+ 162 0016 03F03F03 		and	r3, r3, #63
+ 163 001a 02F03F02 		and	r2, r2, #63
+ 164 001e 58BF     		it	pl
+ 165 0020 5342     		rsbpl	r3, r2, #0
+ 166              		.loc 1 28 20 view .LVU31
+ 167 0022 84F84030 		strb	r3, [r4, #64]
+ 168              	.L4:
+  29:src/ringBuffer.c ****     }
+  30:src/ringBuffer.c **** }
+ 169              		.loc 1 30 1 view .LVU32
+ 170 0026 38BD     		pop	{r3, r4, r5, pc}
+ 171              		.loc 1 30 1 view .LVU33
+ 172              		.cfi_endproc
+ 173              	.LFE3:
+ 175              		.section	.text.ringBuffer_Read,"ax",%progbits
+ 176              		.align	1
+ 177              		.global	ringBuffer_Read
+ 178              		.syntax unified
+ 179              		.thumb
+ 180              		.thumb_func
+ 181              		.fpu fpv4-sp-d16
+ 183              	ringBuffer_Read:
+ 184              	.LVL8:
+ 185              	.LFB4:
+  31:src/ringBuffer.c **** 
+  32:src/ringBuffer.c **** uint8_t ringBuffer_Read(ringBuffer_Typedef* buff)
+  33:src/ringBuffer.c **** {
+ 186              		.loc 1 33 1 is_stmt 1 view -0
+ 187              		.cfi_startproc
+ 188              		@ args = 0, pretend = 0, frame = 0
+ 189              		@ frame_needed = 0, uses_anonymous_args = 0
+ 190              		.loc 1 33 1 is_stmt 0 view .LVU35
+ 191 0000 10B5     		push	{r4, lr}
+ 192              	.LCFI1:
+ 193              		.cfi_def_cfa_offset 8
+ 194              		.cfi_offset 4, -8
+ 195              		.cfi_offset 14, -4
+ 196 0002 0446     		mov	r4, r0
+  34:src/ringBuffer.c ****     if (!(ringBuffer_isEmpty(buff)))
+ 197              		.loc 1 34 5 is_stmt 1 view .LVU36
+ 198              		.loc 1 34 11 is_stmt 0 view .LVU37
+ 199 0004 FFF7FEFF 		bl	ringBuffer_isEmpty
+ 200              	.LVL9:
+ 201              		.loc 1 34 8 view .LVU38
+ 202 0008 08B1     		cbz	r0, .L11
+  35:src/ringBuffer.c ****     {
+ARM GAS  /tmp/cc2JSegv.s 			page 5
+
+
+  36:src/ringBuffer.c ****         uint8_t data = buff->buffer[buff->tail];
+  37:src/ringBuffer.c ****         buff->tail = ((buff->tail + 1) % MAX_SIZE_RING_BUFFER);
+  38:src/ringBuffer.c ****         return data;
+  39:src/ringBuffer.c ****     }
+  40:src/ringBuffer.c ****     
+  41:src/ringBuffer.c ****     return 0xFF;
+ 203              		.loc 1 41 12 view .LVU39
+ 204 000a FF20     		movs	r0, #255
+ 205              	.L8:
+  42:src/ringBuffer.c **** }...
+ 206              		.loc 1 42 1 view .LVU40
+ 207 000c 10BD     		pop	{r4, pc}
+ 208              	.LVL10:
+ 209              	.L11:
+ 210              	.LBB2:
+  36:src/ringBuffer.c ****         uint8_t data = buff->buffer[buff->tail];
+ 211              		.loc 1 36 9 is_stmt 1 view .LVU41
+  36:src/ringBuffer.c ****         uint8_t data = buff->buffer[buff->tail];
+ 212              		.loc 1 36 41 is_stmt 0 view .LVU42
+ 213 000e 94F84130 		ldrb	r3, [r4, #65]	@ zero_extendqisi2
+  36:src/ringBuffer.c ****         uint8_t data = buff->buffer[buff->tail];
+ 214              		.loc 1 36 17 view .LVU43
+ 215 0012 E05C     		ldrb	r0, [r4, r3]	@ zero_extendqisi2
+ 216              	.LVL11:
+  37:src/ringBuffer.c ****         buff->tail = ((buff->tail + 1) % MAX_SIZE_RING_BUFFER);
+ 217              		.loc 1 37 9 is_stmt 1 view .LVU44
+  37:src/ringBuffer.c ****         buff->tail = ((buff->tail + 1) % MAX_SIZE_RING_BUFFER);
+ 218              		.loc 1 37 35 is_stmt 0 view .LVU45
+ 219 0014 0133     		adds	r3, r3, #1
+  37:src/ringBuffer.c ****         buff->tail = ((buff->tail + 1) % MAX_SIZE_RING_BUFFER);
+ 220              		.loc 1 37 40 view .LVU46
+ 221 0016 5A42     		rsbs	r2, r3, #0
+ 222 0018 03F03F03 		and	r3, r3, #63
+ 223 001c 02F03F02 		and	r2, r2, #63
+ 224 0020 58BF     		it	pl
+ 225 0022 5342     		rsbpl	r3, r2, #0
+  37:src/ringBuffer.c ****         buff->tail = ((buff->tail + 1) % MAX_SIZE_RING_BUFFER);
+ 226              		.loc 1 37 20 view .LVU47
+ 227 0024 84F84130 		strb	r3, [r4, #65]
+  38:src/ringBuffer.c ****         return data;
+ 228              		.loc 1 38 9 is_stmt 1 view .LVU48
+  38:src/ringBuffer.c ****         return data;
+ 229              		.loc 1 38 16 is_stmt 0 view .LVU49
+ 230 0028 F0E7     		b	.L8
+ 231              	.LBE2:
+ 232              		.cfi_endproc
+ 233              	.LFE4:
+ 235              		.text
+ 236              	.Letext0:
+ 237              		.file 2 "inc/ringBuffer.h"
+ 238              		.file 3 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ARM GAS  /tmp/cc2JSegv.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ringBuffer.c
+     /tmp/cc2JSegv.s:18     .text.ringBuffer_init:0000000000000000 $t
+     /tmp/cc2JSegv.s:26     .text.ringBuffer_init:0000000000000000 ringBuffer_init
+     /tmp/cc2JSegv.s:48     .text.ringBuffer_isFull:0000000000000000 $t
+     /tmp/cc2JSegv.s:55     .text.ringBuffer_isFull:0000000000000000 ringBuffer_isFull
+     /tmp/cc2JSegv.s:91     .text.ringBuffer_isEmpty:0000000000000000 $t
+     /tmp/cc2JSegv.s:98     .text.ringBuffer_isEmpty:0000000000000000 ringBuffer_isEmpty
+     /tmp/cc2JSegv.s:122    .text.ringBuffer_Write:0000000000000000 $t
+     /tmp/cc2JSegv.s:129    .text.ringBuffer_Write:0000000000000000 ringBuffer_Write
+     /tmp/cc2JSegv.s:176    .text.ringBuffer_Read:0000000000000000 $t
+     /tmp/cc2JSegv.s:183    .text.ringBuffer_Read:0000000000000000 ringBuffer_Read
+
+NO UNDEFINED SYMBOLS
