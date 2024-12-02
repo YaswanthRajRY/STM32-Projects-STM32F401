@@ -1,0 +1,302 @@
+ARM GAS  /tmp/ccyZoR4x.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"system_stm32f401.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.SysClockConfig_42Mhz,"ax",%progbits
+  18              		.align	1
+  19              		.arch armv7e-m
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  23              		.fpu fpv4-sp-d16
+  25              	SysClockConfig_42Mhz:
+  26              	.LFB137:
+  27              		.file 1 "src/system_stm32f401.c"
+   1:src/system_stm32f401.c **** #include "main.h"
+   2:src/system_stm32f401.c **** 
+   3:src/system_stm32f401.c **** #define PLLM            (25U)
+   4:src/system_stm32f401.c **** #define PLLN            (252U << 6)
+   5:src/system_stm32f401.c **** #define PLLP            (1U << 17)
+   6:src/system_stm32f401.c **** 
+   7:src/system_stm32f401.c **** /************************************* Function to configure system clock *************************
+   8:src/system_stm32f401.c **** static void SysClockConfig_42Mhz()
+   9:src/system_stm32f401.c **** {
+  28              		.loc 1 9 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  10:src/system_stm32f401.c ****     RCC->CR |= RCC_CR_HSEON;                        // enable HSE
+  33              		.loc 1 10 5 view .LVU1
+  34              		.loc 1 10 13 is_stmt 0 view .LVU2
+  35 0000 1D4A     		ldr	r2, .L5
+  36 0002 1368     		ldr	r3, [r2]
+  37 0004 43F48033 		orr	r3, r3, #65536
+  38 0008 1360     		str	r3, [r2]
+  11:src/system_stm32f401.c ****     while (!(RCC->CR & RCC_CR_HSERDY));             // wait for HSE clock to be ready
+  39              		.loc 1 11 5 is_stmt 1 view .LVU3
+  40              	.L2:
+  41              		.loc 1 11 39 discriminator 1 view .LVU4
+  42              		.loc 1 11 11 discriminator 1 view .LVU5
+  43              		.loc 1 11 17 is_stmt 0 discriminator 1 view .LVU6
+  44 000a 1B4B     		ldr	r3, .L5
+  45 000c 1B68     		ldr	r3, [r3]
+  46              		.loc 1 11 11 discriminator 1 view .LVU7
+  47 000e 13F4003F 		tst	r3, #131072
+ARM GAS  /tmp/ccyZoR4x.s 			page 2
+
+
+  48 0012 FAD0     		beq	.L2
+  12:src/system_stm32f401.c ****     
+  13:src/system_stm32f401.c ****     RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_HSE;         // set HSE as a PLL clock source
+  49              		.loc 1 13 5 is_stmt 1 view .LVU8
+  50              		.loc 1 13 18 is_stmt 0 view .LVU9
+  51 0014 184B     		ldr	r3, .L5
+  52 0016 5A68     		ldr	r2, [r3, #4]
+  53 0018 42F48002 		orr	r2, r2, #4194304
+  54 001c 5A60     		str	r2, [r3, #4]
+  14:src/system_stm32f401.c **** 
+  15:src/system_stm32f401.c ****     RCC->APB1ENR |= RCC_APB1ENR_PWREN;              // enable PWR pheripheral clock
+  55              		.loc 1 15 5 is_stmt 1 view .LVU10
+  56              		.loc 1 15 18 is_stmt 0 view .LVU11
+  57 001e 1A6C     		ldr	r2, [r3, #64]
+  58 0020 42F08052 		orr	r2, r2, #268435456
+  59 0024 1A64     		str	r2, [r3, #64]
+  16:src/system_stm32f401.c ****     PWR->CR |= PWR_CR_VOS_1;                        // set VOS scale mode 2
+  60              		.loc 1 16 5 is_stmt 1 view .LVU12
+  61              		.loc 1 16 13 is_stmt 0 view .LVU13
+  62 0026 1549     		ldr	r1, .L5+4
+  63 0028 0A68     		ldr	r2, [r1]
+  64 002a 42F40042 		orr	r2, r2, #32768
+  65 002e 0A60     		str	r2, [r1]
+  17:src/system_stm32f401.c **** 
+  18:src/system_stm32f401.c ****     FLASH->ACR |= FLASH_ACR_LATENCY_2WS             // set Flash latency as 2 wait cycle
+  66              		.loc 1 18 5 is_stmt 1 view .LVU14
+  67              		.loc 1 18 16 is_stmt 0 view .LVU15
+  68 0030 01F5E631 		add	r1, r1, #117760
+  69 0034 0A68     		ldr	r2, [r1]
+  70 0036 42F4E062 		orr	r2, r2, #1792
+  71 003a 42F00202 		orr	r2, r2, #2
+  72 003e 0A60     		str	r2, [r1]
+  19:src/system_stm32f401.c ****                   | FLASH_ACR_DCEN                  // enable data cache 
+  20:src/system_stm32f401.c ****                   | FLASH_ACR_PRFTEN                // enable prefech
+  21:src/system_stm32f401.c ****                   | FLASH_ACR_ICEN;                 // enable instruction cache
+  22:src/system_stm32f401.c **** 
+  23:src/system_stm32f401.c ****     RCC->PLLCFGR |= PLLM | PLLN | PLLP;             // set multiplication and division factor
+  73              		.loc 1 23 5 is_stmt 1 view .LVU16
+  74              		.loc 1 23 18 is_stmt 0 view .LVU17
+  75 0040 5968     		ldr	r1, [r3, #4]
+  76 0042 0F4A     		ldr	r2, .L5+8
+  77 0044 0A43     		orrs	r2, r2, r1
+  78 0046 5A60     		str	r2, [r3, #4]
+  24:src/system_stm32f401.c **** 
+  25:src/system_stm32f401.c ****     RCC->CFGR |= RCC_CFGR_HPRE_DIV1                 // AHB div 1
+  79              		.loc 1 25 5 is_stmt 1 view .LVU18
+  80              		.loc 1 25 15 is_stmt 0 view .LVU19
+  81 0048 9A68     		ldr	r2, [r3, #8]
+  82 004a 9A60     		str	r2, [r3, #8]
+  26:src/system_stm32f401.c ****                  | RCC_CFGR_PPRE1_DIV1              // APB1 divi 1
+  27:src/system_stm32f401.c ****                  | RCC_CFGR_PPRE2_DIV1;             // APB2 div 1
+  28:src/system_stm32f401.c **** 
+  29:src/system_stm32f401.c ****     RCC->CR |= RCC_CR_PLLON;                        // enable PLL
+  83              		.loc 1 29 5 is_stmt 1 view .LVU20
+  84              		.loc 1 29 13 is_stmt 0 view .LVU21
+  85 004c 1A68     		ldr	r2, [r3]
+  86 004e 42F08072 		orr	r2, r2, #16777216
+ARM GAS  /tmp/ccyZoR4x.s 			page 3
+
+
+  87 0052 1A60     		str	r2, [r3]
+  30:src/system_stm32f401.c ****     while (!(RCC->CR & RCC_CR_PLLRDY));             // waith for PLL to be ready
+  88              		.loc 1 30 5 is_stmt 1 view .LVU22
+  89              	.L3:
+  90              		.loc 1 30 39 discriminator 1 view .LVU23
+  91              		.loc 1 30 11 discriminator 1 view .LVU24
+  92              		.loc 1 30 17 is_stmt 0 discriminator 1 view .LVU25
+  93 0054 084B     		ldr	r3, .L5
+  94 0056 1B68     		ldr	r3, [r3]
+  95              		.loc 1 30 11 discriminator 1 view .LVU26
+  96 0058 13F0007F 		tst	r3, #33554432
+  97 005c FAD0     		beq	.L3
+  31:src/system_stm32f401.c **** 
+  32:src/system_stm32f401.c ****     RCC->CFGR |= RCC_CFGR_SW_PLL;                   // set PLL as sys clock
+  98              		.loc 1 32 5 is_stmt 1 view .LVU27
+  99              		.loc 1 32 15 is_stmt 0 view .LVU28
+ 100 005e 064A     		ldr	r2, .L5
+ 101 0060 9368     		ldr	r3, [r2, #8]
+ 102 0062 43F00203 		orr	r3, r3, #2
+ 103 0066 9360     		str	r3, [r2, #8]
+  33:src/system_stm32f401.c ****     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_1);   // check status to confirm PLL is set a
+ 104              		.loc 1 33 5 is_stmt 1 view .LVU29
+ 105              	.L4:
+ 106              		.loc 1 33 57 discriminator 1 view .LVU30
+ 107              		.loc 1 33 11 discriminator 1 view .LVU31
+ 108              		.loc 1 33 16 is_stmt 0 discriminator 1 view .LVU32
+ 109 0068 034B     		ldr	r3, .L5
+ 110 006a 9B68     		ldr	r3, [r3, #8]
+ 111              		.loc 1 33 23 discriminator 1 view .LVU33
+ 112 006c 03F00C03 		and	r3, r3, #12
+ 113              		.loc 1 33 11 discriminator 1 view .LVU34
+ 114 0070 082B     		cmp	r3, #8
+ 115 0072 F9D1     		bne	.L4
+  34:src/system_stm32f401.c **** }
+ 116              		.loc 1 34 1 view .LVU35
+ 117 0074 7047     		bx	lr
+ 118              	.L6:
+ 119 0076 00BF     		.align	2
+ 120              	.L5:
+ 121 0078 00380240 		.word	1073887232
+ 122 007c 00700040 		.word	1073770496
+ 123 0080 193F0200 		.word	147225
+ 124              		.cfi_endproc
+ 125              	.LFE137:
+ 127              		.section	.text.gpioConfig,"ax",%progbits
+ 128              		.align	1
+ 129              		.syntax unified
+ 130              		.thumb
+ 131              		.thumb_func
+ 132              		.fpu fpv4-sp-d16
+ 134              	gpioConfig:
+ 135              	.LFB138:
+  35:src/system_stm32f401.c **** 
+  36:src/system_stm32f401.c **** /****************************************** Function to configure GPIO ****************************
+  37:src/system_stm32f401.c **** static void gpioConfig()
+  38:src/system_stm32f401.c **** {
+ 136              		.loc 1 38 1 is_stmt 1 view -0
+ARM GAS  /tmp/ccyZoR4x.s 			page 4
+
+
+ 137              		.cfi_startproc
+ 138              		@ args = 0, pretend = 0, frame = 0
+ 139              		@ frame_needed = 0, uses_anonymous_args = 0
+ 140              		@ link register save eliminated.
+  39:src/system_stm32f401.c ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;            // Enable Port B clock
+ 141              		.loc 1 39 5 view .LVU37
+ 142              		.loc 1 39 18 is_stmt 0 view .LVU38
+ 143 0000 054A     		ldr	r2, .L8
+ 144 0002 136B     		ldr	r3, [r2, #48]
+ 145 0004 43F00203 		orr	r3, r3, #2
+ 146 0008 1363     		str	r3, [r2, #48]
+  40:src/system_stm32f401.c **** 
+  41:src/system_stm32f401.c ****     GPIOB->MODER |= GPIO_MODER_MODE5_0 |
+ 147              		.loc 1 41 5 is_stmt 1 view .LVU39
+ 148              		.loc 1 41 18 is_stmt 0 view .LVU40
+ 149 000a A2F55052 		sub	r2, r2, #13312
+ 150 000e 1368     		ldr	r3, [r2]
+ 151 0010 43F4A843 		orr	r3, r3, #21504
+ 152 0014 1360     		str	r3, [r2]
+  42:src/system_stm32f401.c ****                     GPIO_MODER_MODE6_0 | 
+  43:src/system_stm32f401.c ****                     GPIO_MODER_MODE7_0;             // Configure as General purpose output mode
+  44:src/system_stm32f401.c **** }
+ 153              		.loc 1 44 1 view .LVU41
+ 154 0016 7047     		bx	lr
+ 155              	.L9:
+ 156              		.align	2
+ 157              	.L8:
+ 158 0018 00380240 		.word	1073887232
+ 159              		.cfi_endproc
+ 160              	.LFE138:
+ 162              		.section	.text.SystemInit,"ax",%progbits
+ 163              		.align	1
+ 164              		.global	SystemInit
+ 165              		.syntax unified
+ 166              		.thumb
+ 167              		.thumb_func
+ 168              		.fpu fpv4-sp-d16
+ 170              	SystemInit:
+ 171              	.LFB139:
+  45:src/system_stm32f401.c **** 
+  46:src/system_stm32f401.c **** /************************************** Function to initalize all config **************************
+  47:src/system_stm32f401.c **** void SystemInit(void)
+  48:src/system_stm32f401.c **** {
+ 172              		.loc 1 48 1 is_stmt 1 view -0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176 0000 08B5     		push	{r3, lr}
+ 177              	.LCFI0:
+ 178              		.cfi_def_cfa_offset 8
+ 179              		.cfi_offset 3, -8
+ 180              		.cfi_offset 14, -4
+  49:src/system_stm32f401.c ****     SysClockConfig_42Mhz();             // configure clock
+ 181              		.loc 1 49 5 view .LVU43
+ 182 0002 FFF7FEFF 		bl	SysClockConfig_42Mhz
+ 183              	.LVL0:
+  50:src/system_stm32f401.c ****     gpioConfig();                       // configure port b
+ARM GAS  /tmp/ccyZoR4x.s 			page 5
+
+
+ 184              		.loc 1 50 5 view .LVU44
+ 185 0006 FFF7FEFF 		bl	gpioConfig
+ 186              	.LVL1:
+  51:src/system_stm32f401.c ****     Log_init();                         // initialize UART 1 to use as Log for debugging
+ 187              		.loc 1 51 5 view .LVU45
+ 188 000a FFF7FEFF 		bl	Log_init
+ 189              	.LVL2:
+  52:src/system_stm32f401.c **** }
+ 190              		.loc 1 52 1 is_stmt 0 view .LVU46
+ 191 000e 08BD     		pop	{r3, pc}
+ 192              		.cfi_endproc
+ 193              	.LFE139:
+ 195              		.section	.text.SystemCoreClockUpdate,"ax",%progbits
+ 196              		.align	1
+ 197              		.global	SystemCoreClockUpdate
+ 198              		.syntax unified
+ 199              		.thumb
+ 200              		.thumb_func
+ 201              		.fpu fpv4-sp-d16
+ 203              	SystemCoreClockUpdate:
+ 204              	.LFB140:
+  53:src/system_stm32f401.c **** 
+  54:src/system_stm32f401.c **** void SystemCoreClockUpdate(void)
+  55:src/system_stm32f401.c **** {
+ 205              		.loc 1 55 1 is_stmt 1 view -0
+ 206              		.cfi_startproc
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 0, uses_anonymous_args = 0
+ 209              		@ link register save eliminated.
+  56:src/system_stm32f401.c **** 
+  57:src/system_stm32f401.c **** }
+ 210              		.loc 1 57 1 view .LVU48
+ 211 0000 7047     		bx	lr
+ 212              		.cfi_endproc
+ 213              	.LFE140:
+ 215              		.text
+ 216              	.Letext0:
+ 217              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 218              		.file 3 "/usr/include/newlib/sys/_stdint.h"
+ 219              		.file 4 "driver/Device/stm32f401xc.h"
+ 220              		.file 5 "inc/Log.h"
+ARM GAS  /tmp/ccyZoR4x.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 system_stm32f401.c
+     /tmp/ccyZoR4x.s:18     .text.SysClockConfig_42Mhz:0000000000000000 $t
+     /tmp/ccyZoR4x.s:25     .text.SysClockConfig_42Mhz:0000000000000000 SysClockConfig_42Mhz
+     /tmp/ccyZoR4x.s:121    .text.SysClockConfig_42Mhz:0000000000000078 $d
+     /tmp/ccyZoR4x.s:128    .text.gpioConfig:0000000000000000 $t
+     /tmp/ccyZoR4x.s:134    .text.gpioConfig:0000000000000000 gpioConfig
+     /tmp/ccyZoR4x.s:158    .text.gpioConfig:0000000000000018 $d
+     /tmp/ccyZoR4x.s:163    .text.SystemInit:0000000000000000 $t
+     /tmp/ccyZoR4x.s:170    .text.SystemInit:0000000000000000 SystemInit
+     /tmp/ccyZoR4x.s:196    .text.SystemCoreClockUpdate:0000000000000000 $t
+     /tmp/ccyZoR4x.s:203    .text.SystemCoreClockUpdate:0000000000000000 SystemCoreClockUpdate
+
+UNDEFINED SYMBOLS
+Log_init
