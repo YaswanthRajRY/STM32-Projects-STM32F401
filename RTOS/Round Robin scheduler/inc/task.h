@@ -28,6 +28,17 @@ typedef struct
 }TCB_Typedef;
 
 /*
+    Task state.
+*/
+enum state
+{
+    READY,
+    RUNNING,
+    BLOCKED,
+    SUSPENDED
+};
+
+/*
     This structure holds TCB and pointer to point next task
     in linked list
 */
@@ -42,5 +53,6 @@ typedef struct task
     func addr and task name is passed as argument
 */
 void createTask(void (*fn)(void), char* name);
+void create_idle_task();
 
 #endif

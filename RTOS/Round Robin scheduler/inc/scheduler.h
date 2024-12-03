@@ -9,5 +9,6 @@
     start scheduling tasks
 */
 void start_scheduler(void);
+void task_delay(uint32_t ms);
 
 #endif

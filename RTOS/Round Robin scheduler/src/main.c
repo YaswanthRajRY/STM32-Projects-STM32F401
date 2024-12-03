@@ -1,5 +1,7 @@
 #include "main.h"
 
+extern task_list* task_pointer;
+
 void task_1(void);                      // task function prototype
 void task_2(void);
 void task_3(void);
@@ -30,9 +32,9 @@ void task_1(void)                       // this function toggles Port B pin 5
     while (1)
     {
         GPIOB->BSRR |= GPIO_BSRR_BS5;
-        for (uint32_t j = 0; j<1000000; j++);
+        task_delay(1000);
         GPIOB->BSRR |= GPIO_BSRR_BR5;
-        for (uint32_t j = 0; j<1000000; j++);
+        task_delay(1000);
     }
 }
 
@@ -41,9 +43,9 @@ void task_2(void)                       // this function toggles Port B pin 6
     while (1)
     {
         GPIOB->BSRR |= GPIO_BSRR_BS6;
-        for (uint32_t j = 0; j<1000000; j++);
+        task_delay(500);
         GPIOB->BSRR |= GPIO_BSRR_BR6;
-        for (uint32_t j = 0; j<1000000; j++);
+        task_delay(500);
     }
 }
 
@@ -52,8 +54,8 @@ void task_3(void)                       // this function toggles Port B pin 7
     while (1)
     {
         GPIOB->BSRR |= GPIO_BSRR_BS7;
-        for (uint32_t j = 0; j<1000000; j++);
+        task_delay(1000);
         GPIOB->BSRR |= GPIO_BSRR_BR7;
-        for (uint32_t j = 0; j<1000000; j++);
+        task_delay(1000);
     }
 }

@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccgsrncb.s 			page 1
+ARM GAS  /tmp/ccZbuVxe.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccgsrncb.s 			page 1
   28:src/Log.c     ****     Log_c('\r');
   29:src/Log.c     **** }
   30:src/Log.c     **** 
-ARM GAS  /tmp/ccgsrncb.s 			page 2
+ARM GAS  /tmp/ccZbuVxe.s 			page 2
 
 
   31:src/Log.c     **** /*************************************** Display char ******************************************/
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccgsrncb.s 			page 1
   76              		.cfi_offset 4, -8
   77              		.cfi_offset 14, -4
   78 0002 0446     		mov	r4, r0
-ARM GAS  /tmp/ccgsrncb.s 			page 3
+ARM GAS  /tmp/ccZbuVxe.s 			page 3
 
 
   22:src/Log.c     ****     {
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccgsrncb.s 			page 1
  122              		.fpu fpv4-sp-d16
  124              	Log_i:
  125              	.LVL7:
-ARM GAS  /tmp/ccgsrncb.s 			page 4
+ARM GAS  /tmp/ccZbuVxe.s 			page 4
 
 
  126              	.LFB137:
@@ -238,7 +238,7 @@ ARM GAS  /tmp/ccgsrncb.s 			page 1
  175              	.LFB138:
   13:src/Log.c     ****     char string[10];
  176              		.loc 1 13 1 is_stmt 1 view -0
-ARM GAS  /tmp/ccgsrncb.s 			page 5
+ARM GAS  /tmp/ccZbuVxe.s 			page 5
 
 
  177              		.cfi_startproc
@@ -298,7 +298,7 @@ ARM GAS  /tmp/ccgsrncb.s 			page 1
   41:src/Log.c     **** void Log_init()
   42:src/Log.c     **** {
  224              		.loc 1 42 1 is_stmt 1 view -0
-ARM GAS  /tmp/ccgsrncb.s 			page 6
+ARM GAS  /tmp/ccZbuVxe.s 			page 6
 
 
  225              		.cfi_startproc
@@ -358,7 +358,7 @@ ARM GAS  /tmp/ccgsrncb.s 			page 1
  265 0038 22F44052 		bic	r2, r2, #12288
  266 003c 1A61     		str	r2, [r3, #16]
   57:src/Log.c     **** 
-ARM GAS  /tmp/ccgsrncb.s 			page 7
+ARM GAS  /tmp/ccZbuVxe.s 			page 7
 
 
   58:src/Log.c     ****     // Configure stop bit
@@ -400,26 +400,26 @@ ARM GAS  /tmp/ccgsrncb.s 			page 1
  295              		.file 3 "/usr/include/newlib/sys/_stdint.h"
  296              		.file 4 "driver/Device/stm32f401xc.h"
  297              		.file 5 "/usr/include/newlib/stdio.h"
-ARM GAS  /tmp/ccgsrncb.s 			page 8
+ARM GAS  /tmp/ccZbuVxe.s 			page 8
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 Log.c
-     /tmp/ccgsrncb.s:18     .text.Log_c:0000000000000000 $t
-     /tmp/ccgsrncb.s:26     .text.Log_c:0000000000000000 Log_c
-     /tmp/ccgsrncb.s:53     .text.Log_c:0000000000000010 $d
-     /tmp/ccgsrncb.s:58     .text.Log_s:0000000000000000 $t
-     /tmp/ccgsrncb.s:65     .text.Log_s:0000000000000000 Log_s
-     /tmp/ccgsrncb.s:113    .rodata.Log_i.str1.4:0000000000000000 $d
-     /tmp/ccgsrncb.s:117    .text.Log_i:0000000000000000 $t
-     /tmp/ccgsrncb.s:124    .text.Log_i:0000000000000000 Log_i
-     /tmp/ccgsrncb.s:161    .text.Log_i:000000000000001c $d
-     /tmp/ccgsrncb.s:166    .text.Log_p:0000000000000000 $t
-     /tmp/ccgsrncb.s:173    .text.Log_p:0000000000000000 Log_p
-     /tmp/ccgsrncb.s:210    .text.Log_p:000000000000001c $d
-     /tmp/ccgsrncb.s:215    .text.Log_init:0000000000000000 $t
-     /tmp/ccgsrncb.s:222    .text.Log_init:0000000000000000 Log_init
-     /tmp/ccgsrncb.s:286    .text.Log_init:0000000000000058 $d
+     /tmp/ccZbuVxe.s:18     .text.Log_c:0000000000000000 $t
+     /tmp/ccZbuVxe.s:26     .text.Log_c:0000000000000000 Log_c
+     /tmp/ccZbuVxe.s:53     .text.Log_c:0000000000000010 $d
+     /tmp/ccZbuVxe.s:58     .text.Log_s:0000000000000000 $t
+     /tmp/ccZbuVxe.s:65     .text.Log_s:0000000000000000 Log_s
+     /tmp/ccZbuVxe.s:113    .rodata.Log_i.str1.4:0000000000000000 $d
+     /tmp/ccZbuVxe.s:117    .text.Log_i:0000000000000000 $t
+     /tmp/ccZbuVxe.s:124    .text.Log_i:0000000000000000 Log_i
+     /tmp/ccZbuVxe.s:161    .text.Log_i:000000000000001c $d
+     /tmp/ccZbuVxe.s:166    .text.Log_p:0000000000000000 $t
+     /tmp/ccZbuVxe.s:173    .text.Log_p:0000000000000000 Log_p
+     /tmp/ccZbuVxe.s:210    .text.Log_p:000000000000001c $d
+     /tmp/ccZbuVxe.s:215    .text.Log_init:0000000000000000 $t
+     /tmp/ccZbuVxe.s:222    .text.Log_init:0000000000000000 Log_init
+     /tmp/ccZbuVxe.s:286    .text.Log_init:0000000000000058 $d
 
 UNDEFINED SYMBOLS
 sprintf
