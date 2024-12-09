@@ -1,4 +1,4 @@
-ARM GAS  /tmp/cc08YL0y.s 			page 1
+ARM GAS  /tmp/ccbiL0FK.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -58,7 +58,7 @@ ARM GAS  /tmp/cc08YL0y.s 			page 1
   16:src/task.c    ****         return -1;
   17:src/task.c    ****     }
   18:src/task.c    ****     current_stack_size = current_stack_size - 128;                  // allocate stack space
-ARM GAS  /tmp/cc08YL0y.s 			page 2
+ARM GAS  /tmp/ccbiL0FK.s 			page 2
 
 
   41              		.loc 1 18 5 is_stmt 1 view .LVU4
@@ -118,7 +118,7 @@ ARM GAS  /tmp/cc08YL0y.s 			page 1
   88              		.cfi_startproc
   89              		@ args = 0, pretend = 0, frame = 0
   90              		@ frame_needed = 0, uses_anonymous_args = 0
-ARM GAS  /tmp/cc08YL0y.s 			page 3
+ARM GAS  /tmp/ccbiL0FK.s 			page 3
 
 
   91              		@ link register save eliminated.
@@ -178,7 +178,7 @@ ARM GAS  /tmp/cc08YL0y.s 			page 1
  137              		.loc 1 34 37 view .LVU40
  138 003a 4360     		str	r3, [r0, #4]
  139 003c 0F4B     		ldr	r3, .L9
-ARM GAS  /tmp/cc08YL0y.s 			page 4
+ARM GAS  /tmp/ccbiL0FK.s 			page 4
 
 
  140 003e 42F8043C 		str	r3, [r2, #-4]
@@ -238,7 +238,7 @@ ARM GAS  /tmp/cc08YL0y.s 			page 1
   39:src/task.c    ****     {
  185              		.loc 1 39 21 discriminator 3 view .LVU62
  186 0072 DBB2     		uxtb	r3, r3
-ARM GAS  /tmp/cc08YL0y.s 			page 5
+ARM GAS  /tmp/ccbiL0FK.s 			page 5
 
 
  187              	.LVL8:
@@ -298,7 +298,7 @@ ARM GAS  /tmp/cc08YL0y.s 			page 1
  226 0008 1168     		ldr	r1, [r2]
  227              		.loc 1 56 25 view .LVU72
  228 000a 4861     		str	r0, [r1, #20]
-ARM GAS  /tmp/cc08YL0y.s 			page 6
+ARM GAS  /tmp/ccbiL0FK.s 			page 6
 
 
   57:src/task.c    ****         tcb->next = task_head;                                      // link last node to head
@@ -358,7 +358,7 @@ ARM GAS  /tmp/cc08YL0y.s 			page 1
  267              		.global	createTask
  268              		.syntax unified
  269              		.thumb
-ARM GAS  /tmp/cc08YL0y.s 			page 7
+ARM GAS  /tmp/ccbiL0FK.s 			page 7
 
 
  270              		.thumb_func
@@ -368,240 +368,248 @@ ARM GAS  /tmp/cc08YL0y.s 			page 1
  275              	.LFB140:
   61:src/task.c    **** 
   62:src/task.c    **** /*************************************** Function to create task **********************************
-  63:src/task.c    **** void createTask(void (*fn)(void), char* name)
+  63:src/task.c    **** void createTask(void (*fn)(void), char* name, uint8_t task_priority)
   64:src/task.c    **** {
  276              		.loc 1 64 1 is_stmt 1 view -0
  277              		.cfi_startproc
  278              		@ args = 0, pretend = 0, frame = 0
  279              		@ frame_needed = 0, uses_anonymous_args = 0
  280              		.loc 1 64 1 is_stmt 0 view .LVU85
- 281 0000 70B5     		push	{r4, r5, r6, lr}
+ 281 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
  282              	.LCFI0:
- 283              		.cfi_def_cfa_offset 16
- 284              		.cfi_offset 4, -16
- 285              		.cfi_offset 5, -12
- 286              		.cfi_offset 6, -8
- 287              		.cfi_offset 14, -4
- 288 0002 0646     		mov	r6, r0
- 289 0004 0D46     		mov	r5, r1
+ 283              		.cfi_def_cfa_offset 24
+ 284              		.cfi_offset 3, -24
+ 285              		.cfi_offset 4, -20
+ 286              		.cfi_offset 5, -16
+ 287              		.cfi_offset 6, -12
+ 288              		.cfi_offset 7, -8
+ 289              		.cfi_offset 14, -4
+ 290 0002 0646     		mov	r6, r0
+ 291 0004 0D46     		mov	r5, r1
+ 292 0006 1746     		mov	r7, r2
   65:src/task.c    ****     task_list* newTask = (task_list*)malloc(sizeof(task_list));     // allocate memory
- 290              		.loc 1 65 5 is_stmt 1 view .LVU86
- 291              		.loc 1 65 38 is_stmt 0 view .LVU87
- 292 0006 1820     		movs	r0, #24
- 293              	.LVL11:
- 294              		.loc 1 65 38 view .LVU88
- 295 0008 FFF7FEFF 		bl	malloc
- 296              	.LVL12:
+ 293              		.loc 1 65 5 is_stmt 1 view .LVU86
+ 294              		.loc 1 65 38 is_stmt 0 view .LVU87
+ 295 0008 1820     		movs	r0, #24
+ 296              	.LVL11:
+ 297              		.loc 1 65 38 view .LVU88
+ 298 000a FFF7FEFF 		bl	malloc
+ 299              	.LVL12:
   66:src/task.c    **** 
   67:src/task.c    ****     if (newTask == NULL)
- 297              		.loc 1 67 5 is_stmt 1 view .LVU89
- 298              		.loc 1 67 8 is_stmt 0 view .LVU90
- 299 000c 0446     		mov	r4, r0
- 300 000e C8B1     		cbz	r0, .L21
- 301              	.LVL13:
- 302              	.L18:
+ 300              		.loc 1 67 5 is_stmt 1 view .LVU89
+ 301              		.loc 1 67 8 is_stmt 0 view .LVU90
+ 302 000e 0446     		mov	r4, r0
+ 303 0010 D0B1     		cbz	r0, .L21
+ 304              	.LVL13:
+ 305              	.L18:
   68:src/task.c    ****     {
   69:src/task.c    ****         Log_s("- Failed to create memory for task");
   70:src/task.c    ****     }
   71:src/task.c    ****     newTask->next = NULL;
- 303              		.loc 1 71 5 is_stmt 1 view .LVU91
- 304              		.loc 1 71 19 is_stmt 0 view .LVU92
- 305 0010 0023     		movs	r3, #0
- 306 0012 6361     		str	r3, [r4, #20]
+ 306              		.loc 1 71 5 is_stmt 1 view .LVU91
+ 307              		.loc 1 71 19 is_stmt 0 view .LVU92
+ 308 0012 0023     		movs	r3, #0
+ 309 0014 6361     		str	r3, [r4, #20]
   72:src/task.c    **** 
   73:src/task.c    ****     memset(newTask, 0, sizeof(*newTask));                           // set 0 as initial value
- 307              		.loc 1 73 5 is_stmt 1 view .LVU93
- 308 0014 2360     		str	r3, [r4]	@ unaligned
- 309 0016 6360     		str	r3, [r4, #4]	@ unaligned
- 310 0018 A360     		str	r3, [r4, #8]	@ unaligned
- 311 001a E360     		str	r3, [r4, #12]	@ unaligned
- 312 001c 2361     		str	r3, [r4, #16]	@ unaligned
- 313 001e 6361     		str	r3, [r4, #20]	@ unaligned
+ 310              		.loc 1 73 5 is_stmt 1 view .LVU93
+ 311 0016 2360     		str	r3, [r4]	@ unaligned
+ 312 0018 6360     		str	r3, [r4, #4]	@ unaligned
+ 313 001a A360     		str	r3, [r4, #8]	@ unaligned
+ 314 001c E360     		str	r3, [r4, #12]	@ unaligned
+ARM GAS  /tmp/ccbiL0FK.s 			page 8
+
+
+ 315 001e 2361     		str	r3, [r4, #16]	@ unaligned
+ 316 0020 6361     		str	r3, [r4, #20]	@ unaligned
   74:src/task.c    **** 
-ARM GAS  /tmp/cc08YL0y.s 			page 8
-
-
   75:src/task.c    ****     if (allocate_task_stack(&newTask->tcb, fn, name) < 0)           // allocate stack for task
- 314              		.loc 1 75 5 view .LVU94
- 315              		.loc 1 75 9 is_stmt 0 view .LVU95
- 316 0020 2A46     		mov	r2, r5
- 317 0022 3146     		mov	r1, r6
- 318 0024 2046     		mov	r0, r4
- 319 0026 FFF7FEFF 		bl	allocate_task_stack
- 320              	.LVL14:
- 321              		.loc 1 75 8 view .LVU96
- 322 002a 0028     		cmp	r0, #0
- 323 002c 0EDB     		blt	.L22
- 324              	.L19:
+ 317              		.loc 1 75 5 view .LVU94
+ 318              		.loc 1 75 9 is_stmt 0 view .LVU95
+ 319 0022 2A46     		mov	r2, r5
+ 320 0024 3146     		mov	r1, r6
+ 321 0026 2046     		mov	r0, r4
+ 322 0028 FFF7FEFF 		bl	allocate_task_stack
+ 323              	.LVL14:
+ 324              		.loc 1 75 8 view .LVU96
+ 325 002c 0028     		cmp	r0, #0
+ 326 002e 0FDB     		blt	.L22
+ 327              	.L19:
   76:src/task.c    ****     {
   77:src/task.c    ****         Log_s("- Stack full");
   78:src/task.c    ****     }
   79:src/task.c    **** 
   80:src/task.c    ****     newTask->tcb.fn = fn;                                           // add function address in tcb
- 325              		.loc 1 80 5 is_stmt 1 view .LVU97
- 326              		.loc 1 80 21 is_stmt 0 view .LVU98
- 327 002e 2660     		str	r6, [r4]
+ 328              		.loc 1 80 5 is_stmt 1 view .LVU97
+ 329              		.loc 1 80 21 is_stmt 0 view .LVU98
+ 330 0030 2660     		str	r6, [r4]
   81:src/task.c    ****     newTask->tcb.taskName = name;                                   // add name in tcb
- 328              		.loc 1 81 5 is_stmt 1 view .LVU99
- 329              		.loc 1 81 27 is_stmt 0 view .LVU100
- 330 0030 A560     		str	r5, [r4, #8]
+ 331              		.loc 1 81 5 is_stmt 1 view .LVU99
+ 332              		.loc 1 81 27 is_stmt 0 view .LVU100
+ 333 0032 A560     		str	r5, [r4, #8]
   82:src/task.c    ****     newTask->tcb.task_state = READY;                                // set task state
- 331              		.loc 1 82 5 is_stmt 1 view .LVU101
- 332              		.loc 1 82 29 is_stmt 0 view .LVU102
- 333 0032 0023     		movs	r3, #0
- 334 0034 2382     		strh	r3, [r4, #16]	@ movhi
-  83:src/task.c    **** 
-  84:src/task.c    ****     create_context(&newTask->tcb);                                  // create dummy context
- 335              		.loc 1 84 5 is_stmt 1 view .LVU103
- 336 0036 2046     		mov	r0, r4
- 337 0038 FFF7FEFF 		bl	create_context
- 338              	.LVL15:
-  85:src/task.c    **** 
-  86:src/task.c    ****     add_inList(newTask);                                            // add created task in linked l
- 339              		.loc 1 86 5 view .LVU104
- 340 003c 2046     		mov	r0, r4
- 341 003e FFF7FEFF 		bl	add_inList
- 342              	.LVL16:
-  87:src/task.c    **** }
- 343              		.loc 1 87 1 is_stmt 0 view .LVU105
- 344 0042 70BD     		pop	{r4, r5, r6, pc}
- 345              	.LVL17:
- 346              	.L21:
+ 334              		.loc 1 82 5 is_stmt 1 view .LVU101
+ 335              		.loc 1 82 29 is_stmt 0 view .LVU102
+ 336 0034 0023     		movs	r3, #0
+ 337 0036 2382     		strh	r3, [r4, #16]	@ movhi
+  83:src/task.c    ****     newTask->tcb.task_priority = task_priority;                     // add task priority
+ 338              		.loc 1 83 5 is_stmt 1 view .LVU103
+ 339              		.loc 1 83 32 is_stmt 0 view .LVU104
+ 340 0038 6782     		strh	r7, [r4, #18]	@ movhi
+  84:src/task.c    **** 
+  85:src/task.c    ****     create_context(&newTask->tcb);                                  // create dummy context
+ 341              		.loc 1 85 5 is_stmt 1 view .LVU105
+ 342 003a 2046     		mov	r0, r4
+ 343 003c FFF7FEFF 		bl	create_context
+ 344              	.LVL15:
+  86:src/task.c    **** 
+  87:src/task.c    ****     add_inList(newTask);                                            // add created task in linked l
+ 345              		.loc 1 87 5 view .LVU106
+ 346 0040 2046     		mov	r0, r4
+ 347 0042 FFF7FEFF 		bl	add_inList
+ 348              	.LVL16:
+  88:src/task.c    **** }
+ 349              		.loc 1 88 1 is_stmt 0 view .LVU107
+ 350 0046 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 351              	.LVL17:
+ 352              	.L21:
   69:src/task.c    ****     }
- 347              		.loc 1 69 9 is_stmt 1 view .LVU106
- 348 0044 0348     		ldr	r0, .L23
- 349              	.LVL18:
+ 353              		.loc 1 69 9 is_stmt 1 view .LVU108
+ 354 0048 0348     		ldr	r0, .L23
+ 355              	.LVL18:
+ARM GAS  /tmp/ccbiL0FK.s 			page 9
+
+
   69:src/task.c    ****     }
- 350              		.loc 1 69 9 is_stmt 0 view .LVU107
- 351 0046 FFF7FEFF 		bl	Log_s
- 352              	.LVL19:
- 353 004a E1E7     		b	.L18
- 354              	.L22:
+ 356              		.loc 1 69 9 is_stmt 0 view .LVU109
+ 357 004a FFF7FEFF 		bl	Log_s
+ 358              	.LVL19:
+ 359 004e E0E7     		b	.L18
+ 360              	.L22:
   77:src/task.c    ****     }
-ARM GAS  /tmp/cc08YL0y.s 			page 9
+ 361              		.loc 1 77 9 is_stmt 1 view .LVU110
+ 362 0050 0248     		ldr	r0, .L23+4
+ 363 0052 FFF7FEFF 		bl	Log_s
+ 364              	.LVL20:
+ 365 0056 EBE7     		b	.L19
+ 366              	.L24:
+ 367              		.align	2
+ 368              	.L23:
+ 369 0058 00000000 		.word	.LC0
+ 370 005c 24000000 		.word	.LC1
+ 371              		.cfi_endproc
+ 372              	.LFE140:
+ 374              		.section	.rodata.create_idle_task.str1.4,"aMS",%progbits,1
+ 375              		.align	2
+ 376              	.LC2:
+ 377 0000 49646C65 		.ascii	"Idle Task\000"
+ 377      20546173 
+ 377      6B00
+ 378              		.section	.text.create_idle_task,"ax",%progbits
+ 379              		.align	1
+ 380              		.global	create_idle_task
+ 381              		.syntax unified
+ 382              		.thumb
+ 383              		.thumb_func
+ 384              		.fpu fpv4-sp-d16
+ 386              	create_idle_task:
+ 387              	.LFB141:
+  89:src/task.c    **** 
+  90:src/task.c    **** void create_idle_task()
+  91:src/task.c    **** {
+ 388              		.loc 1 91 1 view -0
+ 389              		.cfi_startproc
+ 390              		@ args = 0, pretend = 0, frame = 0
+ 391              		@ frame_needed = 0, uses_anonymous_args = 0
+ 392 0000 08B5     		push	{r3, lr}
+ 393              	.LCFI1:
+ 394              		.cfi_def_cfa_offset 8
+ 395              		.cfi_offset 3, -8
+ 396              		.cfi_offset 14, -4
+  92:src/task.c    ****     createTask(idleTask, "Idle Task", 0);
+ 397              		.loc 1 92 5 view .LVU112
+ 398 0002 0022     		movs	r2, #0
+ 399 0004 0249     		ldr	r1, .L27
+ 400 0006 0348     		ldr	r0, .L27+4
+ 401 0008 FFF7FEFF 		bl	createTask
+ 402              	.LVL21:
+  93:src/task.c    **** }...
+ 403              		.loc 1 93 1 is_stmt 0 view .LVU113
+ 404 000c 08BD     		pop	{r3, pc}
+ 405              	.L28:
+ARM GAS  /tmp/ccbiL0FK.s 			page 10
 
 
- 355              		.loc 1 77 9 is_stmt 1 view .LVU108
- 356 004c 0248     		ldr	r0, .L23+4
- 357 004e FFF7FEFF 		bl	Log_s
- 358              	.LVL20:
- 359 0052 ECE7     		b	.L19
- 360              	.L24:
- 361              		.align	2
- 362              	.L23:
- 363 0054 00000000 		.word	.LC0
- 364 0058 24000000 		.word	.LC1
- 365              		.cfi_endproc
- 366              	.LFE140:
- 368              		.section	.rodata.create_idle_task.str1.4,"aMS",%progbits,1
- 369              		.align	2
- 370              	.LC2:
- 371 0000 49646C65 		.ascii	"Idle Task\000"
- 371      20546173 
- 371      6B00
- 372              		.section	.text.create_idle_task,"ax",%progbits
- 373              		.align	1
- 374              		.global	create_idle_task
- 375              		.syntax unified
- 376              		.thumb
- 377              		.thumb_func
- 378              		.fpu fpv4-sp-d16
- 380              	create_idle_task:
- 381              	.LFB141:
-  88:src/task.c    **** 
-  89:src/task.c    **** void create_idle_task()
-  90:src/task.c    **** {
- 382              		.loc 1 90 1 view -0
- 383              		.cfi_startproc
- 384              		@ args = 0, pretend = 0, frame = 0
- 385              		@ frame_needed = 0, uses_anonymous_args = 0
- 386 0000 08B5     		push	{r3, lr}
- 387              	.LCFI1:
- 388              		.cfi_def_cfa_offset 8
- 389              		.cfi_offset 3, -8
- 390              		.cfi_offset 14, -4
-  91:src/task.c    ****     createTask(idleTask, "Idle Task");
- 391              		.loc 1 91 5 view .LVU110
- 392 0002 0249     		ldr	r1, .L27
- 393 0004 0248     		ldr	r0, .L27+4
- 394 0006 FFF7FEFF 		bl	createTask
- 395              	.LVL21:
-  92:src/task.c    **** }...
- 396              		.loc 1 92 1 is_stmt 0 view .LVU111
- 397 000a 08BD     		pop	{r3, pc}
- 398              	.L28:
- 399              		.align	2
- 400              	.L27:
- 401 000c 00000000 		.word	.LC2
- 402 0010 00000000 		.word	idleTask
- 403              		.cfi_endproc
- 404              	.LFE141:
- 406              		.global	current_stack_size
- 407              		.global	task_stack
-ARM GAS  /tmp/cc08YL0y.s 			page 10
-
-
- 408              		.global	idle_task
- 409              		.global	task_head
- 410              		.section	.bss.idle_task,"aw",%nobits
- 411              		.align	2
- 412              		.set	.LANCHOR2,. + 0
- 415              	idle_task:
- 416 0000 00000000 		.space	4
- 417              		.section	.bss.task_head,"aw",%nobits
+ 406 000e 00BF     		.align	2
+ 407              	.L27:
+ 408 0010 00000000 		.word	.LC2
+ 409 0014 00000000 		.word	idleTask
+ 410              		.cfi_endproc
+ 411              	.LFE141:
+ 413              		.global	current_stack_size
+ 414              		.global	task_stack
+ 415              		.global	idle_task
+ 416              		.global	task_head
+ 417              		.section	.bss.idle_task,"aw",%nobits
  418              		.align	2
- 419              		.set	.LANCHOR1,. + 0
- 422              	task_head:
+ 419              		.set	.LANCHOR2,. + 0
+ 422              	idle_task:
  423 0000 00000000 		.space	4
- 424              		.section	.bss.task_stack,"aw",%nobits
+ 424              		.section	.bss.task_head,"aw",%nobits
  425              		.align	2
- 428              	task_stack:
- 429 0000 00000000 		.space	4096
- 429      00000000 
- 429      00000000 
- 429      00000000 
- 429      00000000 
- 430              		.section	.data.current_stack_size,"aw"
- 431              		.align	1
- 432              		.set	.LANCHOR0,. + 0
- 435              	current_stack_size:
- 436 0000 0004     		.short	1024
- 437              		.text
- 438              	.Letext0:
- 439              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
- 440              		.file 3 "inc/task.h"
- 441              		.file 4 "/usr/include/newlib/stdlib.h"
- 442              		.file 5 "inc/Log.h"
-ARM GAS  /tmp/cc08YL0y.s 			page 11
+ 426              		.set	.LANCHOR1,. + 0
+ 429              	task_head:
+ 430 0000 00000000 		.space	4
+ 431              		.section	.bss.task_stack,"aw",%nobits
+ 432              		.align	2
+ 435              	task_stack:
+ 436 0000 00000000 		.space	4096
+ 436      00000000 
+ 436      00000000 
+ 436      00000000 
+ 436      00000000 
+ 437              		.section	.data.current_stack_size,"aw"
+ 438              		.align	1
+ 439              		.set	.LANCHOR0,. + 0
+ 442              	current_stack_size:
+ 443 0000 0004     		.short	1024
+ 444              		.text
+ 445              	.Letext0:
+ 446              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 447              		.file 3 "inc/task.h"
+ 448              		.file 4 "/usr/include/newlib/stdlib.h"
+ 449              		.file 5 "inc/Log.h"
+ARM GAS  /tmp/ccbiL0FK.s 			page 11
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 task.c
-     /tmp/cc08YL0y.s:18     .text.allocate_task_stack:0000000000000000 $t
-     /tmp/cc08YL0y.s:25     .text.allocate_task_stack:0000000000000000 allocate_task_stack
-     /tmp/cc08YL0y.s:72     .text.allocate_task_stack:0000000000000024 $d
-     /tmp/cc08YL0y.s:428    .bss.task_stack:0000000000000000 task_stack
-     /tmp/cc08YL0y.s:78     .text.create_context:0000000000000000 $t
-     /tmp/cc08YL0y.s:84     .text.create_context:0000000000000000 create_context
-     /tmp/cc08YL0y.s:198    .text.create_context:000000000000007c $d
-     /tmp/cc08YL0y.s:203    .text.add_inList:0000000000000000 $t
-     /tmp/cc08YL0y.s:209    .text.add_inList:0000000000000000 add_inList
-     /tmp/cc08YL0y.s:253    .text.add_inList:0000000000000020 $d
-     /tmp/cc08YL0y.s:259    .rodata.createTask.str1.4:0000000000000000 $d
-     /tmp/cc08YL0y.s:266    .text.createTask:0000000000000000 $t
-     /tmp/cc08YL0y.s:273    .text.createTask:0000000000000000 createTask
-     /tmp/cc08YL0y.s:363    .text.createTask:0000000000000054 $d
-     /tmp/cc08YL0y.s:369    .rodata.create_idle_task.str1.4:0000000000000000 $d
-     /tmp/cc08YL0y.s:373    .text.create_idle_task:0000000000000000 $t
-     /tmp/cc08YL0y.s:380    .text.create_idle_task:0000000000000000 create_idle_task
-     /tmp/cc08YL0y.s:401    .text.create_idle_task:000000000000000c $d
-     /tmp/cc08YL0y.s:435    .data.current_stack_size:0000000000000000 current_stack_size
-     /tmp/cc08YL0y.s:415    .bss.idle_task:0000000000000000 idle_task
-     /tmp/cc08YL0y.s:422    .bss.task_head:0000000000000000 task_head
-     /tmp/cc08YL0y.s:411    .bss.idle_task:0000000000000000 $d
-     /tmp/cc08YL0y.s:418    .bss.task_head:0000000000000000 $d
-     /tmp/cc08YL0y.s:425    .bss.task_stack:0000000000000000 $d
-     /tmp/cc08YL0y.s:431    .data.current_stack_size:0000000000000000 $d
+     /tmp/ccbiL0FK.s:18     .text.allocate_task_stack:0000000000000000 $t
+     /tmp/ccbiL0FK.s:25     .text.allocate_task_stack:0000000000000000 allocate_task_stack
+     /tmp/ccbiL0FK.s:72     .text.allocate_task_stack:0000000000000024 $d
+     /tmp/ccbiL0FK.s:435    .bss.task_stack:0000000000000000 task_stack
+     /tmp/ccbiL0FK.s:78     .text.create_context:0000000000000000 $t
+     /tmp/ccbiL0FK.s:84     .text.create_context:0000000000000000 create_context
+     /tmp/ccbiL0FK.s:198    .text.create_context:000000000000007c $d
+     /tmp/ccbiL0FK.s:203    .text.add_inList:0000000000000000 $t
+     /tmp/ccbiL0FK.s:209    .text.add_inList:0000000000000000 add_inList
+     /tmp/ccbiL0FK.s:253    .text.add_inList:0000000000000020 $d
+     /tmp/ccbiL0FK.s:259    .rodata.createTask.str1.4:0000000000000000 $d
+     /tmp/ccbiL0FK.s:266    .text.createTask:0000000000000000 $t
+     /tmp/ccbiL0FK.s:273    .text.createTask:0000000000000000 createTask
+     /tmp/ccbiL0FK.s:369    .text.createTask:0000000000000058 $d
+     /tmp/ccbiL0FK.s:375    .rodata.create_idle_task.str1.4:0000000000000000 $d
+     /tmp/ccbiL0FK.s:379    .text.create_idle_task:0000000000000000 $t
+     /tmp/ccbiL0FK.s:386    .text.create_idle_task:0000000000000000 create_idle_task
+     /tmp/ccbiL0FK.s:408    .text.create_idle_task:0000000000000010 $d
+     /tmp/ccbiL0FK.s:442    .data.current_stack_size:0000000000000000 current_stack_size
+     /tmp/ccbiL0FK.s:422    .bss.idle_task:0000000000000000 idle_task
+     /tmp/ccbiL0FK.s:429    .bss.task_head:0000000000000000 task_head
+     /tmp/ccbiL0FK.s:418    .bss.idle_task:0000000000000000 $d
+     /tmp/ccbiL0FK.s:425    .bss.task_head:0000000000000000 $d
+     /tmp/ccbiL0FK.s:432    .bss.task_stack:0000000000000000 $d
+     /tmp/ccbiL0FK.s:438    .data.current_stack_size:0000000000000000 $d
 
 UNDEFINED SYMBOLS
 malloc
