@@ -1,0 +1,531 @@
+ARM GAS  /tmp/ccLXIRzj.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"system_stm32f401.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.SysClockConfig_42Mhz,"ax",%progbits
+  18              		.align	1
+  19              		.arch armv7e-m
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  23              		.fpu fpv4-sp-d16
+  25              	SysClockConfig_42Mhz:
+  26              	.LFB134:
+  27              		.file 1 "src/system_stm32f401.c"
+   1:src/system_stm32f401.c **** #include "main.h"
+   2:src/system_stm32f401.c **** 
+   3:src/system_stm32f401.c **** #define PLLM            (25U)
+   4:src/system_stm32f401.c **** #define PLLN            (252U << 6)
+   5:src/system_stm32f401.c **** #define PLLP            (1U << 17)
+   6:src/system_stm32f401.c **** #define PSC_VALUE       41
+   7:src/system_stm32f401.c **** #define ARR_VALUE       0xFFFF
+   8:src/system_stm32f401.c **** 
+   9:src/system_stm32f401.c **** /************************************* Function to configure system clock *************************
+  10:src/system_stm32f401.c **** static void SysClockConfig_42Mhz()
+  11:src/system_stm32f401.c **** {
+  28              		.loc 1 11 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  12:src/system_stm32f401.c ****     RCC->CR |= RCC_CR_HSEON;                        // enable HSE
+  33              		.loc 1 12 5 view .LVU1
+  34              		.loc 1 12 13 is_stmt 0 view .LVU2
+  35 0000 1D4A     		ldr	r2, .L5
+  36 0002 1368     		ldr	r3, [r2]
+  37 0004 43F48033 		orr	r3, r3, #65536
+  38 0008 1360     		str	r3, [r2]
+  13:src/system_stm32f401.c ****     while (!(RCC->CR & RCC_CR_HSERDY));             // wait for HSE clock to be ready
+  39              		.loc 1 13 5 is_stmt 1 view .LVU3
+  40              	.L2:
+  41              		.loc 1 13 39 discriminator 1 view .LVU4
+  42              		.loc 1 13 11 discriminator 1 view .LVU5
+  43              		.loc 1 13 17 is_stmt 0 discriminator 1 view .LVU6
+  44 000a 1B4B     		ldr	r3, .L5
+  45 000c 1B68     		ldr	r3, [r3]
+ARM GAS  /tmp/ccLXIRzj.s 			page 2
+
+
+  46              		.loc 1 13 11 discriminator 1 view .LVU7
+  47 000e 13F4003F 		tst	r3, #131072
+  48 0012 FAD0     		beq	.L2
+  14:src/system_stm32f401.c ****     
+  15:src/system_stm32f401.c ****     RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_HSE;         // set HSE as a PLL clock source
+  49              		.loc 1 15 5 is_stmt 1 view .LVU8
+  50              		.loc 1 15 18 is_stmt 0 view .LVU9
+  51 0014 184B     		ldr	r3, .L5
+  52 0016 5A68     		ldr	r2, [r3, #4]
+  53 0018 42F48002 		orr	r2, r2, #4194304
+  54 001c 5A60     		str	r2, [r3, #4]
+  16:src/system_stm32f401.c **** 
+  17:src/system_stm32f401.c ****     RCC->APB1ENR |= RCC_APB1ENR_PWREN;              // enable PWR pheripheral clock
+  55              		.loc 1 17 5 is_stmt 1 view .LVU10
+  56              		.loc 1 17 18 is_stmt 0 view .LVU11
+  57 001e 1A6C     		ldr	r2, [r3, #64]
+  58 0020 42F08052 		orr	r2, r2, #268435456
+  59 0024 1A64     		str	r2, [r3, #64]
+  18:src/system_stm32f401.c ****     PWR->CR |= PWR_CR_VOS_1;                        // set VOS scale mode 2
+  60              		.loc 1 18 5 is_stmt 1 view .LVU12
+  61              		.loc 1 18 13 is_stmt 0 view .LVU13
+  62 0026 1549     		ldr	r1, .L5+4
+  63 0028 0A68     		ldr	r2, [r1]
+  64 002a 42F40042 		orr	r2, r2, #32768
+  65 002e 0A60     		str	r2, [r1]
+  19:src/system_stm32f401.c **** 
+  20:src/system_stm32f401.c ****     FLASH->ACR |= FLASH_ACR_LATENCY_2WS             // set Flash latency as 2 wait cycle
+  66              		.loc 1 20 5 is_stmt 1 view .LVU14
+  67              		.loc 1 20 16 is_stmt 0 view .LVU15
+  68 0030 01F5E631 		add	r1, r1, #117760
+  69 0034 0A68     		ldr	r2, [r1]
+  70 0036 42F4E062 		orr	r2, r2, #1792
+  71 003a 42F00202 		orr	r2, r2, #2
+  72 003e 0A60     		str	r2, [r1]
+  21:src/system_stm32f401.c ****                   | FLASH_ACR_DCEN                  // enable data cache 
+  22:src/system_stm32f401.c ****                   | FLASH_ACR_PRFTEN                // enable prefech
+  23:src/system_stm32f401.c ****                   | FLASH_ACR_ICEN;                 // enable instruction cache
+  24:src/system_stm32f401.c **** 
+  25:src/system_stm32f401.c ****     RCC->PLLCFGR |= PLLM | PLLN | PLLP;             // set multiplication and division factor
+  73              		.loc 1 25 5 is_stmt 1 view .LVU16
+  74              		.loc 1 25 18 is_stmt 0 view .LVU17
+  75 0040 5968     		ldr	r1, [r3, #4]
+  76 0042 0F4A     		ldr	r2, .L5+8
+  77 0044 0A43     		orrs	r2, r2, r1
+  78 0046 5A60     		str	r2, [r3, #4]
+  26:src/system_stm32f401.c **** 
+  27:src/system_stm32f401.c ****     RCC->CFGR |= RCC_CFGR_HPRE_DIV1                 // AHB div 1
+  79              		.loc 1 27 5 is_stmt 1 view .LVU18
+  80              		.loc 1 27 15 is_stmt 0 view .LVU19
+  81 0048 9A68     		ldr	r2, [r3, #8]
+  82 004a 9A60     		str	r2, [r3, #8]
+  28:src/system_stm32f401.c ****                  | RCC_CFGR_PPRE1_DIV1              // APB1 divi 1
+  29:src/system_stm32f401.c ****                  | RCC_CFGR_PPRE2_DIV1;             // APB2 div 1
+  30:src/system_stm32f401.c **** 
+  31:src/system_stm32f401.c ****     RCC->CR |= RCC_CR_PLLON;                        // enable PLL
+  83              		.loc 1 31 5 is_stmt 1 view .LVU20
+  84              		.loc 1 31 13 is_stmt 0 view .LVU21
+ARM GAS  /tmp/ccLXIRzj.s 			page 3
+
+
+  85 004c 1A68     		ldr	r2, [r3]
+  86 004e 42F08072 		orr	r2, r2, #16777216
+  87 0052 1A60     		str	r2, [r3]
+  32:src/system_stm32f401.c ****     while (!(RCC->CR & RCC_CR_PLLRDY));             // waith for PLL to be ready
+  88              		.loc 1 32 5 is_stmt 1 view .LVU22
+  89              	.L3:
+  90              		.loc 1 32 39 discriminator 1 view .LVU23
+  91              		.loc 1 32 11 discriminator 1 view .LVU24
+  92              		.loc 1 32 17 is_stmt 0 discriminator 1 view .LVU25
+  93 0054 084B     		ldr	r3, .L5
+  94 0056 1B68     		ldr	r3, [r3]
+  95              		.loc 1 32 11 discriminator 1 view .LVU26
+  96 0058 13F0007F 		tst	r3, #33554432
+  97 005c FAD0     		beq	.L3
+  33:src/system_stm32f401.c **** 
+  34:src/system_stm32f401.c ****     RCC->CFGR |= RCC_CFGR_SW_PLL;                   // set PLL as sys clock
+  98              		.loc 1 34 5 is_stmt 1 view .LVU27
+  99              		.loc 1 34 15 is_stmt 0 view .LVU28
+ 100 005e 064A     		ldr	r2, .L5
+ 101 0060 9368     		ldr	r3, [r2, #8]
+ 102 0062 43F00203 		orr	r3, r3, #2
+ 103 0066 9360     		str	r3, [r2, #8]
+  35:src/system_stm32f401.c ****     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_1);   // check status to confirm PLL is set a
+ 104              		.loc 1 35 5 is_stmt 1 view .LVU29
+ 105              	.L4:
+ 106              		.loc 1 35 57 discriminator 1 view .LVU30
+ 107              		.loc 1 35 11 discriminator 1 view .LVU31
+ 108              		.loc 1 35 16 is_stmt 0 discriminator 1 view .LVU32
+ 109 0068 034B     		ldr	r3, .L5
+ 110 006a 9B68     		ldr	r3, [r3, #8]
+ 111              		.loc 1 35 23 discriminator 1 view .LVU33
+ 112 006c 03F00C03 		and	r3, r3, #12
+ 113              		.loc 1 35 11 discriminator 1 view .LVU34
+ 114 0070 082B     		cmp	r3, #8
+ 115 0072 F9D1     		bne	.L4
+  36:src/system_stm32f401.c **** }
+ 116              		.loc 1 36 1 view .LVU35
+ 117 0074 7047     		bx	lr
+ 118              	.L6:
+ 119 0076 00BF     		.align	2
+ 120              	.L5:
+ 121 0078 00380240 		.word	1073887232
+ 122 007c 00700040 		.word	1073770496
+ 123 0080 193F0200 		.word	147225
+ 124              		.cfi_endproc
+ 125              	.LFE134:
+ 127              		.section	.text.gpioConfig,"ax",%progbits
+ 128              		.align	1
+ 129              		.syntax unified
+ 130              		.thumb
+ 131              		.thumb_func
+ 132              		.fpu fpv4-sp-d16
+ 134              	gpioConfig:
+ 135              	.LFB135:
+  37:src/system_stm32f401.c **** 
+  38:src/system_stm32f401.c **** /****************************************** Function to configure GPIO ****************************
+  39:src/system_stm32f401.c **** static void gpioConfig()
+ARM GAS  /tmp/ccLXIRzj.s 			page 4
+
+
+  40:src/system_stm32f401.c **** {
+ 136              		.loc 1 40 1 is_stmt 1 view -0
+ 137              		.cfi_startproc
+ 138              		@ args = 0, pretend = 0, frame = 0
+ 139              		@ frame_needed = 0, uses_anonymous_args = 0
+ 140              		@ link register save eliminated.
+  41:src/system_stm32f401.c ****     RCC->AHB1ENR |= 1;                              // enable gpio port A clock
+ 141              		.loc 1 41 5 view .LVU37
+ 142              		.loc 1 41 18 is_stmt 0 view .LVU38
+ 143 0000 0F4A     		ldr	r2, .L8
+ 144 0002 136B     		ldr	r3, [r2, #48]
+ 145 0004 43F00103 		orr	r3, r3, #1
+ 146 0008 1363     		str	r3, [r2, #48]
+  42:src/system_stm32f401.c **** 
+  43:src/system_stm32f401.c ****     GPIOA->MODER |= (0xA << 18);                    // mode as alternate function 
+ 147              		.loc 1 43 5 is_stmt 1 view .LVU39
+ 148              		.loc 1 43 18 is_stmt 0 view .LVU40
+ 149 000a 0E4B     		ldr	r3, .L8+4
+ 150 000c 1A68     		ldr	r2, [r3]
+ 151 000e 42F42012 		orr	r2, r2, #2621440
+ 152 0012 1A60     		str	r2, [r3]
+  44:src/system_stm32f401.c ****     GPIOA->OSPEEDR |= (0xA << 18);                  // high speed mode
+ 153              		.loc 1 44 5 is_stmt 1 view .LVU41
+ 154              		.loc 1 44 20 is_stmt 0 view .LVU42
+ 155 0014 9A68     		ldr	r2, [r3, #8]
+ 156 0016 42F42012 		orr	r2, r2, #2621440
+ 157 001a 9A60     		str	r2, [r3, #8]
+  45:src/system_stm32f401.c ****     GPIOA->AFR[1] |= (0x77 << 4);                   // AF7 for UART 1
+ 158              		.loc 1 45 5 is_stmt 1 view .LVU43
+ 159              		.loc 1 45 19 is_stmt 0 view .LVU44
+ 160 001c 5A6A     		ldr	r2, [r3, #36]
+ 161 001e 42F4EE62 		orr	r2, r2, #1904
+ 162 0022 5A62     		str	r2, [r3, #36]
+  46:src/system_stm32f401.c **** 
+  47:src/system_stm32f401.c ****     GPIOA->MODER |= (0xA << 22);                    // mode as alternate function 
+ 163              		.loc 1 47 5 is_stmt 1 view .LVU45
+ 164              		.loc 1 47 18 is_stmt 0 view .LVU46
+ 165 0024 1A68     		ldr	r2, [r3]
+ 166 0026 42F02072 		orr	r2, r2, #41943040
+ 167 002a 1A60     		str	r2, [r3]
+  48:src/system_stm32f401.c ****     GPIOA->OSPEEDR |= (0xA << 22);                  // high speed mode
+ 168              		.loc 1 48 5 is_stmt 1 view .LVU47
+ 169              		.loc 1 48 20 is_stmt 0 view .LVU48
+ 170 002c 9A68     		ldr	r2, [r3, #8]
+ 171 002e 42F02072 		orr	r2, r2, #41943040
+ 172 0032 9A60     		str	r2, [r3, #8]
+  49:src/system_stm32f401.c ****     GPIOA->AFR[1] |= 0x00088000;                    // AF7 for UART 2
+ 173              		.loc 1 49 5 is_stmt 1 view .LVU49
+ 174              		.loc 1 49 19 is_stmt 0 view .LVU50
+ 175 0034 5A6A     		ldr	r2, [r3, #36]
+ 176 0036 42F40822 		orr	r2, r2, #557056
+ 177 003a 5A62     		str	r2, [r3, #36]
+  50:src/system_stm32f401.c **** }
+ 178              		.loc 1 50 1 view .LVU51
+ 179 003c 7047     		bx	lr
+ 180              	.L9:
+ 181 003e 00BF     		.align	2
+ARM GAS  /tmp/ccLXIRzj.s 			page 5
+
+
+ 182              	.L8:
+ 183 0040 00380240 		.word	1073887232
+ 184 0044 00000240 		.word	1073872896
+ 185              		.cfi_endproc
+ 186              	.LFE135:
+ 188              		.section	.text.timerConfig,"ax",%progbits
+ 189              		.align	1
+ 190              		.syntax unified
+ 191              		.thumb
+ 192              		.thumb_func
+ 193              		.fpu fpv4-sp-d16
+ 195              	timerConfig:
+ 196              	.LFB136:
+  51:src/system_stm32f401.c **** 
+  52:src/system_stm32f401.c **** /***************************************** Function to configure Timer ****************************
+  53:src/system_stm32f401.c **** static void timerConfig()
+  54:src/system_stm32f401.c **** {
+ 197              		.loc 1 54 1 is_stmt 1 view -0
+ 198              		.cfi_startproc
+ 199              		@ args = 0, pretend = 0, frame = 0
+ 200              		@ frame_needed = 0, uses_anonymous_args = 0
+ 201              		@ link register save eliminated.
+  55:src/system_stm32f401.c ****     RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;            // Enable Timer 11
+ 202              		.loc 1 55 5 view .LVU53
+ 203              		.loc 1 55 18 is_stmt 0 view .LVU54
+ 204 0000 0A4A     		ldr	r2, .L12
+ 205 0002 536C     		ldr	r3, [r2, #68]
+ 206 0004 43F48023 		orr	r3, r3, #262144
+ 207 0008 5364     		str	r3, [r2, #68]
+  56:src/system_stm32f401.c **** 
+  57:src/system_stm32f401.c ****     TIM11->PSC = PSC_VALUE;                         // Set Prescaler value
+ 208              		.loc 1 57 5 is_stmt 1 view .LVU55
+ 209              		.loc 1 57 16 is_stmt 0 view .LVU56
+ 210 000a 094B     		ldr	r3, .L12+4
+ 211 000c 2922     		movs	r2, #41
+ 212 000e 9A62     		str	r2, [r3, #40]
+  58:src/system_stm32f401.c ****     
+  59:src/system_stm32f401.c ****     TIM11->ARR = ARR_VALUE;                         // Set Auto-reload value
+ 213              		.loc 1 59 5 is_stmt 1 view .LVU57
+ 214              		.loc 1 59 16 is_stmt 0 view .LVU58
+ 215 0010 4FF6FF72 		movw	r2, #65535
+ 216 0014 DA62     		str	r2, [r3, #44]
+  60:src/system_stm32f401.c **** 
+  61:src/system_stm32f401.c ****     TIM11->CR1 |= 0x1;                              // Counter enable
+ 217              		.loc 1 61 5 is_stmt 1 view .LVU59
+ 218              		.loc 1 61 16 is_stmt 0 view .LVU60
+ 219 0016 1A68     		ldr	r2, [r3]
+ 220 0018 42F00102 		orr	r2, r2, #1
+ 221 001c 1A60     		str	r2, [r3]
+  62:src/system_stm32f401.c **** 
+  63:src/system_stm32f401.c ****     while (!(TIM11->SR & 1));                       // Update interrupt flag
+ 222              		.loc 1 63 5 is_stmt 1 view .LVU61
+ 223              	.L11:
+ 224              		.loc 1 63 29 discriminator 1 view .LVU62
+ 225              		.loc 1 63 11 discriminator 1 view .LVU63
+ 226              		.loc 1 63 19 is_stmt 0 discriminator 1 view .LVU64
+ 227 001e 044B     		ldr	r3, .L12+4
+ARM GAS  /tmp/ccLXIRzj.s 			page 6
+
+
+ 228 0020 1B69     		ldr	r3, [r3, #16]
+ 229              		.loc 1 63 11 discriminator 1 view .LVU65
+ 230 0022 13F0010F 		tst	r3, #1
+ 231 0026 FAD0     		beq	.L11
+  64:src/system_stm32f401.c **** }
+ 232              		.loc 1 64 1 view .LVU66
+ 233 0028 7047     		bx	lr
+ 234              	.L13:
+ 235 002a 00BF     		.align	2
+ 236              	.L12:
+ 237 002c 00380240 		.word	1073887232
+ 238 0030 00480140 		.word	1073825792
+ 239              		.cfi_endproc
+ 240              	.LFE136:
+ 242              		.section	.text.Delay_us,"ax",%progbits
+ 243              		.align	1
+ 244              		.global	Delay_us
+ 245              		.syntax unified
+ 246              		.thumb
+ 247              		.thumb_func
+ 248              		.fpu fpv4-sp-d16
+ 250              	Delay_us:
+ 251              	.LVL0:
+ 252              	.LFB137:
+  65:src/system_stm32f401.c **** 
+  66:src/system_stm32f401.c **** /***************************************** Function to create 1ms delay ***************************
+  67:src/system_stm32f401.c **** void Delay_us(uint16_t us)
+  68:src/system_stm32f401.c **** {
+ 253              		.loc 1 68 1 is_stmt 1 view -0
+ 254              		.cfi_startproc
+ 255              		@ args = 0, pretend = 0, frame = 0
+ 256              		@ frame_needed = 0, uses_anonymous_args = 0
+ 257              		@ link register save eliminated.
+  69:src/system_stm32f401.c ****     TIM11->CNT = 0;                                 // reset counter value
+ 258              		.loc 1 69 5 view .LVU68
+ 259              		.loc 1 69 16 is_stmt 0 view .LVU69
+ 260 0000 034B     		ldr	r3, .L16
+ 261 0002 0022     		movs	r2, #0
+ 262 0004 5A62     		str	r2, [r3, #36]
+  70:src/system_stm32f401.c ****     while (TIM11->CNT < us);
+ 263              		.loc 1 70 5 is_stmt 1 view .LVU70
+ 264              	.L15:
+ 265              		.loc 1 70 28 discriminator 1 view .LVU71
+ 266              		.loc 1 70 11 discriminator 1 view .LVU72
+ 267              		.loc 1 70 17 is_stmt 0 discriminator 1 view .LVU73
+ 268 0006 024B     		ldr	r3, .L16
+ 269 0008 5B6A     		ldr	r3, [r3, #36]
+ 270              		.loc 1 70 11 discriminator 1 view .LVU74
+ 271 000a 8342     		cmp	r3, r0
+ 272 000c FBD3     		bcc	.L15
+  71:src/system_stm32f401.c **** }
+ 273              		.loc 1 71 1 view .LVU75
+ 274 000e 7047     		bx	lr
+ 275              	.L17:
+ 276              		.align	2
+ 277              	.L16:
+ 278 0010 00480140 		.word	1073825792
+ARM GAS  /tmp/ccLXIRzj.s 			page 7
+
+
+ 279              		.cfi_endproc
+ 280              	.LFE137:
+ 282              		.section	.text.Delay_ms,"ax",%progbits
+ 283              		.align	1
+ 284              		.global	Delay_ms
+ 285              		.syntax unified
+ 286              		.thumb
+ 287              		.thumb_func
+ 288              		.fpu fpv4-sp-d16
+ 290              	Delay_ms:
+ 291              	.LVL1:
+ 292              	.LFB138:
+  72:src/system_stm32f401.c **** 
+  73:src/system_stm32f401.c **** /***************************************** Function to create 1us delay ***************************
+  74:src/system_stm32f401.c **** void Delay_ms(uint16_t ms)
+  75:src/system_stm32f401.c **** {
+ 293              		.loc 1 75 1 is_stmt 1 view -0
+ 294              		.cfi_startproc
+ 295              		@ args = 0, pretend = 0, frame = 0
+ 296              		@ frame_needed = 0, uses_anonymous_args = 0
+ 297              		.loc 1 75 1 is_stmt 0 view .LVU77
+ 298 0000 38B5     		push	{r3, r4, r5, lr}
+ 299              	.LCFI0:
+ 300              		.cfi_def_cfa_offset 16
+ 301              		.cfi_offset 3, -16
+ 302              		.cfi_offset 4, -12
+ 303              		.cfi_offset 5, -8
+ 304              		.cfi_offset 14, -4
+ 305 0002 0546     		mov	r5, r0
+  76:src/system_stm32f401.c ****     for (uint16_t i=0; i<ms; i++)
+ 306              		.loc 1 76 5 is_stmt 1 view .LVU78
+ 307              	.LBB2:
+ 308              		.loc 1 76 10 view .LVU79
+ 309              	.LVL2:
+ 310              		.loc 1 76 19 is_stmt 0 view .LVU80
+ 311 0004 0024     		movs	r4, #0
+ 312              		.loc 1 76 5 view .LVU81
+ 313 0006 05E0     		b	.L19
+ 314              	.LVL3:
+ 315              	.L20:
+  77:src/system_stm32f401.c ****     {
+  78:src/system_stm32f401.c ****         Delay_us(1000);                             // for 1ms
+ 316              		.loc 1 78 9 is_stmt 1 discriminator 3 view .LVU82
+ 317 0008 4FF47A70 		mov	r0, #1000
+ 318 000c FFF7FEFF 		bl	Delay_us
+ 319              	.LVL4:
+  76:src/system_stm32f401.c ****     for (uint16_t i=0; i<ms; i++)
+ 320              		.loc 1 76 30 discriminator 3 view .LVU83
+  76:src/system_stm32f401.c ****     for (uint16_t i=0; i<ms; i++)
+ 321              		.loc 1 76 31 is_stmt 0 discriminator 3 view .LVU84
+ 322 0010 0134     		adds	r4, r4, #1
+ 323              	.LVL5:
+  76:src/system_stm32f401.c ****     for (uint16_t i=0; i<ms; i++)
+ 324              		.loc 1 76 31 discriminator 3 view .LVU85
+ 325 0012 A4B2     		uxth	r4, r4
+ 326              	.LVL6:
+ 327              	.L19:
+ARM GAS  /tmp/ccLXIRzj.s 			page 8
+
+
+  76:src/system_stm32f401.c ****     for (uint16_t i=0; i<ms; i++)
+ 328              		.loc 1 76 24 is_stmt 1 discriminator 1 view .LVU86
+  76:src/system_stm32f401.c ****     for (uint16_t i=0; i<ms; i++)
+ 329              		.loc 1 76 5 is_stmt 0 discriminator 1 view .LVU87
+ 330 0014 AC42     		cmp	r4, r5
+ 331 0016 F7D3     		bcc	.L20
+ 332              	.LBE2:
+  79:src/system_stm32f401.c ****     }
+  80:src/system_stm32f401.c **** }
+ 333              		.loc 1 80 1 view .LVU88
+ 334 0018 38BD     		pop	{r3, r4, r5, pc}
+ 335              		.loc 1 80 1 view .LVU89
+ 336              		.cfi_endproc
+ 337              	.LFE138:
+ 339              		.section	.text.SystemInit,"ax",%progbits
+ 340              		.align	1
+ 341              		.global	SystemInit
+ 342              		.syntax unified
+ 343              		.thumb
+ 344              		.thumb_func
+ 345              		.fpu fpv4-sp-d16
+ 347              	SystemInit:
+ 348              	.LFB139:
+  81:src/system_stm32f401.c **** 
+  82:src/system_stm32f401.c **** /************************************** Function to initalize all config **************************
+  83:src/system_stm32f401.c **** void SystemInit(void)
+  84:src/system_stm32f401.c **** {
+ 349              		.loc 1 84 1 is_stmt 1 view -0
+ 350              		.cfi_startproc
+ 351              		@ args = 0, pretend = 0, frame = 0
+ 352              		@ frame_needed = 0, uses_anonymous_args = 0
+ 353 0000 08B5     		push	{r3, lr}
+ 354              	.LCFI1:
+ 355              		.cfi_def_cfa_offset 8
+ 356              		.cfi_offset 3, -8
+ 357              		.cfi_offset 14, -4
+  85:src/system_stm32f401.c ****     SysClockConfig_42Mhz();                         // configure clock
+ 358              		.loc 1 85 5 view .LVU91
+ 359 0002 FFF7FEFF 		bl	SysClockConfig_42Mhz
+ 360              	.LVL7:
+  86:src/system_stm32f401.c ****     gpioConfig();                                   // configure port b
+ 361              		.loc 1 86 5 view .LVU92
+ 362 0006 FFF7FEFF 		bl	gpioConfig
+ 363              	.LVL8:
+  87:src/system_stm32f401.c ****     timerConfig();                                  // timer configuration for delay
+ 364              		.loc 1 87 5 view .LVU93
+ 365 000a FFF7FEFF 		bl	timerConfig
+ 366              	.LVL9:
+  88:src/system_stm32f401.c **** }
+ 367              		.loc 1 88 1 is_stmt 0 view .LVU94
+ 368 000e 08BD     		pop	{r3, pc}
+ 369              		.cfi_endproc
+ 370              	.LFE139:
+ 372              		.section	.text.SystemCoreClockUpdate,"ax",%progbits
+ 373              		.align	1
+ 374              		.global	SystemCoreClockUpdate
+ 375              		.syntax unified
+ARM GAS  /tmp/ccLXIRzj.s 			page 9
+
+
+ 376              		.thumb
+ 377              		.thumb_func
+ 378              		.fpu fpv4-sp-d16
+ 380              	SystemCoreClockUpdate:
+ 381              	.LFB140:
+  89:src/system_stm32f401.c **** 
+  90:src/system_stm32f401.c **** void SystemCoreClockUpdate(void)
+  91:src/system_stm32f401.c **** {
+ 382              		.loc 1 91 1 is_stmt 1 view -0
+ 383              		.cfi_startproc
+ 384              		@ args = 0, pretend = 0, frame = 0
+ 385              		@ frame_needed = 0, uses_anonymous_args = 0
+ 386              		@ link register save eliminated.
+  92:src/system_stm32f401.c **** 
+  93:src/system_stm32f401.c **** }...
+ 387              		.loc 1 93 1 view .LVU96
+ 388 0000 7047     		bx	lr
+ 389              		.cfi_endproc
+ 390              	.LFE140:
+ 392              		.text
+ 393              	.Letext0:
+ 394              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 395              		.file 3 "driver/Device/stm32f401xc.h"
+ARM GAS  /tmp/ccLXIRzj.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 system_stm32f401.c
+     /tmp/ccLXIRzj.s:18     .text.SysClockConfig_42Mhz:0000000000000000 $t
+     /tmp/ccLXIRzj.s:25     .text.SysClockConfig_42Mhz:0000000000000000 SysClockConfig_42Mhz
+     /tmp/ccLXIRzj.s:121    .text.SysClockConfig_42Mhz:0000000000000078 $d
+     /tmp/ccLXIRzj.s:128    .text.gpioConfig:0000000000000000 $t
+     /tmp/ccLXIRzj.s:134    .text.gpioConfig:0000000000000000 gpioConfig
+     /tmp/ccLXIRzj.s:183    .text.gpioConfig:0000000000000040 $d
+     /tmp/ccLXIRzj.s:189    .text.timerConfig:0000000000000000 $t
+     /tmp/ccLXIRzj.s:195    .text.timerConfig:0000000000000000 timerConfig
+     /tmp/ccLXIRzj.s:237    .text.timerConfig:000000000000002c $d
+     /tmp/ccLXIRzj.s:243    .text.Delay_us:0000000000000000 $t
+     /tmp/ccLXIRzj.s:250    .text.Delay_us:0000000000000000 Delay_us
+     /tmp/ccLXIRzj.s:278    .text.Delay_us:0000000000000010 $d
+     /tmp/ccLXIRzj.s:283    .text.Delay_ms:0000000000000000 $t
+     /tmp/ccLXIRzj.s:290    .text.Delay_ms:0000000000000000 Delay_ms
+     /tmp/ccLXIRzj.s:340    .text.SystemInit:0000000000000000 $t
+     /tmp/ccLXIRzj.s:347    .text.SystemInit:0000000000000000 SystemInit
+     /tmp/ccLXIRzj.s:373    .text.SystemCoreClockUpdate:0000000000000000 $t
+     /tmp/ccLXIRzj.s:380    .text.SystemCoreClockUpdate:0000000000000000 SystemCoreClockUpdate
+
+NO UNDEFINED SYMBOLS

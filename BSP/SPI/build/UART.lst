@@ -1,0 +1,484 @@
+ARM GAS  /tmp/cctsFcW7.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"UART.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.UART_init,"ax",%progbits
+  18              		.align	1
+  19              		.global	UART_init
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	UART_init:
+  27              	.LVL0:
+  28              	.LFB134:
+  29              		.file 1 "src/UART.c"
+   1:src/UART.c    **** #include "UART.h"
+   2:src/UART.c    **** 
+   3:src/UART.c    **** /*************************************** Setup UART *******************************************/
+   4:src/UART.c    **** void UART_init(USART_TypeDef* UART, UART_Typedef* uartConfig)
+   5:src/UART.c    **** {
+  30              		.loc 1 5 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+   6:src/UART.c    ****     // Enable UART clock
+   7:src/UART.c    ****     if ((void*)UART == (void*)UART1)
+  35              		.loc 1 7 5 view .LVU1
+  36              		.loc 1 7 8 is_stmt 0 view .LVU2
+  37 0000 2A4B     		ldr	r3, .L16
+  38 0002 9842     		cmp	r0, r3
+  39 0004 2CD0     		beq	.L11
+   8:src/UART.c    ****     {
+   9:src/UART.c    ****         RCC->APB2ENR |= 0x00000010;     // USART 1 clock enable
+  10:src/UART.c    ****         #if UART1_INTERRUPT_ENABLE
+  11:src/UART.c    ****         __disable_irq();
+  12:src/UART.c    ****         NVIC_EnableIRQ(USART1_IRQn);
+  13:src/UART.c    ****         __enable_irq();
+  14:src/UART.c    ****         #endif
+  15:src/UART.c    ****     }
+  16:src/UART.c    ****     else if ((void*)UART == (void*)UART6)
+  40              		.loc 1 16 10 is_stmt 1 view .LVU3
+  41              		.loc 1 16 13 is_stmt 0 view .LVU4
+  42 0006 2A4B     		ldr	r3, .L16+4
+ARM GAS  /tmp/cctsFcW7.s 			page 2
+
+
+  43 0008 9842     		cmp	r0, r3
+  44 000a 2FD0     		beq	.L12
+  17:src/UART.c    ****     {
+  18:src/UART.c    ****         RCC->APB2ENR |= 0x00000020;     // USART 6 clock enable
+  19:src/UART.c    ****         #if UART6_INTERRUPT_ENABLE
+  20:src/UART.c    ****         __disable_irq();
+  21:src/UART.c    ****         NVIC_EnableIRQ(USART6_IRQn);
+  22:src/UART.c    ****         __enable_irq();
+  23:src/UART.c    ****         #endif
+  24:src/UART.c    ****     }
+  25:src/UART.c    ****     else if ((void*)UART == (void*)UART2)
+  45              		.loc 1 25 10 is_stmt 1 view .LVU5
+  46              		.loc 1 25 13 is_stmt 0 view .LVU6
+  47 000c 294B     		ldr	r3, .L16+8
+  48 000e 9842     		cmp	r0, r3
+  49 0010 32D0     		beq	.L13
+  50              	.L3:
+  26:src/UART.c    ****     {
+  27:src/UART.c    ****         RCC->APB1ENR |= 0x00020000;     // USART 2 clock enable
+  28:src/UART.c    ****         #if UART2_INTERRUPT_ENABLE
+  29:src/UART.c    ****         __disable_irq();
+  30:src/UART.c    ****         NVIC_EnableIRQ(USART2_IRQn);
+  31:src/UART.c    ****         __enable_irq();
+  32:src/UART.c    ****         #endif
+  33:src/UART.c    ****     }
+  34:src/UART.c    **** 
+  35:src/UART.c    ****     // enable UE
+  36:src/UART.c    ****     UART->CR1 |= 0x00002000;
+  51              		.loc 1 36 5 is_stmt 1 view .LVU7
+  52              		.loc 1 36 15 is_stmt 0 view .LVU8
+  53 0012 C368     		ldr	r3, [r0, #12]
+  54 0014 43F40053 		orr	r3, r3, #8192
+  55 0018 C360     		str	r3, [r0, #12]
+  37:src/UART.c    **** 
+  38:src/UART.c    ****     // Configure number stop bit
+  39:src/UART.c    ****     if (uartConfig->NoStopBit == 2)
+  56              		.loc 1 39 5 is_stmt 1 view .LVU9
+  57              		.loc 1 39 19 is_stmt 0 view .LVU10
+  58 001a CB7A     		ldrb	r3, [r1, #11]	@ zero_extendqisi2
+  59              		.loc 1 39 8 view .LVU11
+  60 001c 022B     		cmp	r3, #2
+  61 001e 31D0     		beq	.L14
+  40:src/UART.c    ****     {
+  41:src/UART.c    ****         UART->CR2 = USART_CR2_STOP_1;   // 2 stop bit
+  42:src/UART.c    ****     }
+  43:src/UART.c    ****     else
+  44:src/UART.c    ****     {
+  45:src/UART.c    ****         UART->CR2 &= ~USART_CR2_STOP;   // 1 stop bit
+  62              		.loc 1 45 9 is_stmt 1 view .LVU12
+  63              		.loc 1 45 19 is_stmt 0 view .LVU13
+  64 0020 0369     		ldr	r3, [r0, #16]
+  65 0022 23F44053 		bic	r3, r3, #12288
+  66 0026 0361     		str	r3, [r0, #16]
+  67              	.L6:
+  46:src/UART.c    ****     }
+  47:src/UART.c    **** 
+  48:src/UART.c    ****     // Configure parity
+ARM GAS  /tmp/cctsFcW7.s 			page 3
+
+
+  49:src/UART.c    ****     if (uartConfig->ParityEnable)
+  68              		.loc 1 49 5 is_stmt 1 view .LVU14
+  69              		.loc 1 49 19 is_stmt 0 view .LVU15
+  70 0028 4B7A     		ldrb	r3, [r1, #9]	@ zero_extendqisi2
+  71              		.loc 1 49 8 view .LVU16
+  72 002a 43B1     		cbz	r3, .L7
+  50:src/UART.c    ****     {
+  51:src/UART.c    ****         UART->CR1 |= 0x00000400;                // Enable parity control
+  73              		.loc 1 51 9 is_stmt 1 view .LVU17
+  74              		.loc 1 51 19 is_stmt 0 view .LVU18
+  75 002c C368     		ldr	r3, [r0, #12]
+  76 002e 43F48063 		orr	r3, r3, #1024
+  77 0032 C360     		str	r3, [r0, #12]
+  52:src/UART.c    ****         UART->CR1 |= uartConfig->Parity << 9;   // set odd or even parity
+  78              		.loc 1 52 9 is_stmt 1 view .LVU19
+  79              		.loc 1 52 19 is_stmt 0 view .LVU20
+  80 0034 C368     		ldr	r3, [r0, #12]
+  81              		.loc 1 52 32 view .LVU21
+  82 0036 8A7A     		ldrb	r2, [r1, #10]	@ zero_extendqisi2
+  83              		.loc 1 52 19 view .LVU22
+  84 0038 43EA4223 		orr	r3, r3, r2, lsl #9
+  85 003c C360     		str	r3, [r0, #12]
+  86              	.L7:
+  53:src/UART.c    ****     }
+  54:src/UART.c    **** 
+  55:src/UART.c    ****     // Configure stop bit
+  56:src/UART.c    ****     UART->CR2 |= 0x00003000;    // 1 stop bit
+  87              		.loc 1 56 5 is_stmt 1 view .LVU23
+  88              		.loc 1 56 15 is_stmt 0 view .LVU24
+  89 003e 0369     		ldr	r3, [r0, #16]
+  90 0040 43F44053 		orr	r3, r3, #12288
+  91 0044 0361     		str	r3, [r0, #16]
+  57:src/UART.c    **** 
+  58:src/UART.c    ****     // Baud rate
+  59:src/UART.c    ****     UART->BRR = (uartConfig->peripheralClock/uartConfig->baudRate)+1;
+  92              		.loc 1 59 5 is_stmt 1 view .LVU25
+  93              		.loc 1 59 28 is_stmt 0 view .LVU26
+  94 0046 4B68     		ldr	r3, [r1, #4]
+  95              		.loc 1 59 56 view .LVU27
+  96 0048 0A68     		ldr	r2, [r1]
+  97              		.loc 1 59 45 view .LVU28
+  98 004a B3FBF2F3 		udiv	r3, r3, r2
+  99              		.loc 1 59 67 view .LVU29
+ 100 004e 0133     		adds	r3, r3, #1
+ 101              		.loc 1 59 15 view .LVU30
+ 102 0050 8360     		str	r3, [r0, #8]
+  60:src/UART.c    **** 
+  61:src/UART.c    ****     // Configure UART mode
+  62:src/UART.c    ****     switch (uartConfig->mode)
+ 103              		.loc 1 62 5 is_stmt 1 view .LVU31
+ 104              		.loc 1 62 23 is_stmt 0 view .LVU32
+ 105 0052 0B7A     		ldrb	r3, [r1, #8]	@ zero_extendqisi2
+ 106              		.loc 1 62 5 view .LVU33
+ 107 0054 012B     		cmp	r3, #1
+ 108 0056 1ED0     		beq	.L8
+ 109 0058 022B     		cmp	r3, #2
+ 110 005a 21D0     		beq	.L9
+ARM GAS  /tmp/cctsFcW7.s 			page 4
+
+
+ 111 005c B3B1     		cbz	r3, .L15
+ 112              	.L1:
+  63:src/UART.c    ****     {
+  64:src/UART.c    ****         case UART_TX:   UART->CR1 |= 0x00000008;        // enable Tx
+  65:src/UART.c    ****                         break;
+  66:src/UART.c    ****         
+  67:src/UART.c    ****         case UART_RX:   UART->CR1 |= 0x00000004;        // enable Rx
+  68:src/UART.c    ****                         break;
+  69:src/UART.c    **** 
+  70:src/UART.c    ****         case UART_TX_RX:    UART->CR1 |= 0x0000000C;    // enable both Tx & Rx
+  71:src/UART.c    ****                             break;
+  72:src/UART.c    ****     }
+  73:src/UART.c    **** }
+ 113              		.loc 1 73 1 view .LVU34
+ 114 005e 7047     		bx	lr
+ 115              	.L11:
+   9:src/UART.c    ****         #if UART1_INTERRUPT_ENABLE
+ 116              		.loc 1 9 9 is_stmt 1 view .LVU35
+   9:src/UART.c    ****         #if UART1_INTERRUPT_ENABLE
+ 117              		.loc 1 9 22 is_stmt 0 view .LVU36
+ 118 0060 154A     		ldr	r2, .L16+12
+ 119 0062 536C     		ldr	r3, [r2, #68]
+ 120 0064 43F01003 		orr	r3, r3, #16
+ 121 0068 5364     		str	r3, [r2, #68]
+ 122 006a D2E7     		b	.L3
+ 123              	.L12:
+  18:src/UART.c    ****         #if UART6_INTERRUPT_ENABLE
+ 124              		.loc 1 18 9 is_stmt 1 view .LVU37
+  18:src/UART.c    ****         #if UART6_INTERRUPT_ENABLE
+ 125              		.loc 1 18 22 is_stmt 0 view .LVU38
+ 126 006c 124A     		ldr	r2, .L16+12
+ 127 006e 536C     		ldr	r3, [r2, #68]
+ 128 0070 43F02003 		orr	r3, r3, #32
+ 129 0074 5364     		str	r3, [r2, #68]
+ 130 0076 CCE7     		b	.L3
+ 131              	.L13:
+  27:src/UART.c    ****         #if UART2_INTERRUPT_ENABLE
+ 132              		.loc 1 27 9 is_stmt 1 view .LVU39
+  27:src/UART.c    ****         #if UART2_INTERRUPT_ENABLE
+ 133              		.loc 1 27 22 is_stmt 0 view .LVU40
+ 134 0078 0F4A     		ldr	r2, .L16+12
+ 135 007a 136C     		ldr	r3, [r2, #64]
+ 136 007c 43F40033 		orr	r3, r3, #131072
+ 137 0080 1364     		str	r3, [r2, #64]
+ 138 0082 C6E7     		b	.L3
+ 139              	.L14:
+  41:src/UART.c    ****     }
+ 140              		.loc 1 41 9 is_stmt 1 view .LVU41
+  41:src/UART.c    ****     }
+ 141              		.loc 1 41 19 is_stmt 0 view .LVU42
+ 142 0084 4FF40053 		mov	r3, #8192
+ 143 0088 0361     		str	r3, [r0, #16]
+ 144 008a CDE7     		b	.L6
+ 145              	.L15:
+  64:src/UART.c    ****                         break;
+ 146              		.loc 1 64 25 is_stmt 1 view .LVU43
+  64:src/UART.c    ****                         break;
+ARM GAS  /tmp/cctsFcW7.s 			page 5
+
+
+ 147              		.loc 1 64 35 is_stmt 0 view .LVU44
+ 148 008c C368     		ldr	r3, [r0, #12]
+ 149 008e 43F00803 		orr	r3, r3, #8
+ 150 0092 C360     		str	r3, [r0, #12]
+  65:src/UART.c    ****         
+ 151              		.loc 1 65 25 is_stmt 1 view .LVU45
+ 152 0094 7047     		bx	lr
+ 153              	.L8:
+  67:src/UART.c    ****                         break;
+ 154              		.loc 1 67 25 view .LVU46
+  67:src/UART.c    ****                         break;
+ 155              		.loc 1 67 35 is_stmt 0 view .LVU47
+ 156 0096 C368     		ldr	r3, [r0, #12]
+ 157 0098 43F00403 		orr	r3, r3, #4
+ 158 009c C360     		str	r3, [r0, #12]
+  68:src/UART.c    **** 
+ 159              		.loc 1 68 25 is_stmt 1 view .LVU48
+ 160 009e 7047     		bx	lr
+ 161              	.L9:
+  70:src/UART.c    ****                             break;
+ 162              		.loc 1 70 29 view .LVU49
+  70:src/UART.c    ****                             break;
+ 163              		.loc 1 70 39 is_stmt 0 view .LVU50
+ 164 00a0 C368     		ldr	r3, [r0, #12]
+ 165 00a2 43F00C03 		orr	r3, r3, #12
+ 166 00a6 C360     		str	r3, [r0, #12]
+  71:src/UART.c    ****     }
+ 167              		.loc 1 71 29 is_stmt 1 view .LVU51
+ 168              		.loc 1 73 1 is_stmt 0 view .LVU52
+ 169 00a8 D9E7     		b	.L1
+ 170              	.L17:
+ 171 00aa 00BF     		.align	2
+ 172              	.L16:
+ 173 00ac 00100140 		.word	1073811456
+ 174 00b0 00140140 		.word	1073812480
+ 175 00b4 00440040 		.word	1073759232
+ 176 00b8 00380240 		.word	1073887232
+ 177              		.cfi_endproc
+ 178              	.LFE134:
+ 180              		.section	.text.UART_Write,"ax",%progbits
+ 181              		.align	1
+ 182              		.global	UART_Write
+ 183              		.syntax unified
+ 184              		.thumb
+ 185              		.thumb_func
+ 186              		.fpu fpv4-sp-d16
+ 188              	UART_Write:
+ 189              	.LFB135:
+  74:src/UART.c    **** 
+  75:src/UART.c    **** /************************************** Transmit data ******************************************/
+  76:src/UART.c    **** void UART_Write(USART_TypeDef* UART, uint8_t Tx_data)
+  77:src/UART.c    **** {
+ 190              		.loc 1 77 1 is_stmt 1 view -0
+ 191              		.cfi_startproc
+ 192              		@ args = 0, pretend = 0, frame = 0
+ 193              		@ frame_needed = 0, uses_anonymous_args = 0
+ 194              		@ link register save eliminated.
+ARM GAS  /tmp/cctsFcW7.s 			page 6
+
+
+ 195              	.LVL1:
+ 196              	.L19:
+  78:src/UART.c    ****     while (!(UART->SR & USART_SR_TXE));
+ 197              		.loc 1 78 39 discriminator 1 view .LVU54
+ 198              		.loc 1 78 11 discriminator 1 view .LVU55
+ 199              		.loc 1 78 18 is_stmt 0 discriminator 1 view .LVU56
+ 200 0000 0368     		ldr	r3, [r0]
+ 201              		.loc 1 78 11 discriminator 1 view .LVU57
+ 202 0002 13F0800F 		tst	r3, #128
+ 203 0006 FBD0     		beq	.L19
+  79:src/UART.c    **** 
+  80:src/UART.c    ****     UART->DR = Tx_data;
+ 204              		.loc 1 80 5 is_stmt 1 view .LVU58
+ 205              		.loc 1 80 14 is_stmt 0 view .LVU59
+ 206 0008 4160     		str	r1, [r0, #4]
+  81:src/UART.c    **** }
+ 207              		.loc 1 81 1 view .LVU60
+ 208 000a 7047     		bx	lr
+ 209              		.cfi_endproc
+ 210              	.LFE135:
+ 212              		.section	.text.UART_Read,"ax",%progbits
+ 213              		.align	1
+ 214              		.global	UART_Read
+ 215              		.syntax unified
+ 216              		.thumb
+ 217              		.thumb_func
+ 218              		.fpu fpv4-sp-d16
+ 220              	UART_Read:
+ 221              	.LFB136:
+  82:src/UART.c    **** 
+  83:src/UART.c    **** /************************************** Receive data *******************************************/
+  84:src/UART.c    **** uint8_t UART_Read(USART_TypeDef* UART)
+  85:src/UART.c    **** {
+ 222              		.loc 1 85 1 is_stmt 1 view -0
+ 223              		.cfi_startproc
+ 224              		@ args = 0, pretend = 0, frame = 0
+ 225              		@ frame_needed = 0, uses_anonymous_args = 0
+ 226              		@ link register save eliminated.
+ 227              	.LVL2:
+ 228              	.L21:
+  86:src/UART.c    ****     while (!(UART->SR & USART_SR_RXNE));
+ 229              		.loc 1 86 40 discriminator 1 view .LVU62
+ 230              		.loc 1 86 11 discriminator 1 view .LVU63
+ 231              		.loc 1 86 18 is_stmt 0 discriminator 1 view .LVU64
+ 232 0000 0368     		ldr	r3, [r0]
+ 233              		.loc 1 86 11 discriminator 1 view .LVU65
+ 234 0002 13F0200F 		tst	r3, #32
+ 235 0006 FBD0     		beq	.L21
+  87:src/UART.c    **** 
+  88:src/UART.c    ****     return UART->DR;
+ 236              		.loc 1 88 5 is_stmt 1 view .LVU66
+ 237              		.loc 1 88 16 is_stmt 0 view .LVU67
+ 238 0008 4068     		ldr	r0, [r0, #4]
+ 239              	.LVL3:
+  89:src/UART.c    **** }
+ 240              		.loc 1 89 1 view .LVU68
+ 241 000a C0B2     		uxtb	r0, r0
+ARM GAS  /tmp/cctsFcW7.s 			page 7
+
+
+ 242 000c 7047     		bx	lr
+ 243              		.cfi_endproc
+ 244              	.LFE136:
+ 246              		.section	.text.UART_EnableInterrupts,"ax",%progbits
+ 247              		.align	1
+ 248              		.global	UART_EnableInterrupts
+ 249              		.syntax unified
+ 250              		.thumb
+ 251              		.thumb_func
+ 252              		.fpu fpv4-sp-d16
+ 254              	UART_EnableInterrupts:
+ 255              	.LVL4:
+ 256              	.LFB137:
+  90:src/UART.c    **** 
+  91:src/UART.c    **** /************************************* Enable interrupts ****************************************/
+  92:src/UART.c    **** void UART_EnableInterrupts(USART_TypeDef* UART)
+  93:src/UART.c    **** {
+ 257              		.loc 1 93 1 is_stmt 1 view -0
+ 258              		.cfi_startproc
+ 259              		@ args = 0, pretend = 0, frame = 0
+ 260              		@ frame_needed = 0, uses_anonymous_args = 0
+ 261              		@ link register save eliminated.
+  94:src/UART.c    ****     UART->CR1 |= USART_CR1_TXEIE | USART_CR1_RXNEIE;
+ 262              		.loc 1 94 5 view .LVU70
+ 263              		.loc 1 94 15 is_stmt 0 view .LVU71
+ 264 0000 C368     		ldr	r3, [r0, #12]
+ 265 0002 43F0A003 		orr	r3, r3, #160
+ 266 0006 C360     		str	r3, [r0, #12]
+  95:src/UART.c    **** }
+ 267              		.loc 1 95 1 view .LVU72
+ 268 0008 7047     		bx	lr
+ 269              		.cfi_endproc
+ 270              	.LFE137:
+ 272              		.section	.text.UART_EnableInterrupts_Tx,"ax",%progbits
+ 273              		.align	1
+ 274              		.global	UART_EnableInterrupts_Tx
+ 275              		.syntax unified
+ 276              		.thumb
+ 277              		.thumb_func
+ 278              		.fpu fpv4-sp-d16
+ 280              	UART_EnableInterrupts_Tx:
+ 281              	.LVL5:
+ 282              	.LFB138:
+  96:src/UART.c    **** 
+  97:src/UART.c    **** // Tx interrupt enable
+  98:src/UART.c    **** void UART_EnableInterrupts_Tx(USART_TypeDef* UART)
+  99:src/UART.c    **** {
+ 283              		.loc 1 99 1 is_stmt 1 view -0
+ 284              		.cfi_startproc
+ 285              		@ args = 0, pretend = 0, frame = 0
+ 286              		@ frame_needed = 0, uses_anonymous_args = 0
+ 287              		@ link register save eliminated.
+ 100:src/UART.c    ****     UART->CR1 |= USART_CR1_TXEIE;
+ 288              		.loc 1 100 5 view .LVU74
+ 289              		.loc 1 100 15 is_stmt 0 view .LVU75
+ 290 0000 C368     		ldr	r3, [r0, #12]
+ 291 0002 43F08003 		orr	r3, r3, #128
+ARM GAS  /tmp/cctsFcW7.s 			page 8
+
+
+ 292 0006 C360     		str	r3, [r0, #12]
+ 101:src/UART.c    **** }
+ 293              		.loc 1 101 1 view .LVU76
+ 294 0008 7047     		bx	lr
+ 295              		.cfi_endproc
+ 296              	.LFE138:
+ 298              		.section	.text.UART_EnableInterrupts_Rx,"ax",%progbits
+ 299              		.align	1
+ 300              		.global	UART_EnableInterrupts_Rx
+ 301              		.syntax unified
+ 302              		.thumb
+ 303              		.thumb_func
+ 304              		.fpu fpv4-sp-d16
+ 306              	UART_EnableInterrupts_Rx:
+ 307              	.LVL6:
+ 308              	.LFB139:
+ 102:src/UART.c    **** 
+ 103:src/UART.c    **** // Rx interrupt enable
+ 104:src/UART.c    **** void UART_EnableInterrupts_Rx(USART_TypeDef* UART)
+ 105:src/UART.c    **** {
+ 309              		.loc 1 105 1 is_stmt 1 view -0
+ 310              		.cfi_startproc
+ 311              		@ args = 0, pretend = 0, frame = 0
+ 312              		@ frame_needed = 0, uses_anonymous_args = 0
+ 313              		@ link register save eliminated.
+ 106:src/UART.c    ****     UART->CR1 |= USART_CR1_RXNEIE;
+ 314              		.loc 1 106 5 view .LVU78
+ 315              		.loc 1 106 15 is_stmt 0 view .LVU79
+ 316 0000 C368     		ldr	r3, [r0, #12]
+ 317 0002 43F02003 		orr	r3, r3, #32
+ 318 0006 C360     		str	r3, [r0, #12]
+ 107:src/UART.c    **** }
+ 319              		.loc 1 107 1 view .LVU80
+ 320 0008 7047     		bx	lr
+ 321              		.cfi_endproc
+ 322              	.LFE139:
+ 324              		.text
+ 325              	.Letext0:
+ 326              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 327              		.file 3 "driver/Device/stm32f401xc.h"
+ 328              		.file 4 "inc/UART.h"
+ARM GAS  /tmp/cctsFcW7.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 UART.c
+     /tmp/cctsFcW7.s:18     .text.UART_init:0000000000000000 $t
+     /tmp/cctsFcW7.s:26     .text.UART_init:0000000000000000 UART_init
+     /tmp/cctsFcW7.s:173    .text.UART_init:00000000000000ac $d
+     /tmp/cctsFcW7.s:181    .text.UART_Write:0000000000000000 $t
+     /tmp/cctsFcW7.s:188    .text.UART_Write:0000000000000000 UART_Write
+     /tmp/cctsFcW7.s:213    .text.UART_Read:0000000000000000 $t
+     /tmp/cctsFcW7.s:220    .text.UART_Read:0000000000000000 UART_Read
+     /tmp/cctsFcW7.s:247    .text.UART_EnableInterrupts:0000000000000000 $t
+     /tmp/cctsFcW7.s:254    .text.UART_EnableInterrupts:0000000000000000 UART_EnableInterrupts
+     /tmp/cctsFcW7.s:273    .text.UART_EnableInterrupts_Tx:0000000000000000 $t
+     /tmp/cctsFcW7.s:280    .text.UART_EnableInterrupts_Tx:0000000000000000 UART_EnableInterrupts_Tx
+     /tmp/cctsFcW7.s:299    .text.UART_EnableInterrupts_Rx:0000000000000000 $t
+     /tmp/cctsFcW7.s:306    .text.UART_EnableInterrupts_Rx:0000000000000000 UART_EnableInterrupts_Rx
+
+NO UNDEFINED SYMBOLS

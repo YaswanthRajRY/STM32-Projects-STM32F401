@@ -1,0 +1,300 @@
+ARM GAS  /tmp/cc7euBeG.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.rodata.main.str1.4,"aMS",%progbits,1
+  18              		.align	2
+  19              	.LC0:
+  20 0000 48656C6C 		.ascii	"Hello World\012\015\000"
+  20      6F20576F 
+  20      726C640A 
+  20      0D00
+  21              		.section	.text.main,"ax",%progbits
+  22              		.align	1
+  23              		.global	main
+  24              		.arch armv7e-m
+  25              		.syntax unified
+  26              		.thumb
+  27              		.thumb_func
+  28              		.fpu fpv4-sp-d16
+  30              	main:
+  31              	.LFB134:
+  32              		.file 1 "src/main.c"
+   1:src/main.c    **** #include "main.h"
+   2:src/main.c    **** 
+   3:src/main.c    **** #define SysCoreClk 42000000
+   4:src/main.c    **** 
+   5:src/main.c    **** SPIconfig_Typedef SPI1_config = {
+   6:src/main.c    ****     .baudRatePrescaler = PRE_256,       // BR 256
+   7:src/main.c    ****     .operationMode = MASTER,            // SPI as master
+   8:src/main.c    ****     .dataOrder = 0,                     // MSB first
+   9:src/main.c    ****     .dataFrameFormat = Bit_8,           // 8 bit data frame
+  10:src/main.c    ****     .SPImode = MODE_2,                  // CPOL->1 & CPHA->0
+  11:src/main.c    ****     .TIenable = 0,                      // Motorola mode
+  12:src/main.c    ****     .softwareNSS = 0                    // Software NSS diabled
+  13:src/main.c    **** };
+  14:src/main.c    **** 
+  15:src/main.c    **** SPIconfig_Typedef SPI2_config = {
+  16:src/main.c    ****     .operationMode = SLAVE,             // SPI as slave
+  17:src/main.c    ****     .dataOrder = 0,                     // MSB first
+  18:src/main.c    ****     .dataFrameFormat = Bit_8,           // 8 bit data frame
+  19:src/main.c    ****     .SPImode = MODE_2,                  // CPOL->1 & CPHA->0
+  20:src/main.c    ****     .TIenable = 0,                      // Motorola mode
+  21:src/main.c    ****     .softwareNSS = 0                    // Software NSS diabled
+  22:src/main.c    **** };
+  23:src/main.c    **** 
+ARM GAS  /tmp/cc7euBeG.s 			page 2
+
+
+  24:src/main.c    **** /*
+  25:src/main.c    **** UART_Typedef UART1_config = {
+  26:src/main.c    ****     .baudRate = 9600,
+  27:src/main.c    ****     .peripheralClock = SysCoreClk,
+  28:src/main.c    ****     .mode = UART_TX,
+  29:src/main.c    ****     .NoStopBit = 1
+  30:src/main.c    **** };
+  31:src/main.c    ****     Use UART 1 to view received SPI data in serial monitor */
+  32:src/main.c    **** 
+  33:src/main.c    **** int main(void)
+  34:src/main.c    **** {
+  33              		.loc 1 34 1 view -0
+  34              		.cfi_startproc
+  35              		@ args = 0, pretend = 0, frame = 0
+  36              		@ frame_needed = 0, uses_anonymous_args = 0
+  37 0000 38B5     		push	{r3, r4, r5, lr}
+  38              	.LCFI0:
+  39              		.cfi_def_cfa_offset 16
+  40              		.cfi_offset 3, -16
+  41              		.cfi_offset 4, -12
+  42              		.cfi_offset 5, -8
+  43              		.cfi_offset 14, -4
+  35:src/main.c    ****     SystemInit();
+  44              		.loc 1 35 5 view .LVU1
+  45 0002 FFF7FEFF 		bl	SystemInit
+  46              	.LVL0:
+  36:src/main.c    **** 
+  37:src/main.c    ****     //UART_init(UART1, &UART1_config);            // UART to see the receive data in serial monitor
+  38:src/main.c    **** 
+  39:src/main.c    ****     SPI_init(SPI_1, &SPI1_config);              // Setup SPI 1
+  47              		.loc 1 39 5 view .LVU2
+  48 0006 1A49     		ldr	r1, .L7
+  49 0008 1A48     		ldr	r0, .L7+4
+  50 000a FFF7FEFF 		bl	SPI_init
+  51              	.LVL1:
+  40:src/main.c    ****     SPI_init(SPI_2, &SPI2_config);              // Setup SPI 2
+  52              		.loc 1 40 5 view .LVU3
+  53 000e 1A49     		ldr	r1, .L7+8
+  54 0010 1A48     		ldr	r0, .L7+12
+  55 0012 FFF7FEFF 		bl	SPI_init
+  56              	.LVL2:
+  57 0016 09E0     		b	.L5
+  58              	.LVL3:
+  59              	.L3:
+  60              	.LBB2:
+  41:src/main.c    **** 
+  42:src/main.c    ****     uint8_t data;
+  43:src/main.c    **** 
+  44:src/main.c    ****     while (1)
+  45:src/main.c    ****     {
+  46:src/main.c    ****         SPI_Enable(SPI_1);                      // enable SPI
+  47:src/main.c    ****         SPI_Enable(SPI_2);
+  48:src/main.c    **** 
+  49:src/main.c    ****         char* str = "Hello World\n\r";
+  50:src/main.c    ****         while (*str)
+  51:src/main.c    ****         {
+  52:src/main.c    ****             SPI_Write(SPI_1, *str++);           // transmit data from SPI 1
+ARM GAS  /tmp/cc7euBeG.s 			page 3
+
+
+  53:src/main.c    ****             SPI_Read(SPI_1);                    // Read DR to clear over right flag being set
+  54:src/main.c    ****             if (GPIOB->IDR & GPIO_IDR_ID12)     // if NSS goes Low to High (i.e) Master deselects t
+  55:src/main.c    ****             {
+  56:src/main.c    ****                 break;
+  57:src/main.c    ****             }
+  58:src/main.c    ****             SPI_Write(SPI_2, 0xFF);             // Send dummy data from MISO salve to master
+  59:src/main.c    ****             data = SPI_Read(SPI_2);             // receive data from SPI 2
+  60:src/main.c    ****             //UART_Write(UART1, data);            // UART to see the receive data in serial monitor
+  61:src/main.c    ****         }
+  62:src/main.c    **** 
+  63:src/main.c    ****         SPI_Disable(SPI_1);                     // disable SPI
+  61              		.loc 1 63 9 view .LVU4
+  62 0018 1648     		ldr	r0, .L7+4
+  63 001a FFF7FEFF 		bl	SPI_Disable
+  64              	.LVL4:
+  64:src/main.c    ****         SPI_Disable(SPI_2);
+  65              		.loc 1 64 9 view .LVU5
+  66 001e 1748     		ldr	r0, .L7+12
+  67 0020 FFF7FEFF 		bl	SPI_Disable
+  68              	.LVL5:
+  65:src/main.c    **** 
+  66:src/main.c    ****         Delay_ms(1000);                         // 1s delay
+  69              		.loc 1 66 9 view .LVU6
+  70 0024 4FF47A70 		mov	r0, #1000
+  71 0028 FFF7FEFF 		bl	Delay_ms
+  72              	.LVL6:
+  73              	.LBE2:
+  44:src/main.c    ****     {
+  74              		.loc 1 44 11 view .LVU7
+  75              	.L5:
+  42:src/main.c    **** 
+  76              		.loc 1 42 5 view .LVU8
+  44:src/main.c    ****     {
+  77              		.loc 1 44 5 view .LVU9
+  78              	.LBB3:
+  46:src/main.c    ****         SPI_Enable(SPI_2);
+  79              		.loc 1 46 9 view .LVU10
+  80 002c 1148     		ldr	r0, .L7+4
+  81 002e FFF7FEFF 		bl	SPI_Enable
+  82              	.LVL7:
+  47:src/main.c    **** 
+  83              		.loc 1 47 9 view .LVU11
+  84 0032 1248     		ldr	r0, .L7+12
+  85 0034 FFF7FEFF 		bl	SPI_Enable
+  86              	.LVL8:
+  49:src/main.c    ****         while (*str)
+  87              		.loc 1 49 9 view .LVU12
+  50:src/main.c    ****         {
+  88              		.loc 1 50 9 view .LVU13
+  49:src/main.c    ****         while (*str)
+  89              		.loc 1 49 15 is_stmt 0 view .LVU14
+  90 0038 114C     		ldr	r4, .L7+16
+  91              	.LVL9:
+  92              	.L2:
+  50:src/main.c    ****         {
+  93              		.loc 1 50 15 is_stmt 1 view .LVU15
+  50:src/main.c    ****         {
+ARM GAS  /tmp/cc7euBeG.s 			page 4
+
+
+  94              		.loc 1 50 16 is_stmt 0 view .LVU16
+  95 003a 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+  50:src/main.c    ****         {
+  96              		.loc 1 50 15 view .LVU17
+  97 003c 0029     		cmp	r1, #0
+  98 003e EBD0     		beq	.L3
+  52:src/main.c    ****             SPI_Read(SPI_1);                    // Read DR to clear over right flag being set
+  99              		.loc 1 52 13 is_stmt 1 view .LVU18
+  52:src/main.c    ****             SPI_Read(SPI_1);                    // Read DR to clear over right flag being set
+ 100              		.loc 1 52 34 is_stmt 0 view .LVU19
+ 101 0040 0134     		adds	r4, r4, #1
+ 102              	.LVL10:
+  52:src/main.c    ****             SPI_Read(SPI_1);                    // Read DR to clear over right flag being set
+ 103              		.loc 1 52 13 view .LVU20
+ 104 0042 0C4D     		ldr	r5, .L7+4
+ 105 0044 2846     		mov	r0, r5
+ 106 0046 FFF7FEFF 		bl	SPI_Write
+ 107              	.LVL11:
+  53:src/main.c    ****             if (GPIOB->IDR & GPIO_IDR_ID12)     // if NSS goes Low to High (i.e) Master deselects t
+ 108              		.loc 1 53 13 is_stmt 1 view .LVU21
+ 109 004a 2846     		mov	r0, r5
+ 110 004c FFF7FEFF 		bl	SPI_Read
+ 111              	.LVL12:
+  54:src/main.c    ****             {
+ 112              		.loc 1 54 13 view .LVU22
+  54:src/main.c    ****             {
+ 113              		.loc 1 54 22 is_stmt 0 view .LVU23
+ 114 0050 0C4B     		ldr	r3, .L7+20
+ 115 0052 1B69     		ldr	r3, [r3, #16]
+  54:src/main.c    ****             {
+ 116              		.loc 1 54 16 view .LVU24
+ 117 0054 13F4805F 		tst	r3, #4096
+ 118 0058 DED1     		bne	.L3
+  58:src/main.c    ****             data = SPI_Read(SPI_2);             // receive data from SPI 2
+ 119              		.loc 1 58 13 is_stmt 1 view .LVU25
+ 120 005a A5F57845 		sub	r5, r5, #63488
+ 121 005e FF21     		movs	r1, #255
+ 122 0060 2846     		mov	r0, r5
+ 123 0062 FFF7FEFF 		bl	SPI_Write
+ 124              	.LVL13:
+  59:src/main.c    ****             //UART_Write(UART1, data);            // UART to see the receive data in serial monitor
+ 125              		.loc 1 59 13 view .LVU26
+  59:src/main.c    ****             //UART_Write(UART1, data);            // UART to see the receive data in serial monitor
+ 126              		.loc 1 59 20 is_stmt 0 view .LVU27
+ 127 0066 2846     		mov	r0, r5
+ 128 0068 FFF7FEFF 		bl	SPI_Read
+ 129              	.LVL14:
+ 130 006c E5E7     		b	.L2
+ 131              	.L8:
+ 132 006e 00BF     		.align	2
+ 133              	.L7:
+ 134 0070 00000000 		.word	.LANCHOR0
+ 135 0074 00300140 		.word	1073819648
+ 136 0078 00000000 		.word	.LANCHOR1
+ 137 007c 00380040 		.word	1073756160
+ 138 0080 00000000 		.word	.LC0
+ 139 0084 00040240 		.word	1073873920
+ARM GAS  /tmp/cc7euBeG.s 			page 5
+
+
+ 140              	.LBE3:
+ 141              		.cfi_endproc
+ 142              	.LFE134:
+ 144              		.global	SPI2_config
+ 145              		.global	SPI1_config
+ 146              		.section	.data.SPI1_config,"aw"
+ 147              		.align	2
+ 148              		.set	.LANCHOR0,. + 0
+ 151              	SPI1_config:
+ 152 0000 01       		.byte	1
+ 153 0001 07       		.byte	7
+ 154 0002 02       		.byte	2
+ 155 0003 00       		.byte	0
+ 156 0004 00       		.byte	0
+ 157 0005 00       		.byte	0
+ 158 0006 00       		.byte	0
+ 159 0007 00       		.space	1
+ 160              		.section	.data.SPI2_config,"aw"
+ 161              		.align	2
+ 162              		.set	.LANCHOR1,. + 0
+ 165              	SPI2_config:
+ 166 0000 00       		.byte	0
+ 167 0001 00       		.space	1
+ 168 0002 02       		.byte	2
+ 169 0003 00       		.byte	0
+ 170 0004 00       		.byte	0
+ 171 0005 00       		.byte	0
+ 172 0006 00       		.byte	0
+ 173 0007 00       		.space	1
+ 174              		.text
+ 175              	.Letext0:
+ 176              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 177              		.file 3 "driver/Device/stm32f401xc.h"
+ 178              		.file 4 "inc/SPI.h"
+ 179              		.file 5 "inc/main.h"
+ARM GAS  /tmp/cc7euBeG.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/cc7euBeG.s:18     .rodata.main.str1.4:0000000000000000 $d
+     /tmp/cc7euBeG.s:22     .text.main:0000000000000000 $t
+     /tmp/cc7euBeG.s:30     .text.main:0000000000000000 main
+     /tmp/cc7euBeG.s:134    .text.main:0000000000000070 $d
+     /tmp/cc7euBeG.s:165    .data.SPI2_config:0000000000000000 SPI2_config
+     /tmp/cc7euBeG.s:151    .data.SPI1_config:0000000000000000 SPI1_config
+     /tmp/cc7euBeG.s:147    .data.SPI1_config:0000000000000000 $d
+     /tmp/cc7euBeG.s:161    .data.SPI2_config:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+SystemInit
+SPI_init
+SPI_Disable
+Delay_ms
+SPI_Enable
+SPI_Write
+SPI_Read

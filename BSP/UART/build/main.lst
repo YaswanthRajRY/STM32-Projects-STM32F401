@@ -1,0 +1,243 @@
+ARM GAS  /tmp/cceTlIvk.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.rodata.main.str1.4,"aMS",%progbits,1
+  18              		.align	2
+  19              	.LC0:
+  20 0000 48656C6C 		.ascii	"Hello World from UART 1 :)\012\015\000"
+  20      6F20576F 
+  20      726C6420 
+  20      66726F6D 
+  20      20554152 
+  21              		.section	.text.main,"ax",%progbits
+  22              		.align	1
+  23              		.global	main
+  24              		.arch armv7e-m
+  25              		.syntax unified
+  26              		.thumb
+  27              		.thumb_func
+  28              		.fpu fpv4-sp-d16
+  30              	main:
+  31              	.LFB134:
+  32              		.file 1 "src/main.c"
+   1:src/main.c    **** #include "main.h"
+   2:src/main.c    **** 
+   3:src/main.c    **** #define SysCoreClk 42000000
+   4:src/main.c    **** 
+   5:src/main.c    **** UART_Typedef UART1_config = {
+   6:src/main.c    ****         .baudRate = 9600,               // baud rate
+   7:src/main.c    ****         .peripheralClock = SysCoreClk,  // peripheral clock
+   8:src/main.c    ****         .mode = UART_TX,                // UART communication mode
+   9:src/main.c    ****         .ParityEnable = 0,              // enable parity
+  10:src/main.c    ****         .Parity = 0,                    // even parity
+  11:src/main.c    ****         .NoStopBit = 1                  // stop bit
+  12:src/main.c    **** };
+  13:src/main.c    **** 
+  14:src/main.c    **** UART_Typedef UART6_config = {
+  15:src/main.c    ****         .baudRate = 9600,               // baud rate
+  16:src/main.c    ****         .peripheralClock = SysCoreClk,  // peripheral clock
+  17:src/main.c    ****         .mode = UART_TX_RX,             // UART communication mode
+  18:src/main.c    ****         .ParityEnable = 0,              // enable parity
+  19:src/main.c    ****         .Parity = 0,                    // even parity
+  20:src/main.c    ****         .NoStopBit = 1                  // stop bit
+  21:src/main.c    **** };
+  22:src/main.c    **** 
+ARM GAS  /tmp/cceTlIvk.s 			page 2
+
+
+  23:src/main.c    **** ringBuffer_Typedef UART6_Buff;
+  24:src/main.c    **** 
+  25:src/main.c    **** int main(void)
+  26:src/main.c    **** {
+  33              		.loc 1 26 1 view -0
+  34              		.cfi_startproc
+  35              		@ args = 0, pretend = 0, frame = 0
+  36              		@ frame_needed = 0, uses_anonymous_args = 0
+  37 0000 10B5     		push	{r4, lr}
+  38              	.LCFI0:
+  39              		.cfi_def_cfa_offset 8
+  40              		.cfi_offset 4, -8
+  41              		.cfi_offset 14, -4
+  27:src/main.c    ****     UART_init(UART1, &UART1_config);    // setup UART 1
+  42              		.loc 1 27 5 view .LVU1
+  43 0002 0F49     		ldr	r1, .L7
+  44 0004 0F48     		ldr	r0, .L7+4
+  45 0006 FFF7FEFF 		bl	UART_init
+  46              	.LVL0:
+  28:src/main.c    ****     UART_init(UART6, &UART6_config);    // setup UART 1
+  47              		.loc 1 28 5 view .LVU2
+  48 000a 0F49     		ldr	r1, .L7+8
+  49 000c 0F48     		ldr	r0, .L7+12
+  50 000e FFF7FEFF 		bl	UART_init
+  51              	.LVL1:
+  29:src/main.c    **** 
+  30:src/main.c    ****     ringBuffer_init(&UART6_Buff);       // setup ring buffer for UART 2
+  52              		.loc 1 30 5 view .LVU3
+  53 0012 0F48     		ldr	r0, .L7+16
+  54 0014 FFF7FEFF 		bl	ringBuffer_init
+  55              	.LVL2:
+  56 0018 06E0     		b	.L4
+  57              	.LVL3:
+  58              	.L6:
+  59              	.LBB2:
+  31:src/main.c    **** 
+  32:src/main.c    ****     while (1)
+  33:src/main.c    ****     {
+  34:src/main.c    ****         UART_EnableInterrupts_Rx(UART6);     // enable interrupts to receive incoming data
+  35:src/main.c    ****         char* s = "Hello World from UART 1 :)\n\r";
+  36:src/main.c    ****         while (*s)
+  37:src/main.c    ****         {
+  38:src/main.c    ****             UART_Write(UART1, *s);          // write data into buffer 
+  39:src/main.c    ****             s++;
+  40:src/main.c    ****         }
+  41:src/main.c    **** 
+  42:src/main.c    ****         UART_EnableInterrupts_Tx(UART6);    // enable interrupts to transmit data
+  60              		.loc 1 42 9 view .LVU4
+  61 001a 0C48     		ldr	r0, .L7+12
+  62 001c FFF7FEFF 		bl	UART_EnableInterrupts_Tx
+  63              	.LVL4:
+  43:src/main.c    ****       
+  44:src/main.c    ****         Delay_ms(1000);                     // 1sec delay
+  64              		.loc 1 44 9 view .LVU5
+  65 0020 4FF47A70 		mov	r0, #1000
+  66 0024 FFF7FEFF 		bl	Delay_ms
+  67              	.LVL5:
+ARM GAS  /tmp/cceTlIvk.s 			page 3
+
+
+  68              	.LBE2:
+  32:src/main.c    ****     {
+  69              		.loc 1 32 11 view .LVU6
+  70              	.L4:
+  32:src/main.c    ****     {
+  71              		.loc 1 32 5 view .LVU7
+  72              	.LBB3:
+  34:src/main.c    ****         char* s = "Hello World from UART 1 :)\n\r";
+  73              		.loc 1 34 9 view .LVU8
+  74 0028 0848     		ldr	r0, .L7+12
+  75 002a FFF7FEFF 		bl	UART_EnableInterrupts_Rx
+  76              	.LVL6:
+  35:src/main.c    ****         while (*s)
+  77              		.loc 1 35 9 view .LVU9
+  36:src/main.c    ****         {
+  78              		.loc 1 36 9 view .LVU10
+  35:src/main.c    ****         while (*s)
+  79              		.loc 1 35 15 is_stmt 0 view .LVU11
+  80 002e 094C     		ldr	r4, .L7+20
+  81              	.LVL7:
+  82              	.L2:
+  36:src/main.c    ****         {
+  83              		.loc 1 36 15 is_stmt 1 view .LVU12
+  36:src/main.c    ****         {
+  84              		.loc 1 36 16 is_stmt 0 view .LVU13
+  85 0030 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+  36:src/main.c    ****         {
+  86              		.loc 1 36 15 view .LVU14
+  87 0032 0029     		cmp	r1, #0
+  88 0034 F1D0     		beq	.L6
+  38:src/main.c    ****             s++;
+  89              		.loc 1 38 13 is_stmt 1 view .LVU15
+  90 0036 0348     		ldr	r0, .L7+4
+  91 0038 FFF7FEFF 		bl	UART_Write
+  92              	.LVL8:
+  39:src/main.c    ****         }
+  93              		.loc 1 39 13 view .LVU16
+  39:src/main.c    ****         }
+  94              		.loc 1 39 14 is_stmt 0 view .LVU17
+  95 003c 0134     		adds	r4, r4, #1
+  96              	.LVL9:
+  39:src/main.c    ****         }
+  97              		.loc 1 39 14 view .LVU18
+  98 003e F7E7     		b	.L2
+  99              	.L8:
+ 100              		.align	2
+ 101              	.L7:
+ 102 0040 00000000 		.word	.LANCHOR0
+ 103 0044 00100140 		.word	1073811456
+ 104 0048 00000000 		.word	.LANCHOR1
+ 105 004c 00140140 		.word	1073812480
+ 106 0050 00000000 		.word	.LANCHOR2
+ 107 0054 00000000 		.word	.LC0
+ 108              	.LBE3:
+ 109              		.cfi_endproc
+ 110              	.LFE134:
+ 112              		.global	UART6_Buff
+ARM GAS  /tmp/cceTlIvk.s 			page 4
+
+
+ 113              		.global	UART6_config
+ 114              		.global	UART1_config
+ 115              		.section	.bss.UART6_Buff,"aw",%nobits
+ 116              		.align	2
+ 117              		.set	.LANCHOR2,. + 0
+ 120              	UART6_Buff:
+ 121 0000 00000000 		.space	66
+ 121      00000000 
+ 121      00000000 
+ 121      00000000 
+ 121      00000000 
+ 122              		.section	.data.UART1_config,"aw"
+ 123              		.align	2
+ 124              		.set	.LANCHOR0,. + 0
+ 127              	UART1_config:
+ 128 0000 80250000 		.word	9600
+ 129 0004 80DE8002 		.word	42000000
+ 130 0008 00       		.byte	0
+ 131 0009 00       		.byte	0
+ 132 000a 00       		.byte	0
+ 133 000b 01       		.byte	1
+ 134              		.section	.data.UART6_config,"aw"
+ 135              		.align	2
+ 136              		.set	.LANCHOR1,. + 0
+ 139              	UART6_config:
+ 140 0000 80250000 		.word	9600
+ 141 0004 80DE8002 		.word	42000000
+ 142 0008 02       		.byte	2
+ 143 0009 00       		.byte	0
+ 144 000a 00       		.byte	0
+ 145 000b 01       		.byte	1
+ 146              		.text
+ 147              	.Letext0:
+ 148              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 149              		.file 3 "inc/ringBuffer.h"
+ 150              		.file 4 "inc/UART.h"
+ 151              		.file 5 "inc/main.h"
+ARM GAS  /tmp/cceTlIvk.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/cceTlIvk.s:18     .rodata.main.str1.4:0000000000000000 $d
+     /tmp/cceTlIvk.s:22     .text.main:0000000000000000 $t
+     /tmp/cceTlIvk.s:30     .text.main:0000000000000000 main
+     /tmp/cceTlIvk.s:102    .text.main:0000000000000040 $d
+     /tmp/cceTlIvk.s:120    .bss.UART6_Buff:0000000000000000 UART6_Buff
+     /tmp/cceTlIvk.s:139    .data.UART6_config:0000000000000000 UART6_config
+     /tmp/cceTlIvk.s:127    .data.UART1_config:0000000000000000 UART1_config
+     /tmp/cceTlIvk.s:116    .bss.UART6_Buff:0000000000000000 $d
+     /tmp/cceTlIvk.s:123    .data.UART1_config:0000000000000000 $d
+     /tmp/cceTlIvk.s:135    .data.UART6_config:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+UART_init
+ringBuffer_init
+UART_EnableInterrupts_Tx
+Delay_ms
+UART_EnableInterrupts_Rx
+UART_Write

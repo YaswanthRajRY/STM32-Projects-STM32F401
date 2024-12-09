@@ -1,0 +1,521 @@
+ARM GAS  /tmp/ccXMgDMe.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"SPI.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.SPI_init,"ax",%progbits
+  18              		.align	1
+  19              		.global	SPI_init
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	SPI_init:
+  27              	.LVL0:
+  28              	.LFB134:
+  29              		.file 1 "src/SPI.c"
+   1:src/SPI.c     **** #include "SPI.h"
+   2:src/SPI.c     **** 
+   3:src/SPI.c     **** /*************************************** Setup SPI *******************************************/
+   4:src/SPI.c     **** void SPI_init(SPI_TypeDef* SPI, SPIconfig_Typedef* SPIconfig)
+   5:src/SPI.c     **** {
+  30              		.loc 1 5 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+   6:src/SPI.c     ****     // Enable SPI peripheral clock
+   7:src/SPI.c     ****     if ((void*)SPI == (void*)SPI1)
+  35              		.loc 1 7 5 view .LVU1
+  36              		.loc 1 7 8 is_stmt 0 view .LVU2
+  37 0000 354B     		ldr	r3, .L19
+  38 0002 9842     		cmp	r0, r3
+  39 0004 3CD0     		beq	.L16
+   8:src/SPI.c     ****     {
+   9:src/SPI.c     ****         RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;         // SPI 1 clock enable
+  10:src/SPI.c     ****         #if SPI1_INTERRUPT_ENABLE
+  11:src/SPI.c     ****         __disable_irq();
+  12:src/SPI.c     ****         NVIC_EnableIRQ(SPI1_IRQn);
+  13:src/SPI.c     ****         __enable_irq();
+  14:src/SPI.c     ****         #endif
+  15:src/SPI.c     ****     }
+  16:src/SPI.c     ****     else if ((void*)SPI == (void*)SPI2)
+  40              		.loc 1 16 10 is_stmt 1 view .LVU3
+  41              		.loc 1 16 13 is_stmt 0 view .LVU4
+  42 0006 354B     		ldr	r3, .L19+4
+ARM GAS  /tmp/ccXMgDMe.s 			page 2
+
+
+  43 0008 9842     		cmp	r0, r3
+  44 000a 3FD0     		beq	.L17
+  17:src/SPI.c     ****     {
+  18:src/SPI.c     ****         RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;         // SPI 2 clock enable
+  19:src/SPI.c     ****         #if SPI2_INTERRUPT_ENABLE
+  20:src/SPI.c     ****         __disable_irq();
+  21:src/SPI.c     ****         NVIC_EnableIRQ(SPI2_IRQn);
+  22:src/SPI.c     ****         __enable_irq();
+  23:src/SPI.c     ****         #endif
+  24:src/SPI.c     ****     }
+  25:src/SPI.c     ****     else if ((void*)SPI == (void*)SPI3)
+  45              		.loc 1 25 10 is_stmt 1 view .LVU5
+  46              		.loc 1 25 13 is_stmt 0 view .LVU6
+  47 000c 344B     		ldr	r3, .L19+8
+  48 000e 9842     		cmp	r0, r3
+  49 0010 42D0     		beq	.L18
+  50              	.L3:
+  26:src/SPI.c     ****     {
+  27:src/SPI.c     ****         RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;         // SPI 3 clock enable
+  28:src/SPI.c     ****         #if SPI3_INTERRUPT_ENABLE
+  29:src/SPI.c     ****         __disable_irq();
+  30:src/SPI.c     ****         NVIC_EnableIRQ(SPI3_IRQn);
+  31:src/SPI.c     ****         __enable_irq();
+  32:src/SPI.c     ****         #endif
+  33:src/SPI.c     ****     }
+  34:src/SPI.c     **** 
+  35:src/SPI.c     ****     SPI->CR1 &= ~SPI_CR1_SPE;
+  51              		.loc 1 35 5 is_stmt 1 view .LVU7
+  52              		.loc 1 35 14 is_stmt 0 view .LVU8
+  53 0012 0368     		ldr	r3, [r0]
+  54 0014 23F04003 		bic	r3, r3, #64
+  55 0018 0360     		str	r3, [r0]
+  36:src/SPI.c     **** 
+  37:src/SPI.c     ****     // Set baud rate
+  38:src/SPI.c     ****     if (SPIconfig->operationMode)                       // if operation mode is master i.e SPIconfi
+  56              		.loc 1 38 5 is_stmt 1 view .LVU9
+  57              		.loc 1 38 18 is_stmt 0 view .LVU10
+  58 001a 0B78     		ldrb	r3, [r1]	@ zero_extendqisi2
+  59              		.loc 1 38 8 view .LVU11
+  60 001c 23B1     		cbz	r3, .L5
+  39:src/SPI.c     ****     {
+  40:src/SPI.c     ****         SPI->CR1 |= (SPIconfig->baudRatePrescaler << 3);
+  61              		.loc 1 40 9 is_stmt 1 view .LVU12
+  62              		.loc 1 40 18 is_stmt 0 view .LVU13
+  63 001e 0368     		ldr	r3, [r0]
+  64              		.loc 1 40 31 view .LVU14
+  65 0020 4A78     		ldrb	r2, [r1, #1]	@ zero_extendqisi2
+  66              		.loc 1 40 18 view .LVU15
+  67 0022 43EAC203 		orr	r3, r3, r2, lsl #3
+  68 0026 0360     		str	r3, [r0]
+  69              	.L5:
+  41:src/SPI.c     ****     }
+  42:src/SPI.c     **** 
+  43:src/SPI.c     ****     // Data frame format
+  44:src/SPI.c     ****     if (SPIconfig->dataFrameFormat)
+  70              		.loc 1 44 5 is_stmt 1 view .LVU16
+  71              		.loc 1 44 18 is_stmt 0 view .LVU17
+ARM GAS  /tmp/ccXMgDMe.s 			page 3
+
+
+  72 0028 4B79     		ldrb	r3, [r1, #5]	@ zero_extendqisi2
+  73              		.loc 1 44 8 view .LVU18
+  74 002a 002B     		cmp	r3, #0
+  75 002c 3AD0     		beq	.L6
+  45:src/SPI.c     ****     {
+  46:src/SPI.c     ****         SPI->CR1 |= SPI_CR1_DFF;                        // 16-bit DFF
+  76              		.loc 1 46 9 is_stmt 1 view .LVU19
+  77              		.loc 1 46 18 is_stmt 0 view .LVU20
+  78 002e 0368     		ldr	r3, [r0]
+  79 0030 43F40063 		orr	r3, r3, #2048
+  80 0034 0360     		str	r3, [r0]
+  81              	.L7:
+  47:src/SPI.c     ****     }
+  48:src/SPI.c     ****     else
+  49:src/SPI.c     ****     {
+  50:src/SPI.c     ****         SPI->CR1 &= ~(SPI_CR1_DFF);                     // 8-bit DFF
+  51:src/SPI.c     ****     }
+  52:src/SPI.c     **** 
+  53:src/SPI.c     ****     // Select CPOL & CPHA
+  54:src/SPI.c     ****     SPI->CR1 |= SPIconfig->SPImode;
+  82              		.loc 1 54 5 is_stmt 1 view .LVU21
+  83              		.loc 1 54 14 is_stmt 0 view .LVU22
+  84 0036 0368     		ldr	r3, [r0]
+  85              		.loc 1 54 26 view .LVU23
+  86 0038 8A78     		ldrb	r2, [r1, #2]	@ zero_extendqisi2
+  87              		.loc 1 54 14 view .LVU24
+  88 003a 1343     		orrs	r3, r3, r2
+  89 003c 0360     		str	r3, [r0]
+  55:src/SPI.c     **** 
+  56:src/SPI.c     ****     // Configure data order MSB first or LSB first
+  57:src/SPI.c     ****     if (SPIconfig->dataOrder)
+  90              		.loc 1 57 5 is_stmt 1 view .LVU25
+  91              		.loc 1 57 18 is_stmt 0 view .LVU26
+  92 003e 0B79     		ldrb	r3, [r1, #4]	@ zero_extendqisi2
+  93              		.loc 1 57 8 view .LVU27
+  94 0040 002B     		cmp	r3, #0
+  95 0042 34D0     		beq	.L8
+  58:src/SPI.c     ****     {
+  59:src/SPI.c     ****         SPI->CR1 |= SPI_CR1_LSBFIRST;                   // LSB transmitted first
+  96              		.loc 1 59 9 is_stmt 1 view .LVU28
+  97              		.loc 1 59 18 is_stmt 0 view .LVU29
+  98 0044 0368     		ldr	r3, [r0]
+  99 0046 43F08003 		orr	r3, r3, #128
+ 100 004a 0360     		str	r3, [r0]
+ 101              	.L9:
+  60:src/SPI.c     ****     }
+  61:src/SPI.c     ****     else
+  62:src/SPI.c     ****     {
+  63:src/SPI.c     ****         SPI->CR1 &= ~(SPI_CR1_LSBFIRST);                // MSB transmitted first
+  64:src/SPI.c     ****     }
+  65:src/SPI.c     **** 
+  66:src/SPI.c     ****     // Frame format SPI TI mode or SPI Motorola mode
+  67:src/SPI.c     ****     if (SPIconfig->TIenable)
+ 102              		.loc 1 67 5 is_stmt 1 view .LVU30
+ 103              		.loc 1 67 18 is_stmt 0 view .LVU31
+ 104 004c CB78     		ldrb	r3, [r1, #3]	@ zero_extendqisi2
+ 105              		.loc 1 67 8 view .LVU32
+ARM GAS  /tmp/ccXMgDMe.s 			page 4
+
+
+ 106 004e 002B     		cmp	r3, #0
+ 107 0050 32D0     		beq	.L10
+  68:src/SPI.c     ****     {
+  69:src/SPI.c     ****         SPI->CR2 |= SPI_CR2_FRF;                        // SPI TI mode
+ 108              		.loc 1 69 9 is_stmt 1 view .LVU33
+ 109              		.loc 1 69 18 is_stmt 0 view .LVU34
+ 110 0052 4368     		ldr	r3, [r0, #4]
+ 111 0054 43F01003 		orr	r3, r3, #16
+ 112 0058 4360     		str	r3, [r0, #4]
+ 113              	.L11:
+  70:src/SPI.c     ****     }
+  71:src/SPI.c     ****     else
+  72:src/SPI.c     ****     {
+  73:src/SPI.c     ****         SPI->CR2 &= ~(SPI_CR2_FRF);                     // SPI Motorola mode
+  74:src/SPI.c     ****     }
+  75:src/SPI.c     **** 
+  76:src/SPI.c     ****     // Config NSS
+  77:src/SPI.c     ****     if (SPIconfig->softwareNSS)
+ 114              		.loc 1 77 5 is_stmt 1 view .LVU35
+ 115              		.loc 1 77 18 is_stmt 0 view .LVU36
+ 116 005a 8B79     		ldrb	r3, [r1, #6]	@ zero_extendqisi2
+ 117              		.loc 1 77 8 view .LVU37
+ 118 005c 002B     		cmp	r3, #0
+ 119 005e 30D0     		beq	.L12
+  78:src/SPI.c     ****     {
+  79:src/SPI.c     ****         SPI->CR1 |= (SPIconfig->softwareNSS << SPI_CR1_SSM_Pos);    // SSM
+ 120              		.loc 1 79 9 is_stmt 1 view .LVU38
+ 121              		.loc 1 79 18 is_stmt 0 view .LVU39
+ 122 0060 0268     		ldr	r2, [r0]
+ 123 0062 42EA4323 		orr	r3, r2, r3, lsl #9
+ 124 0066 0360     		str	r3, [r0]
+  80:src/SPI.c     ****         SPI->CR1 |= (SPIconfig->NSSactiveHigh << SPI_CR1_SSI_Pos);  // SSI
+ 125              		.loc 1 80 9 is_stmt 1 view .LVU40
+ 126              		.loc 1 80 18 is_stmt 0 view .LVU41
+ 127 0068 0368     		ldr	r3, [r0]
+ 128              		.loc 1 80 31 view .LVU42
+ 129 006a CA79     		ldrb	r2, [r1, #7]	@ zero_extendqisi2
+ 130              		.loc 1 80 18 view .LVU43
+ 131 006c 43EA0223 		orr	r3, r3, r2, lsl #8
+ 132 0070 0360     		str	r3, [r0]
+ 133              	.L13:
+  81:src/SPI.c     ****     }
+  82:src/SPI.c     ****     else
+  83:src/SPI.c     ****     {
+  84:src/SPI.c     ****         SPI->CR2 |= SPI_CR2_SSOE;                       // In master mode, NSS is output enabled
+  85:src/SPI.c     ****     }
+  86:src/SPI.c     **** 
+  87:src/SPI.c     ****     // Enable Interrupt for Tx and Rx
+  88:src/SPI.c     ****     #if SPI1_INTERRUPT_ENABLE || SPI2_INTERRUPT_ENABLE || SPI3_INTERRUPT_ENABLE
+  89:src/SPI.c     ****     SPI->CR2 |= SPI_CR2_TXEIE | SPI_CR2_RXNEIE;
+  90:src/SPI.c     ****     #endif
+  91:src/SPI.c     **** 
+  92:src/SPI.c     ****     // Enable master
+  93:src/SPI.c     ****     if (SPIconfig->operationMode)
+ 134              		.loc 1 93 5 is_stmt 1 view .LVU44
+ 135              		.loc 1 93 18 is_stmt 0 view .LVU45
+ 136 0072 0B78     		ldrb	r3, [r1]	@ zero_extendqisi2
+ARM GAS  /tmp/ccXMgDMe.s 			page 5
+
+
+ 137              		.loc 1 93 8 view .LVU46
+ 138 0074 53B3     		cbz	r3, .L14
+  94:src/SPI.c     ****     {
+  95:src/SPI.c     ****         SPI->CR1 |= SPI_CR1_MSTR;                       // Enable Master
+ 139              		.loc 1 95 9 is_stmt 1 view .LVU47
+ 140              		.loc 1 95 18 is_stmt 0 view .LVU48
+ 141 0076 0368     		ldr	r3, [r0]
+ 142 0078 43F00403 		orr	r3, r3, #4
+ 143 007c 0360     		str	r3, [r0]
+ 144 007e 7047     		bx	lr
+ 145              	.L16:
+   9:src/SPI.c     ****         #if SPI1_INTERRUPT_ENABLE
+ 146              		.loc 1 9 9 is_stmt 1 view .LVU49
+   9:src/SPI.c     ****         #if SPI1_INTERRUPT_ENABLE
+ 147              		.loc 1 9 22 is_stmt 0 view .LVU50
+ 148 0080 184A     		ldr	r2, .L19+12
+ 149 0082 536C     		ldr	r3, [r2, #68]
+ 150 0084 43F48053 		orr	r3, r3, #4096
+ 151 0088 5364     		str	r3, [r2, #68]
+ 152 008a C2E7     		b	.L3
+ 153              	.L17:
+  18:src/SPI.c     ****         #if SPI2_INTERRUPT_ENABLE
+ 154              		.loc 1 18 9 is_stmt 1 view .LVU51
+  18:src/SPI.c     ****         #if SPI2_INTERRUPT_ENABLE
+ 155              		.loc 1 18 22 is_stmt 0 view .LVU52
+ 156 008c 154A     		ldr	r2, .L19+12
+ 157 008e 136C     		ldr	r3, [r2, #64]
+ 158 0090 43F48043 		orr	r3, r3, #16384
+ 159 0094 1364     		str	r3, [r2, #64]
+ 160 0096 BCE7     		b	.L3
+ 161              	.L18:
+  27:src/SPI.c     ****         #if SPI3_INTERRUPT_ENABLE
+ 162              		.loc 1 27 9 is_stmt 1 view .LVU53
+  27:src/SPI.c     ****         #if SPI3_INTERRUPT_ENABLE
+ 163              		.loc 1 27 22 is_stmt 0 view .LVU54
+ 164 0098 124A     		ldr	r2, .L19+12
+ 165 009a 136C     		ldr	r3, [r2, #64]
+ 166 009c 43F40043 		orr	r3, r3, #32768
+ 167 00a0 1364     		str	r3, [r2, #64]
+ 168 00a2 B6E7     		b	.L3
+ 169              	.L6:
+  50:src/SPI.c     ****     }
+ 170              		.loc 1 50 9 is_stmt 1 view .LVU55
+  50:src/SPI.c     ****     }
+ 171              		.loc 1 50 18 is_stmt 0 view .LVU56
+ 172 00a4 0368     		ldr	r3, [r0]
+ 173 00a6 23F40063 		bic	r3, r3, #2048
+ 174 00aa 0360     		str	r3, [r0]
+ 175 00ac C3E7     		b	.L7
+ 176              	.L8:
+  63:src/SPI.c     ****     }
+ 177              		.loc 1 63 9 is_stmt 1 view .LVU57
+  63:src/SPI.c     ****     }
+ 178              		.loc 1 63 18 is_stmt 0 view .LVU58
+ 179 00ae 0368     		ldr	r3, [r0]
+ 180 00b0 23F08003 		bic	r3, r3, #128
+ 181 00b4 0360     		str	r3, [r0]
+ARM GAS  /tmp/ccXMgDMe.s 			page 6
+
+
+ 182 00b6 C9E7     		b	.L9
+ 183              	.L10:
+  73:src/SPI.c     ****     }
+ 184              		.loc 1 73 9 is_stmt 1 view .LVU59
+  73:src/SPI.c     ****     }
+ 185              		.loc 1 73 18 is_stmt 0 view .LVU60
+ 186 00b8 4368     		ldr	r3, [r0, #4]
+ 187 00ba 23F01003 		bic	r3, r3, #16
+ 188 00be 4360     		str	r3, [r0, #4]
+ 189 00c0 CBE7     		b	.L11
+ 190              	.L12:
+  84:src/SPI.c     ****     }
+ 191              		.loc 1 84 9 is_stmt 1 view .LVU61
+  84:src/SPI.c     ****     }
+ 192              		.loc 1 84 18 is_stmt 0 view .LVU62
+ 193 00c2 4368     		ldr	r3, [r0, #4]
+ 194 00c4 43F00403 		orr	r3, r3, #4
+ 195 00c8 4360     		str	r3, [r0, #4]
+ 196 00ca D2E7     		b	.L13
+ 197              	.L14:
+  96:src/SPI.c     ****     }
+  97:src/SPI.c     ****     else
+  98:src/SPI.c     ****     {
+  99:src/SPI.c     ****         SPI->CR1 &= ~(SPI_CR1_MSTR);                    // Enable slave
+ 198              		.loc 1 99 9 is_stmt 1 view .LVU63
+ 199              		.loc 1 99 18 is_stmt 0 view .LVU64
+ 200 00cc 0368     		ldr	r3, [r0]
+ 201 00ce 23F00403 		bic	r3, r3, #4
+ 202 00d2 0360     		str	r3, [r0]
+ 100:src/SPI.c     ****     }
+ 101:src/SPI.c     **** }
+ 203              		.loc 1 101 1 view .LVU65
+ 204 00d4 7047     		bx	lr
+ 205              	.L20:
+ 206 00d6 00BF     		.align	2
+ 207              	.L19:
+ 208 00d8 00300140 		.word	1073819648
+ 209 00dc 00380040 		.word	1073756160
+ 210 00e0 003C0040 		.word	1073757184
+ 211 00e4 00380240 		.word	1073887232
+ 212              		.cfi_endproc
+ 213              	.LFE134:
+ 215              		.section	.text.SPI_Enable,"ax",%progbits
+ 216              		.align	1
+ 217              		.global	SPI_Enable
+ 218              		.syntax unified
+ 219              		.thumb
+ 220              		.thumb_func
+ 221              		.fpu fpv4-sp-d16
+ 223              	SPI_Enable:
+ 224              	.LVL1:
+ 225              	.LFB135:
+ 102:src/SPI.c     **** 
+ 103:src/SPI.c     **** /************************************ Enable/Disable DPI **************************************/
+ 104:src/SPI.c     **** void SPI_Enable(SPI_TypeDef* SPI)
+ 105:src/SPI.c     **** {
+ 226              		.loc 1 105 1 is_stmt 1 view -0
+ARM GAS  /tmp/ccXMgDMe.s 			page 7
+
+
+ 227              		.cfi_startproc
+ 228              		@ args = 0, pretend = 0, frame = 0
+ 229              		@ frame_needed = 0, uses_anonymous_args = 0
+ 230              		@ link register save eliminated.
+ 106:src/SPI.c     ****     SPI->CR1 |= SPI_CR1_SPE;
+ 231              		.loc 1 106 5 view .LVU67
+ 232              		.loc 1 106 14 is_stmt 0 view .LVU68
+ 233 0000 0368     		ldr	r3, [r0]
+ 234 0002 43F04003 		orr	r3, r3, #64
+ 235 0006 0360     		str	r3, [r0]
+ 107:src/SPI.c     **** }
+ 236              		.loc 1 107 1 view .LVU69
+ 237 0008 7047     		bx	lr
+ 238              		.cfi_endproc
+ 239              	.LFE135:
+ 241              		.section	.text.SPI_Disable,"ax",%progbits
+ 242              		.align	1
+ 243              		.global	SPI_Disable
+ 244              		.syntax unified
+ 245              		.thumb
+ 246              		.thumb_func
+ 247              		.fpu fpv4-sp-d16
+ 249              	SPI_Disable:
+ 250              	.LFB136:
+ 108:src/SPI.c     **** void SPI_Disable(SPI_TypeDef* SPI)
+ 109:src/SPI.c     **** {
+ 251              		.loc 1 109 1 is_stmt 1 view -0
+ 252              		.cfi_startproc
+ 253              		@ args = 0, pretend = 0, frame = 0
+ 254              		@ frame_needed = 0, uses_anonymous_args = 0
+ 255              		@ link register save eliminated.
+ 256              	.LVL2:
+ 257              	.L23:
+ 110:src/SPI.c     ****     while (SPI->SR & SPI_SR_BSY);           // wait till communication is not busy
+ 258              		.loc 1 110 33 discriminator 1 view .LVU71
+ 259              		.loc 1 110 11 discriminator 1 view .LVU72
+ 260              		.loc 1 110 15 is_stmt 0 discriminator 1 view .LVU73
+ 261 0000 8368     		ldr	r3, [r0, #8]
+ 262              		.loc 1 110 11 discriminator 1 view .LVU74
+ 263 0002 13F0800F 		tst	r3, #128
+ 264 0006 FBD1     		bne	.L23
+ 111:src/SPI.c     **** 
+ 112:src/SPI.c     ****     SPI->CR1 &= ~SPI_CR1_SPE;
+ 265              		.loc 1 112 5 is_stmt 1 view .LVU75
+ 266              		.loc 1 112 14 is_stmt 0 view .LVU76
+ 267 0008 0368     		ldr	r3, [r0]
+ 268 000a 23F04003 		bic	r3, r3, #64
+ 269 000e 0360     		str	r3, [r0]
+ 113:src/SPI.c     **** }
+ 270              		.loc 1 113 1 view .LVU77
+ 271 0010 7047     		bx	lr
+ 272              		.cfi_endproc
+ 273              	.LFE136:
+ 275              		.section	.text.SPI_Write,"ax",%progbits
+ 276              		.align	1
+ 277              		.global	SPI_Write
+ 278              		.syntax unified
+ARM GAS  /tmp/ccXMgDMe.s 			page 8
+
+
+ 279              		.thumb
+ 280              		.thumb_func
+ 281              		.fpu fpv4-sp-d16
+ 283              	SPI_Write:
+ 284              	.LFB137:
+ 114:src/SPI.c     **** 
+ 115:src/SPI.c     **** /************************************* Transmit data *****************************************/
+ 116:src/SPI.c     **** void SPI_Write(SPI_TypeDef* SPI, uint16_t data)
+ 117:src/SPI.c     **** {
+ 285              		.loc 1 117 1 is_stmt 1 view -0
+ 286              		.cfi_startproc
+ 287              		@ args = 0, pretend = 0, frame = 0
+ 288              		@ frame_needed = 0, uses_anonymous_args = 0
+ 289              		@ link register save eliminated.
+ 290              	.LVL3:
+ 291              	.L25:
+ 118:src/SPI.c     ****     while (!(SPI->SR & SPI_SR_TXE));        // wait till data in transmit buffer is empty
+ 292              		.loc 1 118 36 discriminator 1 view .LVU79
+ 293              		.loc 1 118 11 discriminator 1 view .LVU80
+ 294              		.loc 1 118 17 is_stmt 0 discriminator 1 view .LVU81
+ 295 0000 8368     		ldr	r3, [r0, #8]
+ 296              		.loc 1 118 11 discriminator 1 view .LVU82
+ 297 0002 13F0020F 		tst	r3, #2
+ 298 0006 FBD0     		beq	.L25
+ 119:src/SPI.c     ****     SPI->DR = data;                         // write data into data register
+ 299              		.loc 1 119 5 is_stmt 1 view .LVU83
+ 300              		.loc 1 119 13 is_stmt 0 view .LVU84
+ 301 0008 C160     		str	r1, [r0, #12]
+ 120:src/SPI.c     **** }
+ 302              		.loc 1 120 1 view .LVU85
+ 303 000a 7047     		bx	lr
+ 304              		.cfi_endproc
+ 305              	.LFE137:
+ 307              		.section	.text.SPI_Read,"ax",%progbits
+ 308              		.align	1
+ 309              		.global	SPI_Read
+ 310              		.syntax unified
+ 311              		.thumb
+ 312              		.thumb_func
+ 313              		.fpu fpv4-sp-d16
+ 315              	SPI_Read:
+ 316              	.LFB138:
+ 121:src/SPI.c     **** 
+ 122:src/SPI.c     **** /************************************* Receive data ******************************************/
+ 123:src/SPI.c     **** uint16_t SPI_Read(SPI_TypeDef* SPI)
+ 124:src/SPI.c     **** {
+ 317              		.loc 1 124 1 is_stmt 1 view -0
+ 318              		.cfi_startproc
+ 319              		@ args = 0, pretend = 0, frame = 0
+ 320              		@ frame_needed = 0, uses_anonymous_args = 0
+ 321              		@ link register save eliminated.
+ 322              	.LVL4:
+ 323              	.L27:
+ 125:src/SPI.c     ****     while (!(SPI->SR & SPI_SR_RXNE));       // wait till data in receive buffer is empty
+ 324              		.loc 1 125 37 discriminator 1 view .LVU87
+ 325              		.loc 1 125 11 discriminator 1 view .LVU88
+ 326              		.loc 1 125 17 is_stmt 0 discriminator 1 view .LVU89
+ARM GAS  /tmp/ccXMgDMe.s 			page 9
+
+
+ 327 0000 8368     		ldr	r3, [r0, #8]
+ 328              		.loc 1 125 11 discriminator 1 view .LVU90
+ 329 0002 13F0010F 		tst	r3, #1
+ 330 0006 FBD0     		beq	.L27
+ 126:src/SPI.c     ****     return SPI->DR;                         // return received data
+ 331              		.loc 1 126 5 is_stmt 1 view .LVU91
+ 332              		.loc 1 126 15 is_stmt 0 view .LVU92
+ 333 0008 C068     		ldr	r0, [r0, #12]
+ 334              	.LVL5:
+ 127:src/SPI.c     **** }
+ 335              		.loc 1 127 1 view .LVU93
+ 336 000a 80B2     		uxth	r0, r0
+ 337 000c 7047     		bx	lr
+ 338              		.cfi_endproc
+ 339              	.LFE138:
+ 341              		.text
+ 342              	.Letext0:
+ 343              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 344              		.file 3 "driver/Device/stm32f401xc.h"
+ 345              		.file 4 "inc/SPI.h"
+ARM GAS  /tmp/ccXMgDMe.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 SPI.c
+     /tmp/ccXMgDMe.s:18     .text.SPI_init:0000000000000000 $t
+     /tmp/ccXMgDMe.s:26     .text.SPI_init:0000000000000000 SPI_init
+     /tmp/ccXMgDMe.s:208    .text.SPI_init:00000000000000d8 $d
+     /tmp/ccXMgDMe.s:216    .text.SPI_Enable:0000000000000000 $t
+     /tmp/ccXMgDMe.s:223    .text.SPI_Enable:0000000000000000 SPI_Enable
+     /tmp/ccXMgDMe.s:242    .text.SPI_Disable:0000000000000000 $t
+     /tmp/ccXMgDMe.s:249    .text.SPI_Disable:0000000000000000 SPI_Disable
+     /tmp/ccXMgDMe.s:276    .text.SPI_Write:0000000000000000 $t
+     /tmp/ccXMgDMe.s:283    .text.SPI_Write:0000000000000000 SPI_Write
+     /tmp/ccXMgDMe.s:308    .text.SPI_Read:0000000000000000 $t
+     /tmp/ccXMgDMe.s:315    .text.SPI_Read:0000000000000000 SPI_Read
+
+NO UNDEFINED SYMBOLS
