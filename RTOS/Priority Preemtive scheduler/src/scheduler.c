@@ -19,31 +19,31 @@ void switch_task()
 	executing_task->tcb.stack_addr = (uint32_t*)stack_ptr;				// update executing task stack address for saving context
 
 	task_list* scheduled_task = NULL;
-	uint8_t highest_priority = 255;										// Initilize Lowest priority as initial
+	uint8_t highest_priority = 255;							// Initilize Lowest priority as initial
 	
 	do
 	{
 		task_iterator = task_iterator->next;
 
-		if (task_iterator->tcb.task_state != READY)						// skip if task is not ready
+		if (task_iterator->tcb.task_state != READY)				// skip if task is not ready
 		{
 			continue;
 		}
 
 		if (task_iterator->tcb.task_priority < highest_priority && task_iterator != idle_task)	// select lowest priority task
 		{
-			scheduled_task = task_iterator;								// copy the task with highest priority in iteration
+			scheduled_task = task_iterator;					// copy the task with highest priority in iteration
 			highest_priority = scheduled_task->tcb.task_priority;		// update the highest current highest priority in each iteration
 		}
-	} while (task_iterator != idle_task);								// exit iteration if it reaches the start
+	} while (task_iterator != idle_task);						// exit iteration if it reaches the start
 
-	if (scheduled_task == NULL)											// schedule idle task if all task are not ready
+	if (scheduled_task == NULL)							// schedule idle task if all task are not ready
 	{
 		executing_task = idle_task;
 	}
 	else
 	{
-		executing_task = scheduled_task;								// copy scheduled task to executing task
+		executing_task = scheduled_task;					// copy scheduled task to executing task
 	}
 
 	stack_ptr = (uint32_t)executing_task->tcb.stack_addr;				// update next task stack address for restoring context
