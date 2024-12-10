@@ -38,15 +38,43 @@ static void SysClockConfig_42Mhz()
 /****************************************** Function to configure GPIO *****************************************/
 static void gpioConfig()
 {
-    RCC->AHB1ENR |= 1;                              // enable gpio port A clock
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;            // enable gpio port A clock
 
-    GPIOA->MODER |= (0xA << 18);                    // mode as alternate function 
-    GPIOA->OSPEEDR |= (0xA << 18);                  // high speed mode
-    GPIOA->AFR[1] |= (0x77 << 4);                   // AF7 for UART 1
+    // Configure PB6 and PB7 as Alternate Function (AF4 for I2C1)
+    GPIOB->MODER &= ~((3U << GPIO_MODER_MODER6_Pos)
+                    | (3U << GPIO_MODER_MODER7_Pos));           // Clear mode bits
 
-    GPIOA->MODER |= (0xA << 22);                    // mode as alternate function 
-    GPIOA->OSPEEDR |= (0xA << 22);                  // high speed mode
-    GPIOA->AFR[1] |= 0x00088000;                    // AF7 for UART 2
+    GPIOB->MODER |= (2U << GPIO_MODER_MODER6_Pos)
+                    | (2U << GPIO_MODER_MODER7_Pos);            // Set to Alternate Function
+
+    GPIOB->OTYPER |= GPIO_OTYPER_OT6 | GPIO_OTYPER_OT7;         // Open-drain
+
+    GPIOB->OSPEEDR |= (3U << GPIO_OSPEEDR_OSPEED6_Pos)
+                    | (3U << GPIO_OSPEEDR_OSPEED7_Pos);         // High speed
+
+    GPIOB->PUPDR &= ~((3U << GPIO_PUPDR_PUPD6_Pos)
+                    | (3U << GPIO_PUPDR_PUPD7_Pos));            // No pull-up, no pull-down
+
+    GPIOB->AFR[0] |= (4U << GPIO_AFRL_AFSEL6_Pos)
+                    | (4U << GPIO_AFRL_AFSEL7_Pos);             // Alternate function 4 (AF4) for I2C1
+
+    // Configure PB8 and PB9 as Alternate Function (AF4 for I2C2)
+    GPIOB->MODER &= ~((3U << GPIO_MODER_MODER8_Pos)
+                    | (3U << GPIO_MODER_MODER9_Pos));           // Clear mode bits
+
+    GPIOB->MODER |= (2U << GPIO_MODER_MODER8_Pos) 
+                    | (2U << GPIO_MODER_MODER9_Pos);            // Set to Alternate Function
+
+    GPIOB->OTYPER |= GPIO_OTYPER_OT8 | GPIO_OTYPER_OT9;         // Open-drain
+
+    GPIOB->OSPEEDR |= (3U << GPIO_OSPEEDR_OSPEED8_Pos)
+                    | (3U << GPIO_OSPEEDR_OSPEED9_Pos);         // High speed
+
+    GPIOB->PUPDR &= ~((3U << GPIO_PUPDR_PUPD8_Pos)
+                    | (3U << GPIO_PUPDR_PUPD9_Pos));            // No pull-up, no pull-down
+
+    GPIOB->AFR[1] |= (4U << GPIO_AFRH_AFSEL8_Pos)
+                    | (4U << GPIO_AFRH_AFSEL9_Pos);             // Alternate function 4 (AF4) for I2C2
 }
 
 /***************************************** Function to configure Timer ****************************************/
