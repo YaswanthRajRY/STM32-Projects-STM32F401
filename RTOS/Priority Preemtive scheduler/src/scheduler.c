@@ -23,7 +23,7 @@ void switch_task()
 	task_list* scheduled_task = NULL;
 	task_iterator = task_head;
 
-	uint8_t highest_priority = 255;							// Initilize Lowest priority as initial
+	uint8_t highest_priority = 255;						// Initilize Lowest priority as initial
 	
 	while (task_iterator != NULL)
 	{
@@ -35,49 +35,49 @@ void switch_task()
 
 		if (task_iterator->tcb.task_priority < highest_priority)	// select lowest priority task
 		{
-			scheduled_task = task_iterator;							// copy the task with highest priority in iteration
+			scheduled_task = task_iterator;				// copy the task with highest priority in iteration
 			highest_priority = scheduled_task->tcb.task_priority;	// update the highest current highest priority in each iteration
 		}
 
 		task_iterator = task_iterator->next;
 	}
 
-	if (scheduled_task == NULL)								// schedule idle task if all task are not ready
+	if (scheduled_task == NULL)						// schedule idle task if all task are not ready
 	{
 		executing_task = idle_task;
 	}
 	else
 	{
-		executing_task = scheduled_task;					// copy scheduled task to executing task
+		executing_task = scheduled_task;				// copy scheduled task to executing task
 	}
 
-	stack_ptr = (uint32_t)executing_task->tcb.stack_addr;	// update next task stack address for restoring context
+	stack_ptr = (uint32_t)executing_task->tcb.stack_addr;			// update next task stack address for restoring context
 }
 
 /************************************ Function to do context switching ***************************************/
 void PendSV_Handler(void)
 {
-	__ASM volatile("MRS r0, psp");							// move current psp to r0
+	__ASM volatile("MRS r0, psp");						// move current psp to r0
 	__ASM volatile("STMDB r0!, {r4-r11}");					// push r4-r11 in program stack
-	__ASM volatile("MSR psp, r0");							// update psp
-	__ASM volatile("PUSH {lr}");							// push lr in main stack
-	__ASM volatile("MOV %0, r0" : "=r" (stack_ptr)::);		// copy updated psp to current tasl tcb
-	__ASM volatile("BL switch_task");						// branch to switch function
-	__ASM volatile("MOV r0, %0" :: "r" (stack_ptr):);		// copy next task stack address to r0
+	__ASM volatile("MSR psp, r0");						// update psp
+	__ASM volatile("PUSH {lr}");						// push lr in main stack
+	__ASM volatile("MOV %0, r0" : "=r" (stack_ptr)::);			// copy updated psp to current tasl tcb
+	__ASM volatile("BL switch_task");					// branch to switch function
+	__ASM volatile("MOV r0, %0" :: "r" (stack_ptr):);			// copy next task stack address to r0
 	__ASM volatile("LDMIA r0!, {r4-r11}");					// pop saved context from task stack to r4-r11
-	__ASM volatile("MSR psp, r0");							// update psp
-	__ASM volatile("POP {lr}");								// pop lr from main stack
-	__ASM volatile("BX lr");								// return from exception
+	__ASM volatile("MSR psp, r0");						// update psp
+	__ASM volatile("POP {lr}");						// pop lr from main stack
+	__ASM volatile("BX lr");						// return from exception
 }
 
 /**************************************** Function to dalay task *********************************************/
 void task_delay(uint32_t ms)
 {
-	__disable_irq();										// disable interrupts
-	executing_task->tcb.task_delay = ms + ticks;			// update task delay
+	__disable_irq();							// disable interrupts
+	executing_task->tcb.task_delay = ms + ticks;				// update task delay
 	executing_task->tcb.task_state = BLOCKED;				// change task state to blocked
-	set_PendSV();											// set PendSV interrupt
-	__enable_irq();											// enable interrupts
+	set_PendSV();								// set PendSV interrupt
+	__enable_irq();								// enable interrupts
 }
 
 /************************************ Function to update task ticks ******************************************/
@@ -91,22 +91,22 @@ static void update_task_delay()
 	    {
 	        task_iterator->tcb.task_state = READY;				// if condition satisfies change task state to ready
 	    }
-	    task_iterator = task_iterator->next;					// iterate to next task if condition not satisfies
+	    task_iterator = task_iterator->next;				// iterate to next task if condition not satisfies
 	}
 }
 
 /************************************* Function for SysTick_Handler ******************************************/
 void SysTick_Handler(void) 
 {
-	ticks++;													// update tick every 1ms
-	update_task_delay();										// update task tick
-    	set_PendSV();											// set PendSV to trigger interrupt
+	ticks++;								// update tick every 1ms
+	update_task_delay();							// update task tick
+    	set_PendSV();								// set PendSV to trigger interrupt
 }
 
 /****************************************** Idle task function ***********************************************/
 void idleTask(void)
 {
-	SysTick_Config(42000000 / 1000);							// configure systick timer to interrupt every 1ms
+	SysTick_Config(42000000 / 1000);					// configure systick timer to interrupt every 1ms
 
 	while (1);
 }
@@ -114,15 +114,15 @@ void idleTask(void)
 /*********************************** Function to start scheduling task ***************************************/
 void start_scheduler(void)
 {
-    NVIC_SetPriority(PendSV_IRQn, 0xFF);						// set PendSV IRQ in low priority
+    NVIC_SetPriority(PendSV_IRQn, 0xFF);					// set PendSV IRQ in low priority
 
-	create_idle_task();											// create idle task
+	create_idle_task();							// create idle task
 
 	executing_task = idle_task;
 
-	__set_PSP((uint32_t)executing_task->tcb.stack_addr);		// set psp of executing task stack address
-	__ISB();													// instruction sync block
-	__set_CONTROL(0x2);											// set cpu in unprivileged mode
+	__set_PSP((uint32_t)executing_task->tcb.stack_addr);			// set psp of executing task stack address
+	__ISB();								// instruction sync block
+	__set_CONTROL(0x2);							// set cpu in unprivileged mode
 
-	idleTask();													// run idle task first
+	idleTask();								// run idle task first
 }
