@@ -1,0 +1,771 @@
+ARM GAS  /tmp/ccHTMxtx.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"task.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.allocate_task_stack,"ax",%progbits
+  18              		.align	1
+  19              		.arch armv7e-m
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  23              		.fpu fpv4-sp-d16
+  25              	allocate_task_stack:
+  26              	.LVL0:
+  27              	.LFB137:
+  28              		.file 1 "src/task.c"
+   1:src/task.c    **** #include "task.h"
+   2:src/task.c    **** 
+   3:src/task.c    **** task_list* task_head = NULL;                // pointer to point head in linked list
+   4:src/task.c    **** task_list* idle_task = NULL;                // pointer to point idle task in linked list
+   5:src/task.c    **** 
+   6:src/task.c    **** uint32_t task_stack[STACK_SIZE];            // total task stack size
+   7:src/task.c    **** uint16_t current_stack_size = STACK_SIZE;   // available task stack size
+   8:src/task.c    **** 
+   9:src/task.c    **** extern void idleTask(void* parameter);                 // defined in scheduler.c
+  10:src/task.c    **** 
+  11:src/task.c    **** /*********************************** Function to Allocate task stack ******************************
+  12:src/task.c    **** static int allocate_task_stack(TCB_Typedef* tcb, void (*fn)(void*), char* name)
+  13:src/task.c    **** {
+  29              		.loc 1 13 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  14:src/task.c    ****     if ((current_stack_size - 128) < 0)                             // check for available space
+  34              		.loc 1 14 5 view .LVU1
+  35              		.loc 1 14 36 is_stmt 0 view .LVU2
+  36 0000 084B     		ldr	r3, .L4
+  37 0002 1B88     		ldrh	r3, [r3]
+  38              		.loc 1 14 8 view .LVU3
+  39 0004 7F2B     		cmp	r3, #127
+  40 0006 09D9     		bls	.L3
+  15:src/task.c    ****     {
+  16:src/task.c    ****         return -1;
+  17:src/task.c    ****     }
+  18:src/task.c    ****     current_stack_size = current_stack_size - 128;                  // allocate stack space
+ARM GAS  /tmp/ccHTMxtx.s 			page 2
+
+
+  41              		.loc 1 18 5 is_stmt 1 view .LVU4
+  42              		.loc 1 18 45 is_stmt 0 view .LVU5
+  43 0008 803B     		subs	r3, r3, #128
+  44 000a 9BB2     		uxth	r3, r3
+  45              		.loc 1 18 24 view .LVU6
+  46 000c 054A     		ldr	r2, .L4
+  47              	.LVL1:
+  48              		.loc 1 18 24 view .LVU7
+  49 000e 1380     		strh	r3, [r2]	@ movhi
+  19:src/task.c    ****     tcb->stack_addr = &task_stack[current_stack_size];              // update task stack top addres
+  50              		.loc 1 19 5 is_stmt 1 view .LVU8
+  51              		.loc 1 19 23 is_stmt 0 view .LVU9
+  52 0010 054A     		ldr	r2, .L4+4
+  53 0012 02EB8303 		add	r3, r2, r3, lsl #2
+  54              		.loc 1 19 21 view .LVU10
+  55 0016 4360     		str	r3, [r0, #4]
+  20:src/task.c    **** 
+  21:src/task.c    ****     return 0;
+  56              		.loc 1 21 5 is_stmt 1 view .LVU11
+  57              		.loc 1 21 12 is_stmt 0 view .LVU12
+  58 0018 0020     		movs	r0, #0
+  59              	.LVL2:
+  60              		.loc 1 21 12 view .LVU13
+  61 001a 7047     		bx	lr
+  62              	.LVL3:
+  63              	.L3:
+  16:src/task.c    ****     }
+  64              		.loc 1 16 16 view .LVU14
+  65 001c 4FF0FF30 		mov	r0, #-1
+  66              	.LVL4:
+  22:src/task.c    **** }
+  67              		.loc 1 22 1 view .LVU15
+  68 0020 7047     		bx	lr
+  69              	.L5:
+  70 0022 00BF     		.align	2
+  71              	.L4:
+  72 0024 00000000 		.word	.LANCHOR0
+  73 0028 00000000 		.word	task_stack
+  74              		.cfi_endproc
+  75              	.LFE137:
+  77              		.section	.text.create_context,"ax",%progbits
+  78              		.align	1
+  79              		.syntax unified
+  80              		.thumb
+  81              		.thumb_func
+  82              		.fpu fpv4-sp-d16
+  84              	create_context:
+  85              	.LVL5:
+  86              	.LFB138:
+  23:src/task.c    **** 
+  24:src/task.c    **** /*********************************** Function to Create dummy context *****************************
+  25:src/task.c    **** static void create_context(TCB_Typedef* tcb)
+  26:src/task.c    **** {
+  87              		.loc 1 26 1 is_stmt 1 view -0
+  88              		.cfi_startproc
+  89              		@ args = 0, pretend = 0, frame = 0
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /tmp/ccHTMxtx.s 			page 3
+
+
+  91              		@ link register save eliminated.
+  27:src/task.c    ****     uint8_t i = 0;
+  92              		.loc 1 27 5 view .LVU17
+  28:src/task.c    **** 
+  29:src/task.c    ****     *(uint32_t*)(--tcb->stack_addr) = (uint32_t)0x01000000;         // xPSR
+  93              		.loc 1 29 5 view .LVU18
+  94              		.loc 1 29 23 is_stmt 0 view .LVU19
+  95 0000 4368     		ldr	r3, [r0, #4]
+  96              		.loc 1 29 6 view .LVU20
+  97 0002 1A1F     		subs	r2, r3, #4
+  98              		.loc 1 29 37 view .LVU21
+  99 0004 4260     		str	r2, [r0, #4]
+ 100 0006 4FF08072 		mov	r2, #16777216
+ 101 000a 43F8042C 		str	r2, [r3, #-4]
+  30:src/task.c    ****     *(uint32_t*)(--tcb->stack_addr) = (uint32_t)tcb->fn | 1;        // (pc) fn address with LSB set
+ 102              		.loc 1 30 5 is_stmt 1 view .LVU22
+ 103              		.loc 1 30 52 is_stmt 0 view .LVU23
+ 104 000e 0368     		ldr	r3, [r0]
+ 105              		.loc 1 30 23 view .LVU24
+ 106 0010 4268     		ldr	r2, [r0, #4]
+ 107              		.loc 1 30 6 view .LVU25
+ 108 0012 111F     		subs	r1, r2, #4
+ 109              		.loc 1 30 37 view .LVU26
+ 110 0014 4160     		str	r1, [r0, #4]
+ 111              		.loc 1 30 57 view .LVU27
+ 112 0016 43F00103 		orr	r3, r3, #1
+ 113              		.loc 1 30 37 view .LVU28
+ 114 001a 42F8043C 		str	r3, [r2, #-4]
+  31:src/task.c    ****     *(uint32_t*)(--tcb->stack_addr) = (uint32_t)0xFFFFFFFD;         // LR exception return code for
+ 115              		.loc 1 31 5 is_stmt 1 view .LVU29
+ 116              		.loc 1 31 23 is_stmt 0 view .LVU30
+ 117 001e 4368     		ldr	r3, [r0, #4]
+ 118              		.loc 1 31 6 view .LVU31
+ 119 0020 1A1F     		subs	r2, r3, #4
+ 120              		.loc 1 31 37 view .LVU32
+ 121 0022 4260     		str	r2, [r0, #4]
+ 122 0024 6FF00202 		mvn	r2, #2
+ 123 0028 43F8042C 		str	r2, [r3, #-4]
+  32:src/task.c    ****     *(uint32_t*)(--tcb->stack_addr) = (uint32_t)tcb;                // (r12) TCB address
+ 124              		.loc 1 32 5 is_stmt 1 view .LVU33
+ 125              		.loc 1 32 23 is_stmt 0 view .LVU34
+ 126 002c 4368     		ldr	r3, [r0, #4]
+ 127              		.loc 1 32 6 view .LVU35
+ 128 002e 1A1F     		subs	r2, r3, #4
+ 129              		.loc 1 32 37 view .LVU36
+ 130 0030 4260     		str	r2, [r0, #4]
+ 131 0032 43F8040C 		str	r0, [r3, #-4]
+  33:src/task.c    ****     
+  34:src/task.c    ****     *(uint32_t*)(--tcb->stack_addr) = (uint32_t)0xDEADBABE;         // dummy reg value r0
+ 132              		.loc 1 34 5 is_stmt 1 view .LVU37
+ 133              		.loc 1 34 23 is_stmt 0 view .LVU38
+ 134 0036 4268     		ldr	r2, [r0, #4]
+ 135              		.loc 1 34 6 view .LVU39
+ 136 0038 131F     		subs	r3, r2, #4
+ 137              		.loc 1 34 37 view .LVU40
+ 138 003a 4360     		str	r3, [r0, #4]
+ 139 003c 0F4B     		ldr	r3, .L9
+ARM GAS  /tmp/ccHTMxtx.s 			page 4
+
+
+ 140 003e 42F8043C 		str	r3, [r2, #-4]
+  35:src/task.c    ****     *(uint32_t*)(--tcb->stack_addr) = (uint32_t)0xDEADBABE;         // dummy reg value r1
+ 141              		.loc 1 35 5 is_stmt 1 view .LVU41
+ 142              		.loc 1 35 23 is_stmt 0 view .LVU42
+ 143 0042 4268     		ldr	r2, [r0, #4]
+ 144              		.loc 1 35 6 view .LVU43
+ 145 0044 111F     		subs	r1, r2, #4
+ 146              		.loc 1 35 37 view .LVU44
+ 147 0046 4160     		str	r1, [r0, #4]
+ 148 0048 42F8043C 		str	r3, [r2, #-4]
+  36:src/task.c    ****     *(uint32_t*)(--tcb->stack_addr) = (uint32_t)0xDEADBABE;         // dummy reg value r2
+ 149              		.loc 1 36 5 is_stmt 1 view .LVU45
+ 150              		.loc 1 36 23 is_stmt 0 view .LVU46
+ 151 004c 4268     		ldr	r2, [r0, #4]
+ 152              		.loc 1 36 6 view .LVU47
+ 153 004e 111F     		subs	r1, r2, #4
+ 154              		.loc 1 36 37 view .LVU48
+ 155 0050 4160     		str	r1, [r0, #4]
+ 156 0052 42F8043C 		str	r3, [r2, #-4]
+  37:src/task.c    ****     *(uint32_t*)(--tcb->stack_addr) = (uint32_t)0xDEADBABE;         // dummy reg value r3
+ 157              		.loc 1 37 5 is_stmt 1 view .LVU49
+ 158              		.loc 1 37 23 is_stmt 0 view .LVU50
+ 159 0056 4268     		ldr	r2, [r0, #4]
+ 160              		.loc 1 37 6 view .LVU51
+ 161 0058 111F     		subs	r1, r2, #4
+ 162              		.loc 1 37 37 view .LVU52
+ 163 005a 4160     		str	r1, [r0, #4]
+ 164 005c 42F8043C 		str	r3, [r2, #-4]
+  38:src/task.c    ****     
+  39:src/task.c    ****     for (i=0; i<8; i++)
+ 165              		.loc 1 39 5 is_stmt 1 view .LVU53
+ 166              		.loc 1 39 11 is_stmt 0 view .LVU54
+ 167 0060 0023     		movs	r3, #0
+ 168              		.loc 1 39 5 view .LVU55
+ 169 0062 07E0     		b	.L7
+ 170              	.LVL6:
+ 171              	.L8:
+  40:src/task.c    ****     {
+  41:src/task.c    ****         *(uint32_t*)(--tcb->stack_addr) = (uint32_t)0xDEADBABE;    // dummy reg value r4- r11
+ 172              		.loc 1 41 9 is_stmt 1 discriminator 3 view .LVU56
+ 173              		.loc 1 41 27 is_stmt 0 discriminator 3 view .LVU57
+ 174 0064 4268     		ldr	r2, [r0, #4]
+ 175              		.loc 1 41 10 discriminator 3 view .LVU58
+ 176 0066 111F     		subs	r1, r2, #4
+ 177              		.loc 1 41 41 discriminator 3 view .LVU59
+ 178 0068 4160     		str	r1, [r0, #4]
+ 179 006a 0449     		ldr	r1, .L9
+ 180 006c 42F8041C 		str	r1, [r2, #-4]
+  39:src/task.c    ****     {
+ 181              		.loc 1 39 20 is_stmt 1 discriminator 3 view .LVU60
+  39:src/task.c    ****     {
+ 182              		.loc 1 39 21 is_stmt 0 discriminator 3 view .LVU61
+ 183 0070 0133     		adds	r3, r3, #1
+ 184              	.LVL7:
+  39:src/task.c    ****     {
+ 185              		.loc 1 39 21 discriminator 3 view .LVU62
+ 186 0072 DBB2     		uxtb	r3, r3
+ARM GAS  /tmp/ccHTMxtx.s 			page 5
+
+
+ 187              	.LVL8:
+ 188              	.L7:
+  39:src/task.c    ****     {
+ 189              		.loc 1 39 15 is_stmt 1 discriminator 1 view .LVU63
+  39:src/task.c    ****     {
+ 190              		.loc 1 39 5 is_stmt 0 discriminator 1 view .LVU64
+ 191 0074 072B     		cmp	r3, #7
+ 192 0076 F5D9     		bls	.L8
+  42:src/task.c    ****     }
+  43:src/task.c    **** }
+ 193              		.loc 1 43 1 view .LVU65
+ 194 0078 7047     		bx	lr
+ 195              	.L10:
+ 196 007a 00BF     		.align	2
+ 197              	.L9:
+ 198 007c BEBAADDE 		.word	-559039810
+ 199              		.cfi_endproc
+ 200              	.LFE138:
+ 202              		.section	.text.add_inList,"ax",%progbits
+ 203              		.align	1
+ 204              		.syntax unified
+ 205              		.thumb
+ 206              		.thumb_func
+ 207              		.fpu fpv4-sp-d16
+ 209              	add_inList:
+ 210              	.LVL9:
+ 211              	.LFB139:
+  44:src/task.c    **** 
+  45:src/task.c    **** /****************************** Function to Add task in linked List *******************************
+  46:src/task.c    **** static void add_inList(task_list* tcb)
+  47:src/task.c    **** {
+ 212              		.loc 1 47 1 is_stmt 1 view -0
+ 213              		.cfi_startproc
+ 214              		@ args = 0, pretend = 0, frame = 0
+ 215              		@ frame_needed = 0, uses_anonymous_args = 0
+ 216              		@ link register save eliminated.
+  48:src/task.c    ****     if (task_head == NULL)                                          // check head is empty
+ 217              		.loc 1 48 5 view .LVU67
+ 218              		.loc 1 48 19 is_stmt 0 view .LVU68
+ 219 0000 0D4B     		ldr	r3, .L18
+ 220 0002 1B68     		ldr	r3, [r3]
+ 221              		.loc 1 48 8 view .LVU69
+ 222 0004 6BB1     		cbz	r3, .L16
+  49:src/task.c    ****     {
+  50:src/task.c    ****         task_head = tcb;
+  51:src/task.c    ****         return;
+  52:src/task.c    ****     }
+  53:src/task.c    ****     
+  54:src/task.c    ****     if (tcb->tcb.task_priority <= task_head->tcb.task_priority)     // add new high priority node i
+ 223              		.loc 1 54 5 is_stmt 1 view .LVU70
+ 224              		.loc 1 54 17 is_stmt 0 view .LVU71
+ 225 0006 418A     		ldrh	r1, [r0, #18]
+ 226              		.loc 1 54 49 view .LVU72
+ 227 0008 5A8A     		ldrh	r2, [r3, #18]
+ 228              		.loc 1 54 8 view .LVU73
+ 229 000a 9142     		cmp	r1, r2
+ 230 000c 0CD9     		bls	.L17
+ARM GAS  /tmp/ccHTMxtx.s 			page 6
+
+
+ 231              	.L14:
+ 232              	.LVL10:
+  55:src/task.c    ****     {
+  56:src/task.c    ****         tcb->next = task_head;
+  57:src/task.c    ****         task_head = tcb;
+  58:src/task.c    ****         idle_task->next = task_head;                                // alwas idle task is at first 
+  59:src/task.c    ****         return;
+  60:src/task.c    ****     }
+  61:src/task.c    **** 
+  62:src/task.c    ****     task_list* current = task_head;
+  63:src/task.c    **** 
+  64:src/task.c    ****     while (current->next != NULL && current->next->tcb.task_priority <= tcb->tcb.task_priority)    
+ 233              		.loc 1 64 11 is_stmt 1 view .LVU74
+ 234 000e 9C46     		mov	ip, r3
+ 235              		.loc 1 64 19 is_stmt 0 view .LVU75
+ 236 0010 5B69     		ldr	r3, [r3, #20]
+ 237              	.LVL11:
+ 238              		.loc 1 64 11 view .LVU76
+ 239 0012 13B1     		cbz	r3, .L15
+ 240              		.loc 1 64 55 discriminator 1 view .LVU77
+ 241 0014 5A8A     		ldrh	r2, [r3, #18]
+ 242              		.loc 1 64 34 discriminator 1 view .LVU78
+ 243 0016 9142     		cmp	r1, r2
+ 244 0018 F9D2     		bcs	.L14
+ 245              	.L15:
+  65:src/task.c    ****     {
+  66:src/task.c    ****         current = current->next;
+  67:src/task.c    ****     }
+  68:src/task.c    ****     tcb->next = current->next;
+ 246              		.loc 1 68 5 is_stmt 1 view .LVU79
+ 247              		.loc 1 68 15 is_stmt 0 view .LVU80
+ 248 001a 4361     		str	r3, [r0, #20]
+  69:src/task.c    ****     current->next = tcb;
+ 249              		.loc 1 69 5 is_stmt 1 view .LVU81
+ 250              		.loc 1 69 19 is_stmt 0 view .LVU82
+ 251 001c CCF81400 		str	r0, [ip, #20]
+  70:src/task.c    ****     return;
+ 252              		.loc 1 70 5 is_stmt 1 view .LVU83
+  71:src/task.c    **** }
+ 253              		.loc 1 71 1 is_stmt 0 view .LVU84
+ 254 0020 7047     		bx	lr
+ 255              	.LVL12:
+ 256              	.L16:
+  50:src/task.c    ****         return;
+ 257              		.loc 1 50 9 is_stmt 1 view .LVU85
+  50:src/task.c    ****         return;
+ 258              		.loc 1 50 19 is_stmt 0 view .LVU86
+ 259 0022 054B     		ldr	r3, .L18
+ 260 0024 1860     		str	r0, [r3]
+  51:src/task.c    ****     }
+ 261              		.loc 1 51 9 is_stmt 1 view .LVU87
+ 262 0026 7047     		bx	lr
+ 263              	.L17:
+  56:src/task.c    ****         task_head = tcb;
+ 264              		.loc 1 56 9 view .LVU88
+  56:src/task.c    ****         task_head = tcb;
+ 265              		.loc 1 56 19 is_stmt 0 view .LVU89
+ARM GAS  /tmp/ccHTMxtx.s 			page 7
+
+
+ 266 0028 4361     		str	r3, [r0, #20]
+  57:src/task.c    ****         idle_task->next = task_head;                                // alwas idle task is at first 
+ 267              		.loc 1 57 9 is_stmt 1 view .LVU90
+  57:src/task.c    ****         idle_task->next = task_head;                                // alwas idle task is at first 
+ 268              		.loc 1 57 19 is_stmt 0 view .LVU91
+ 269 002a 034B     		ldr	r3, .L18
+ 270 002c 1860     		str	r0, [r3]
+  58:src/task.c    ****         return;
+ 271              		.loc 1 58 9 is_stmt 1 view .LVU92
+  58:src/task.c    ****         return;
+ 272              		.loc 1 58 18 is_stmt 0 view .LVU93
+ 273 002e 034B     		ldr	r3, .L18+4
+ 274 0030 1B68     		ldr	r3, [r3]
+  58:src/task.c    ****         return;
+ 275              		.loc 1 58 25 view .LVU94
+ 276 0032 5861     		str	r0, [r3, #20]
+  59:src/task.c    ****     }
+ 277              		.loc 1 59 9 is_stmt 1 view .LVU95
+ 278 0034 7047     		bx	lr
+ 279              	.L19:
+ 280 0036 00BF     		.align	2
+ 281              	.L18:
+ 282 0038 00000000 		.word	.LANCHOR1
+ 283 003c 00000000 		.word	.LANCHOR2
+ 284              		.cfi_endproc
+ 285              	.LFE139:
+ 287              		.section	.rodata.createTask.str1.4,"aMS",%progbits,1
+ 288              		.align	2
+ 289              	.LC0:
+ 290 0000 2D204661 		.ascii	"- Failed to create memory for task\000"
+ 290      696C6564 
+ 290      20746F20 
+ 290      63726561 
+ 290      7465206D 
+ 291 0023 00       		.align	2
+ 292              	.LC1:
+ 293 0024 2D205374 		.ascii	"- Stack full\000"
+ 293      61636B20 
+ 293      66756C6C 
+ 293      00
+ 294              		.section	.text.createTask,"ax",%progbits
+ 295              		.align	1
+ 296              		.global	createTask
+ 297              		.syntax unified
+ 298              		.thumb
+ 299              		.thumb_func
+ 300              		.fpu fpv4-sp-d16
+ 302              	createTask:
+ 303              	.LVL13:
+ 304              	.LFB140:
+  72:src/task.c    **** 
+  73:src/task.c    **** /*************************************** Function to create task **********************************
+  74:src/task.c    **** void createTask(void (*fn)(void*), char* name, uint8_t task_priority)
+  75:src/task.c    **** {
+ 305              		.loc 1 75 1 view -0
+ 306              		.cfi_startproc
+ 307              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccHTMxtx.s 			page 8
+
+
+ 308              		@ frame_needed = 0, uses_anonymous_args = 0
+ 309              		.loc 1 75 1 is_stmt 0 view .LVU97
+ 310 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 311              	.LCFI0:
+ 312              		.cfi_def_cfa_offset 24
+ 313              		.cfi_offset 3, -24
+ 314              		.cfi_offset 4, -20
+ 315              		.cfi_offset 5, -16
+ 316              		.cfi_offset 6, -12
+ 317              		.cfi_offset 7, -8
+ 318              		.cfi_offset 14, -4
+ 319 0002 0646     		mov	r6, r0
+ 320 0004 0D46     		mov	r5, r1
+ 321 0006 1746     		mov	r7, r2
+  76:src/task.c    ****     task_list* newTask = (task_list*)malloc(sizeof(task_list));     // allocate memory
+ 322              		.loc 1 76 5 is_stmt 1 view .LVU98
+ 323              		.loc 1 76 38 is_stmt 0 view .LVU99
+ 324 0008 1820     		movs	r0, #24
+ 325              	.LVL14:
+ 326              		.loc 1 76 38 view .LVU100
+ 327 000a FFF7FEFF 		bl	malloc
+ 328              	.LVL15:
+  77:src/task.c    **** 
+  78:src/task.c    ****     if (newTask == NULL)
+ 329              		.loc 1 78 5 is_stmt 1 view .LVU101
+ 330              		.loc 1 78 8 is_stmt 0 view .LVU102
+ 331 000e 0446     		mov	r4, r0
+ 332 0010 D0B1     		cbz	r0, .L24
+ 333              	.LVL16:
+ 334              	.L21:
+  79:src/task.c    ****     {
+  80:src/task.c    ****         Log_s("- Failed to create memory for task");
+  81:src/task.c    ****     }
+  82:src/task.c    ****     newTask->next = NULL;
+ 335              		.loc 1 82 5 is_stmt 1 view .LVU103
+ 336              		.loc 1 82 19 is_stmt 0 view .LVU104
+ 337 0012 0023     		movs	r3, #0
+ 338 0014 6361     		str	r3, [r4, #20]
+  83:src/task.c    **** 
+  84:src/task.c    ****     memset(newTask, 0, sizeof(*newTask));                           // set 0 as initial value
+ 339              		.loc 1 84 5 is_stmt 1 view .LVU105
+ 340 0016 2360     		str	r3, [r4]	@ unaligned
+ 341 0018 6360     		str	r3, [r4, #4]	@ unaligned
+ 342 001a A360     		str	r3, [r4, #8]	@ unaligned
+ 343 001c E360     		str	r3, [r4, #12]	@ unaligned
+ 344 001e 2361     		str	r3, [r4, #16]	@ unaligned
+ 345 0020 6361     		str	r3, [r4, #20]	@ unaligned
+  85:src/task.c    **** 
+  86:src/task.c    ****     if (allocate_task_stack(&newTask->tcb, fn, name) < 0)           // allocate stack for task
+ 346              		.loc 1 86 5 view .LVU106
+ 347              		.loc 1 86 9 is_stmt 0 view .LVU107
+ 348 0022 2A46     		mov	r2, r5
+ 349 0024 3146     		mov	r1, r6
+ 350 0026 2046     		mov	r0, r4
+ 351 0028 FFF7FEFF 		bl	allocate_task_stack
+ 352              	.LVL17:
+ 353              		.loc 1 86 8 view .LVU108
+ARM GAS  /tmp/ccHTMxtx.s 			page 9
+
+
+ 354 002c 0028     		cmp	r0, #0
+ 355 002e 0FDB     		blt	.L25
+ 356              	.L22:
+  87:src/task.c    ****     {
+  88:src/task.c    ****         Log_s("- Stack full");
+  89:src/task.c    ****     }
+  90:src/task.c    **** 
+  91:src/task.c    ****     newTask->tcb.fn = fn;                                           // add function address in tcb
+ 357              		.loc 1 91 5 is_stmt 1 view .LVU109
+ 358              		.loc 1 91 21 is_stmt 0 view .LVU110
+ 359 0030 2660     		str	r6, [r4]
+  92:src/task.c    ****     newTask->tcb.taskName = name;                                   // add name in tcb
+ 360              		.loc 1 92 5 is_stmt 1 view .LVU111
+ 361              		.loc 1 92 27 is_stmt 0 view .LVU112
+ 362 0032 A560     		str	r5, [r4, #8]
+  93:src/task.c    ****     newTask->tcb.task_state = READY;                                // set task state
+ 363              		.loc 1 93 5 is_stmt 1 view .LVU113
+ 364              		.loc 1 93 29 is_stmt 0 view .LVU114
+ 365 0034 0023     		movs	r3, #0
+ 366 0036 2382     		strh	r3, [r4, #16]	@ movhi
+  94:src/task.c    ****     newTask->tcb.task_priority = task_priority;                     // add task priority
+ 367              		.loc 1 94 5 is_stmt 1 view .LVU115
+ 368              		.loc 1 94 32 is_stmt 0 view .LVU116
+ 369 0038 6782     		strh	r7, [r4, #18]	@ movhi
+  95:src/task.c    **** 
+  96:src/task.c    ****     create_context(&newTask->tcb);                                  // create dummy context
+ 370              		.loc 1 96 5 is_stmt 1 view .LVU117
+ 371 003a 2046     		mov	r0, r4
+ 372 003c FFF7FEFF 		bl	create_context
+ 373              	.LVL18:
+  97:src/task.c    **** 
+  98:src/task.c    ****     add_inList(newTask);                                            // add created task in linked l
+ 374              		.loc 1 98 5 view .LVU118
+ 375 0040 2046     		mov	r0, r4
+ 376 0042 FFF7FEFF 		bl	add_inList
+ 377              	.LVL19:
+  99:src/task.c    **** }
+ 378              		.loc 1 99 1 is_stmt 0 view .LVU119
+ 379 0046 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 380              	.LVL20:
+ 381              	.L24:
+  80:src/task.c    ****     }
+ 382              		.loc 1 80 9 is_stmt 1 view .LVU120
+ 383 0048 0348     		ldr	r0, .L26
+ 384              	.LVL21:
+  80:src/task.c    ****     }
+ 385              		.loc 1 80 9 is_stmt 0 view .LVU121
+ 386 004a FFF7FEFF 		bl	Log_s
+ 387              	.LVL22:
+ 388 004e E0E7     		b	.L21
+ 389              	.L25:
+  88:src/task.c    ****     }
+ 390              		.loc 1 88 9 is_stmt 1 view .LVU122
+ 391 0050 0248     		ldr	r0, .L26+4
+ 392 0052 FFF7FEFF 		bl	Log_s
+ 393              	.LVL23:
+ 394 0056 EBE7     		b	.L22
+ARM GAS  /tmp/ccHTMxtx.s 			page 10
+
+
+ 395              	.L27:
+ 396              		.align	2
+ 397              	.L26:
+ 398 0058 00000000 		.word	.LC0
+ 399 005c 24000000 		.word	.LC1
+ 400              		.cfi_endproc
+ 401              	.LFE140:
+ 403              		.section	.rodata.create_idle_task.str1.4,"aMS",%progbits,1
+ 404              		.align	2
+ 405              	.LC2:
+ 406 0000 49646C65 		.ascii	"Idle Task\000"
+ 406      20546173 
+ 406      6B00
+ 407              		.section	.text.create_idle_task,"ax",%progbits
+ 408              		.align	1
+ 409              		.global	create_idle_task
+ 410              		.syntax unified
+ 411              		.thumb
+ 412              		.thumb_func
+ 413              		.fpu fpv4-sp-d16
+ 415              	create_idle_task:
+ 416              	.LFB141:
+ 100:src/task.c    **** 
+ 101:src/task.c    **** void create_idle_task()
+ 102:src/task.c    **** {
+ 417              		.loc 1 102 1 view -0
+ 418              		.cfi_startproc
+ 419              		@ args = 0, pretend = 0, frame = 0
+ 420              		@ frame_needed = 0, uses_anonymous_args = 0
+ 421 0000 10B5     		push	{r4, lr}
+ 422              	.LCFI1:
+ 423              		.cfi_def_cfa_offset 8
+ 424              		.cfi_offset 4, -8
+ 425              		.cfi_offset 14, -4
+ 103:src/task.c    ****     task_list* newTask = (task_list*)malloc(sizeof(task_list));     // allocate memory
+ 426              		.loc 1 103 5 view .LVU124
+ 427              		.loc 1 103 38 is_stmt 0 view .LVU125
+ 428 0002 1820     		movs	r0, #24
+ 429 0004 FFF7FEFF 		bl	malloc
+ 430              	.LVL24:
+ 104:src/task.c    **** 
+ 105:src/task.c    ****     if (newTask == NULL)
+ 431              		.loc 1 105 5 is_stmt 1 view .LVU126
+ 432              		.loc 1 105 8 is_stmt 0 view .LVU127
+ 433 0008 0446     		mov	r4, r0
+ 434 000a F0B1     		cbz	r0, .L32
+ 435              	.LVL25:
+ 436              	.L29:
+ 106:src/task.c    ****     {
+ 107:src/task.c    ****         Log_s("- Failed to create memory for task");
+ 108:src/task.c    ****     }
+ 109:src/task.c    ****     newTask->next = NULL;
+ 437              		.loc 1 109 5 is_stmt 1 view .LVU128
+ 438              		.loc 1 109 19 is_stmt 0 view .LVU129
+ 439 000c 0023     		movs	r3, #0
+ 440 000e 6361     		str	r3, [r4, #20]
+ 110:src/task.c    **** 
+ARM GAS  /tmp/ccHTMxtx.s 			page 11
+
+
+ 111:src/task.c    ****     memset(newTask, 0, sizeof(*newTask));                           // set 0 as initial value
+ 441              		.loc 1 111 5 is_stmt 1 view .LVU130
+ 442 0010 2360     		str	r3, [r4]	@ unaligned
+ 443 0012 6360     		str	r3, [r4, #4]	@ unaligned
+ 444 0014 A360     		str	r3, [r4, #8]	@ unaligned
+ 445 0016 E360     		str	r3, [r4, #12]	@ unaligned
+ 446 0018 2361     		str	r3, [r4, #16]	@ unaligned
+ 447 001a 6361     		str	r3, [r4, #20]	@ unaligned
+ 112:src/task.c    **** 
+ 113:src/task.c    ****     if (allocate_task_stack(&newTask->tcb, idleTask, "Idle Task") < 0)           // allocate stack 
+ 448              		.loc 1 113 5 view .LVU131
+ 449              		.loc 1 113 9 is_stmt 0 view .LVU132
+ 450 001c 0F4A     		ldr	r2, .L34
+ 451 001e 1049     		ldr	r1, .L34+4
+ 452 0020 2046     		mov	r0, r4
+ 453 0022 FFF7FEFF 		bl	allocate_task_stack
+ 454              	.LVL26:
+ 455              		.loc 1 113 8 view .LVU133
+ 456 0026 0028     		cmp	r0, #0
+ 457 0028 13DB     		blt	.L33
+ 458              	.L30:
+ 114:src/task.c    ****     {
+ 115:src/task.c    ****         Log_s("- Stack full");
+ 116:src/task.c    ****     }
+ 117:src/task.c    **** 
+ 118:src/task.c    ****     newTask->tcb.fn = idleTask;                                     // add function address in tcb
+ 459              		.loc 1 118 5 is_stmt 1 view .LVU134
+ 460              		.loc 1 118 21 is_stmt 0 view .LVU135
+ 461 002a 0D4B     		ldr	r3, .L34+4
+ 462 002c 2360     		str	r3, [r4]
+ 119:src/task.c    ****     newTask->tcb.taskName = "Idle Task";                            // add name in tcb
+ 463              		.loc 1 119 5 is_stmt 1 view .LVU136
+ 464              		.loc 1 119 27 is_stmt 0 view .LVU137
+ 465 002e 0B4B     		ldr	r3, .L34
+ 466 0030 A360     		str	r3, [r4, #8]
+ 120:src/task.c    ****     newTask->tcb.task_state = READY;                                // set task state
+ 467              		.loc 1 120 5 is_stmt 1 view .LVU138
+ 468              		.loc 1 120 29 is_stmt 0 view .LVU139
+ 469 0032 0023     		movs	r3, #0
+ 470 0034 2382     		strh	r3, [r4, #16]	@ movhi
+ 121:src/task.c    ****     newTask->tcb.task_priority = 0;                                 // add task priority
+ 471              		.loc 1 121 5 is_stmt 1 view .LVU140
+ 472              		.loc 1 121 32 is_stmt 0 view .LVU141
+ 473 0036 6382     		strh	r3, [r4, #18]	@ movhi
+ 122:src/task.c    **** 
+ 123:src/task.c    ****     create_context(&newTask->tcb);                                  // create dummy context
+ 474              		.loc 1 123 5 is_stmt 1 view .LVU142
+ 475 0038 2046     		mov	r0, r4
+ 476 003a FFF7FEFF 		bl	create_context
+ 477              	.LVL27:
+ 124:src/task.c    **** 
+ 125:src/task.c    ****     newTask->next = task_head;
+ 478              		.loc 1 125 5 view .LVU143
+ 479              		.loc 1 125 19 is_stmt 0 view .LVU144
+ 480 003e 094B     		ldr	r3, .L34+8
+ 481 0040 1B68     		ldr	r3, [r3]
+ 482 0042 6361     		str	r3, [r4, #20]
+ARM GAS  /tmp/ccHTMxtx.s 			page 12
+
+
+ 126:src/task.c    ****     idle_task = newTask;                                            // add idle task before task he
+ 483              		.loc 1 126 5 is_stmt 1 view .LVU145
+ 484              		.loc 1 126 15 is_stmt 0 view .LVU146
+ 485 0044 084B     		ldr	r3, .L34+12
+ 486 0046 1C60     		str	r4, [r3]
+ 127:src/task.c    **** }...
+ 487              		.loc 1 127 1 view .LVU147
+ 488 0048 10BD     		pop	{r4, pc}
+ 489              	.LVL28:
+ 490              	.L32:
+ 107:src/task.c    ****         Log_s("- Failed to create memory for task");
+ 491              		.loc 1 107 9 is_stmt 1 view .LVU148
+ 492 004a 0848     		ldr	r0, .L34+16
+ 493              	.LVL29:
+ 107:src/task.c    ****         Log_s("- Failed to create memory for task");
+ 494              		.loc 1 107 9 is_stmt 0 view .LVU149
+ 495 004c FFF7FEFF 		bl	Log_s
+ 496              	.LVL30:
+ 497 0050 DCE7     		b	.L29
+ 498              	.L33:
+ 115:src/task.c    ****         Log_s("- Stack full");
+ 499              		.loc 1 115 9 is_stmt 1 view .LVU150
+ 500 0052 0748     		ldr	r0, .L34+20
+ 501 0054 FFF7FEFF 		bl	Log_s
+ 502              	.LVL31:
+ 503 0058 E7E7     		b	.L30
+ 504              	.L35:
+ 505 005a 00BF     		.align	2
+ 506              	.L34:
+ 507 005c 00000000 		.word	.LC2
+ 508 0060 00000000 		.word	idleTask
+ 509 0064 00000000 		.word	.LANCHOR1
+ 510 0068 00000000 		.word	.LANCHOR2
+ 511 006c 00000000 		.word	.LC0
+ 512 0070 24000000 		.word	.LC1
+ 513              		.cfi_endproc
+ 514              	.LFE141:
+ 516              		.global	current_stack_size
+ 517              		.global	task_stack
+ 518              		.global	idle_task
+ 519              		.global	task_head
+ 520              		.section	.bss.idle_task,"aw",%nobits
+ 521              		.align	2
+ 522              		.set	.LANCHOR2,. + 0
+ 525              	idle_task:
+ 526 0000 00000000 		.space	4
+ 527              		.section	.bss.task_head,"aw",%nobits
+ 528              		.align	2
+ 529              		.set	.LANCHOR1,. + 0
+ 532              	task_head:
+ 533 0000 00000000 		.space	4
+ 534              		.section	.bss.task_stack,"aw",%nobits
+ 535              		.align	2
+ 538              	task_stack:
+ 539 0000 00000000 		.space	4096
+ 539      00000000 
+ 539      00000000 
+ARM GAS  /tmp/ccHTMxtx.s 			page 13
+
+
+ 539      00000000 
+ 539      00000000 
+ 540              		.section	.data.current_stack_size,"aw"
+ 541              		.align	1
+ 542              		.set	.LANCHOR0,. + 0
+ 545              	current_stack_size:
+ 546 0000 0004     		.short	1024
+ 547              		.text
+ 548              	.Letext0:
+ 549              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 550              		.file 3 "inc/task.h"
+ 551              		.file 4 "/usr/include/newlib/stdlib.h"
+ 552              		.file 5 "inc/Log.h"
+ARM GAS  /tmp/ccHTMxtx.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 task.c
+     /tmp/ccHTMxtx.s:18     .text.allocate_task_stack:0000000000000000 $t
+     /tmp/ccHTMxtx.s:25     .text.allocate_task_stack:0000000000000000 allocate_task_stack
+     /tmp/ccHTMxtx.s:72     .text.allocate_task_stack:0000000000000024 $d
+     /tmp/ccHTMxtx.s:538    .bss.task_stack:0000000000000000 task_stack
+     /tmp/ccHTMxtx.s:78     .text.create_context:0000000000000000 $t
+     /tmp/ccHTMxtx.s:84     .text.create_context:0000000000000000 create_context
+     /tmp/ccHTMxtx.s:198    .text.create_context:000000000000007c $d
+     /tmp/ccHTMxtx.s:203    .text.add_inList:0000000000000000 $t
+     /tmp/ccHTMxtx.s:209    .text.add_inList:0000000000000000 add_inList
+     /tmp/ccHTMxtx.s:282    .text.add_inList:0000000000000038 $d
+     /tmp/ccHTMxtx.s:288    .rodata.createTask.str1.4:0000000000000000 $d
+     /tmp/ccHTMxtx.s:295    .text.createTask:0000000000000000 $t
+     /tmp/ccHTMxtx.s:302    .text.createTask:0000000000000000 createTask
+     /tmp/ccHTMxtx.s:398    .text.createTask:0000000000000058 $d
+     /tmp/ccHTMxtx.s:404    .rodata.create_idle_task.str1.4:0000000000000000 $d
+     /tmp/ccHTMxtx.s:408    .text.create_idle_task:0000000000000000 $t
+     /tmp/ccHTMxtx.s:415    .text.create_idle_task:0000000000000000 create_idle_task
+     /tmp/ccHTMxtx.s:507    .text.create_idle_task:000000000000005c $d
+     /tmp/ccHTMxtx.s:545    .data.current_stack_size:0000000000000000 current_stack_size
+     /tmp/ccHTMxtx.s:525    .bss.idle_task:0000000000000000 idle_task
+     /tmp/ccHTMxtx.s:532    .bss.task_head:0000000000000000 task_head
+     /tmp/ccHTMxtx.s:521    .bss.idle_task:0000000000000000 $d
+     /tmp/ccHTMxtx.s:528    .bss.task_head:0000000000000000 $d
+     /tmp/ccHTMxtx.s:535    .bss.task_stack:0000000000000000 $d
+     /tmp/ccHTMxtx.s:541    .data.current_stack_size:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+malloc
+Log_s
+idleTask

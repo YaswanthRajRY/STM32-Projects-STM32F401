@@ -1,0 +1,552 @@
+ARM GAS  /tmp/ccXJlRFA.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.task_3,"ax",%progbits
+  18              		.align	1
+  19              		.global	task_3
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	task_3:
+  27              	.LFB140:
+  28              		.file 1 "src/main.c"
+   1:src/main.c    **** #include "main.h"
+   2:src/main.c    **** 
+   3:src/main.c    **** extern task_list* task_pointer;
+   4:src/main.c    **** 
+   5:src/main.c    **** void task_1(void*);                      // task function prototype
+   6:src/main.c    **** void task_2(void*);
+   7:src/main.c    **** void task_3(void*);
+   8:src/main.c    **** void Blink_task(uint32_t val);
+   9:src/main.c    **** 
+  10:src/main.c    **** Mutex_Typedef* mutex;
+  11:src/main.c    **** 
+  12:src/main.c    **** int main()
+  13:src/main.c    **** {
+  14:src/main.c    ****     SystemInit();                       // Initialize system
+  15:src/main.c    **** 
+  16:src/main.c    ****     mutex = createMutex();
+  17:src/main.c    **** 
+  18:src/main.c    ****     Log_s("Priority Preemptive scheduler Program.\n");
+  19:src/main.c    **** 
+  20:src/main.c    ****     Log_s("Creating tasks...");
+  21:src/main.c    ****     createTask(task_1, "Task 1", 1);    // create task
+  22:src/main.c    ****     createTask(task_2, "Task 2", 2);
+  23:src/main.c    ****     createTask(task_3, "Task 3", 3);
+  24:src/main.c    ****     Log_s("Tasks created sucessfully.\n");
+  25:src/main.c    **** 
+  26:src/main.c    ****     Log_s("Starting scheduler...");
+  27:src/main.c    ****     start_scheduler();                  // Start scheduling the tasks
+  28:src/main.c    **** 
+  29:src/main.c    ****     while (1)
+  30:src/main.c    ****     {
+ARM GAS  /tmp/ccXJlRFA.s 			page 2
+
+
+  31:src/main.c    **** 
+  32:src/main.c    ****     }
+  33:src/main.c    **** }
+  34:src/main.c    **** 
+  35:src/main.c    **** void task_1(void* parameter)                       // this function toggles Port B pin 5
+  36:src/main.c    **** {
+  37:src/main.c    ****     while (1)
+  38:src/main.c    ****     {
+  39:src/main.c    ****         Blink_task(5);
+  40:src/main.c    ****         task_delay(1000);
+  41:src/main.c    ****     }
+  42:src/main.c    **** }
+  43:src/main.c    **** 
+  44:src/main.c    **** void task_2(void* parameter)                       // this function toggles Port B pin 6
+  45:src/main.c    **** {
+  46:src/main.c    ****     while (1)
+  47:src/main.c    ****     {
+  48:src/main.c    ****         Blink_task(6);
+  49:src/main.c    ****         task_delay(1000);
+  50:src/main.c    ****     }
+  51:src/main.c    **** }
+  52:src/main.c    **** 
+  53:src/main.c    **** void task_3(void* parameter)                       // this function toggles Port B pin 7
+  54:src/main.c    **** {
+  29              		.loc 1 54 1 view -0
+  30              		.cfi_startproc
+  31              		@ Volatile: function does not return.
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              	.LVL0:
+  35              		.loc 1 54 1 is_stmt 0 view .LVU1
+  36 0000 08B5     		push	{r3, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 3, -8
+  40              		.cfi_offset 14, -4
+  41              	.LVL1:
+  42              	.L2:
+  55:src/main.c    ****     while (1)
+  43              		.loc 1 55 5 is_stmt 1 discriminator 1 view .LVU2
+  56:src/main.c    ****     {
+  57:src/main.c    ****         GPIOB->BSRR |= (0x1UL << (7));
+  44              		.loc 1 57 9 discriminator 1 view .LVU3
+  45              		.loc 1 57 21 is_stmt 0 discriminator 1 view .LVU4
+  46 0002 094C     		ldr	r4, .L4
+  47 0004 A369     		ldr	r3, [r4, #24]
+  48 0006 43F08003 		orr	r3, r3, #128
+  49 000a A361     		str	r3, [r4, #24]
+  58:src/main.c    ****         task_delay(1000);
+  50              		.loc 1 58 9 is_stmt 1 discriminator 1 view .LVU5
+  51 000c 4FF47A70 		mov	r0, #1000
+  52 0010 FFF7FEFF 		bl	task_delay
+  53              	.LVL2:
+  59:src/main.c    **** 
+  60:src/main.c    ****         GPIOB->BSRR |= (0x1UL << (7+16));
+  54              		.loc 1 60 9 discriminator 1 view .LVU6
+  55              		.loc 1 60 21 is_stmt 0 discriminator 1 view .LVU7
+ARM GAS  /tmp/ccXJlRFA.s 			page 3
+
+
+  56 0014 A369     		ldr	r3, [r4, #24]
+  57 0016 43F40003 		orr	r3, r3, #8388608
+  58 001a A361     		str	r3, [r4, #24]
+  61:src/main.c    ****         task_delay(1000);
+  59              		.loc 1 61 9 is_stmt 1 discriminator 1 view .LVU8
+  60 001c 4FF47A70 		mov	r0, #1000
+  61 0020 FFF7FEFF 		bl	task_delay
+  62              	.LVL3:
+  55:src/main.c    ****     {
+  63              		.loc 1 55 11 discriminator 1 view .LVU9
+  64 0024 EDE7     		b	.L2
+  65              	.L5:
+  66 0026 00BF     		.align	2
+  67              	.L4:
+  68 0028 00040240 		.word	1073873920
+  69              		.cfi_endproc
+  70              	.LFE140:
+  72              		.section	.rodata.main.str1.4,"aMS",%progbits,1
+  73              		.align	2
+  74              	.LC0:
+  75 0000 5072696F 		.ascii	"Priority Preemptive scheduler Program.\012\000"
+  75      72697479 
+  75      20507265 
+  75      656D7074 
+  75      69766520 
+  76              		.align	2
+  77              	.LC1:
+  78 0028 43726561 		.ascii	"Creating tasks...\000"
+  78      74696E67 
+  78      20746173 
+  78      6B732E2E 
+  78      2E00
+  79 003a 0000     		.align	2
+  80              	.LC2:
+  81 003c 5461736B 		.ascii	"Task 1\000"
+  81      203100
+  82 0043 00       		.align	2
+  83              	.LC3:
+  84 0044 5461736B 		.ascii	"Task 2\000"
+  84      203200
+  85 004b 00       		.align	2
+  86              	.LC4:
+  87 004c 5461736B 		.ascii	"Task 3\000"
+  87      203300
+  88 0053 00       		.align	2
+  89              	.LC5:
+  90 0054 5461736B 		.ascii	"Tasks created sucessfully.\012\000"
+  90      73206372 
+  90      65617465 
+  90      64207375 
+  90      63657373 
+  91              		.align	2
+  92              	.LC6:
+  93 0070 53746172 		.ascii	"Starting scheduler...\000"
+  93      74696E67 
+  93      20736368 
+  93      6564756C 
+ARM GAS  /tmp/ccXJlRFA.s 			page 4
+
+
+  93      65722E2E 
+  94              		.section	.text.main,"ax",%progbits
+  95              		.align	1
+  96              		.global	main
+  97              		.syntax unified
+  98              		.thumb
+  99              		.thumb_func
+ 100              		.fpu fpv4-sp-d16
+ 102              	main:
+ 103              	.LFB137:
+  13:src/main.c    ****     SystemInit();                       // Initialize system
+ 104              		.loc 1 13 1 view -0
+ 105              		.cfi_startproc
+ 106              		@ Volatile: function does not return.
+ 107              		@ args = 0, pretend = 0, frame = 0
+ 108              		@ frame_needed = 0, uses_anonymous_args = 0
+ 109 0000 08B5     		push	{r3, lr}
+ 110              	.LCFI1:
+ 111              		.cfi_def_cfa_offset 8
+ 112              		.cfi_offset 3, -8
+ 113              		.cfi_offset 14, -4
+  14:src/main.c    **** 
+ 114              		.loc 1 14 5 view .LVU11
+ 115 0002 FFF7FEFF 		bl	SystemInit
+ 116              	.LVL4:
+  16:src/main.c    **** 
+ 117              		.loc 1 16 5 view .LVU12
+  16:src/main.c    **** 
+ 118              		.loc 1 16 13 is_stmt 0 view .LVU13
+ 119 0006 FFF7FEFF 		bl	createMutex
+ 120              	.LVL5:
+  16:src/main.c    **** 
+ 121              		.loc 1 16 11 view .LVU14
+ 122 000a 104B     		ldr	r3, .L9
+ 123 000c 1860     		str	r0, [r3]
+  18:src/main.c    **** 
+ 124              		.loc 1 18 5 is_stmt 1 view .LVU15
+ 125 000e 1048     		ldr	r0, .L9+4
+ 126 0010 FFF7FEFF 		bl	Log_s
+ 127              	.LVL6:
+  20:src/main.c    ****     createTask(task_1, "Task 1", 1);    // create task
+ 128              		.loc 1 20 5 view .LVU16
+ 129 0014 0F48     		ldr	r0, .L9+8
+ 130 0016 FFF7FEFF 		bl	Log_s
+ 131              	.LVL7:
+  21:src/main.c    ****     createTask(task_2, "Task 2", 2);
+ 132              		.loc 1 21 5 view .LVU17
+ 133 001a 0122     		movs	r2, #1
+ 134 001c 0E49     		ldr	r1, .L9+12
+ 135 001e 0F48     		ldr	r0, .L9+16
+ 136 0020 FFF7FEFF 		bl	createTask
+ 137              	.LVL8:
+  22:src/main.c    ****     createTask(task_3, "Task 3", 3);
+ 138              		.loc 1 22 5 view .LVU18
+ 139 0024 0222     		movs	r2, #2
+ 140 0026 0E49     		ldr	r1, .L9+20
+ 141 0028 0E48     		ldr	r0, .L9+24
+ARM GAS  /tmp/ccXJlRFA.s 			page 5
+
+
+ 142 002a FFF7FEFF 		bl	createTask
+ 143              	.LVL9:
+  23:src/main.c    ****     Log_s("Tasks created sucessfully.\n");
+ 144              		.loc 1 23 5 view .LVU19
+ 145 002e 0322     		movs	r2, #3
+ 146 0030 0D49     		ldr	r1, .L9+28
+ 147 0032 0E48     		ldr	r0, .L9+32
+ 148 0034 FFF7FEFF 		bl	createTask
+ 149              	.LVL10:
+  24:src/main.c    **** 
+ 150              		.loc 1 24 5 view .LVU20
+ 151 0038 0D48     		ldr	r0, .L9+36
+ 152 003a FFF7FEFF 		bl	Log_s
+ 153              	.LVL11:
+  26:src/main.c    ****     start_scheduler();                  // Start scheduling the tasks
+ 154              		.loc 1 26 5 view .LVU21
+ 155 003e 0D48     		ldr	r0, .L9+40
+ 156 0040 FFF7FEFF 		bl	Log_s
+ 157              	.LVL12:
+  27:src/main.c    **** 
+ 158              		.loc 1 27 5 view .LVU22
+ 159 0044 FFF7FEFF 		bl	start_scheduler
+ 160              	.LVL13:
+ 161              	.L7:
+  29:src/main.c    ****     {
+ 162              		.loc 1 29 5 discriminator 1 view .LVU23
+  32:src/main.c    **** }
+ 163              		.loc 1 32 5 discriminator 1 view .LVU24
+  29:src/main.c    ****     {
+ 164              		.loc 1 29 11 discriminator 1 view .LVU25
+ 165 0048 FEE7     		b	.L7
+ 166              	.L10:
+ 167 004a 00BF     		.align	2
+ 168              	.L9:
+ 169 004c 00000000 		.word	.LANCHOR0
+ 170 0050 00000000 		.word	.LC0
+ 171 0054 28000000 		.word	.LC1
+ 172 0058 3C000000 		.word	.LC2
+ 173 005c 00000000 		.word	task_1
+ 174 0060 44000000 		.word	.LC3
+ 175 0064 00000000 		.word	task_2
+ 176 0068 4C000000 		.word	.LC4
+ 177 006c 00000000 		.word	task_3
+ 178 0070 54000000 		.word	.LC5
+ 179 0074 70000000 		.word	.LC6
+ 180              		.cfi_endproc
+ 181              	.LFE137:
+ 183              		.section	.text.Blink_task,"ax",%progbits
+ 184              		.align	1
+ 185              		.global	Blink_task
+ 186              		.syntax unified
+ 187              		.thumb
+ 188              		.thumb_func
+ 189              		.fpu fpv4-sp-d16
+ 191              	Blink_task:
+ 192              	.LVL14:
+ 193              	.LFB141:
+ARM GAS  /tmp/ccXJlRFA.s 			page 6
+
+
+  62:src/main.c    ****     }
+  63:src/main.c    **** }
+  64:src/main.c    **** 
+  65:src/main.c    **** void Blink_task(uint32_t val)
+  66:src/main.c    **** {
+ 194              		.loc 1 66 1 view -0
+ 195              		.cfi_startproc
+ 196              		@ args = 0, pretend = 0, frame = 0
+ 197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 198              		.loc 1 66 1 is_stmt 0 view .LVU27
+ 199 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 200              	.LCFI2:
+ 201              		.cfi_def_cfa_offset 24
+ 202              		.cfi_offset 3, -24
+ 203              		.cfi_offset 4, -20
+ 204              		.cfi_offset 5, -16
+ 205              		.cfi_offset 6, -12
+ 206              		.cfi_offset 7, -8
+ 207              		.cfi_offset 14, -4
+ 208 0002 0746     		mov	r7, r0
+  67:src/main.c    ****     MutexTake(mutex);
+ 209              		.loc 1 67 5 is_stmt 1 view .LVU28
+ 210 0004 114B     		ldr	r3, .L15
+ 211 0006 1868     		ldr	r0, [r3]
+ 212              	.LVL15:
+ 213              		.loc 1 67 5 is_stmt 0 view .LVU29
+ 214 0008 FFF7FEFF 		bl	MutexTake
+ 215              	.LVL16:
+  68:src/main.c    ****     for(uint8_t i = 0; i<4; i++)
+ 216              		.loc 1 68 5 is_stmt 1 view .LVU30
+ 217              	.LBB2:
+ 218              		.loc 1 68 9 view .LVU31
+ 219              		.loc 1 68 17 is_stmt 0 view .LVU32
+ 220 000c 0024     		movs	r4, #0
+ 221              		.loc 1 68 5 view .LVU33
+ 222 000e 16E0     		b	.L12
+ 223              	.LVL17:
+ 224              	.L13:
+  69:src/main.c    ****     {
+  70:src/main.c    ****         GPIOB->BSRR |= (0x1UL << (val));
+ 225              		.loc 1 70 9 is_stmt 1 discriminator 3 view .LVU34
+ 226              		.loc 1 70 21 is_stmt 0 discriminator 3 view .LVU35
+ 227 0010 0F4D     		ldr	r5, .L15+4
+ 228 0012 AB69     		ldr	r3, [r5, #24]
+ 229              		.loc 1 70 31 discriminator 3 view .LVU36
+ 230 0014 0126     		movs	r6, #1
+ 231 0016 06FA07F2 		lsl	r2, r6, r7
+ 232              		.loc 1 70 21 discriminator 3 view .LVU37
+ 233 001a 1343     		orrs	r3, r3, r2
+ 234 001c AB61     		str	r3, [r5, #24]
+  71:src/main.c    ****         task_delay(1000);
+ 235              		.loc 1 71 9 is_stmt 1 discriminator 3 view .LVU38
+ 236 001e 4FF47A70 		mov	r0, #1000
+ 237 0022 FFF7FEFF 		bl	task_delay
+ 238              	.LVL18:
+  72:src/main.c    **** 
+  73:src/main.c    ****         GPIOB->BSRR |= (0x1UL << (val+16));
+ARM GAS  /tmp/ccXJlRFA.s 			page 7
+
+
+ 239              		.loc 1 73 9 discriminator 3 view .LVU39
+ 240              		.loc 1 73 21 is_stmt 0 discriminator 3 view .LVU40
+ 241 0026 AB69     		ldr	r3, [r5, #24]
+ 242              		.loc 1 73 38 discriminator 3 view .LVU41
+ 243 0028 07F11002 		add	r2, r7, #16
+ 244              		.loc 1 73 31 discriminator 3 view .LVU42
+ 245 002c 9640     		lsls	r6, r6, r2
+ 246              		.loc 1 73 21 discriminator 3 view .LVU43
+ 247 002e 1E43     		orrs	r6, r6, r3
+ 248 0030 AE61     		str	r6, [r5, #24]
+  74:src/main.c    ****         task_delay(1000);
+ 249              		.loc 1 74 9 is_stmt 1 discriminator 3 view .LVU44
+ 250 0032 4FF47A70 		mov	r0, #1000
+ 251 0036 FFF7FEFF 		bl	task_delay
+ 252              	.LVL19:
+  68:src/main.c    ****     {
+ 253              		.loc 1 68 29 discriminator 3 view .LVU45
+  68:src/main.c    ****     {
+ 254              		.loc 1 68 30 is_stmt 0 discriminator 3 view .LVU46
+ 255 003a 0134     		adds	r4, r4, #1
+ 256              	.LVL20:
+  68:src/main.c    ****     {
+ 257              		.loc 1 68 30 discriminator 3 view .LVU47
+ 258 003c E4B2     		uxtb	r4, r4
+ 259              	.LVL21:
+ 260              	.L12:
+  68:src/main.c    ****     {
+ 261              		.loc 1 68 24 is_stmt 1 discriminator 1 view .LVU48
+  68:src/main.c    ****     {
+ 262              		.loc 1 68 5 is_stmt 0 discriminator 1 view .LVU49
+ 263 003e 032C     		cmp	r4, #3
+ 264 0040 E6D9     		bls	.L13
+ 265              	.LBE2:
+  75:src/main.c    ****     }
+  76:src/main.c    ****     MutexGive(mutex);
+ 266              		.loc 1 76 5 is_stmt 1 view .LVU50
+ 267 0042 024B     		ldr	r3, .L15
+ 268 0044 1868     		ldr	r0, [r3]
+ 269 0046 FFF7FEFF 		bl	MutexGive
+ 270              	.LVL22:
+  77:src/main.c    **** }...
+ 271              		.loc 1 77 1 is_stmt 0 view .LVU51
+ 272 004a F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 273              	.LVL23:
+ 274              	.L16:
+ 275              		.loc 1 77 1 view .LVU52
+ 276              		.align	2
+ 277              	.L15:
+ 278 004c 00000000 		.word	.LANCHOR0
+ 279 0050 00040240 		.word	1073873920
+ 280              		.cfi_endproc
+ 281              	.LFE141:
+ 283              		.section	.text.task_1,"ax",%progbits
+ 284              		.align	1
+ 285              		.global	task_1
+ 286              		.syntax unified
+ 287              		.thumb
+ARM GAS  /tmp/ccXJlRFA.s 			page 8
+
+
+ 288              		.thumb_func
+ 289              		.fpu fpv4-sp-d16
+ 291              	task_1:
+ 292              	.LFB138:
+  36:src/main.c    **** {
+ 293              		.loc 1 36 1 is_stmt 1 view -0
+ 294              		.cfi_startproc
+ 295              		@ Volatile: function does not return.
+ 296              		@ args = 0, pretend = 0, frame = 0
+ 297              		@ frame_needed = 0, uses_anonymous_args = 0
+ 298              	.LVL24:
+  36:src/main.c    **** {
+ 299              		.loc 1 36 1 is_stmt 0 view .LVU54
+ 300 0000 08B5     		push	{r3, lr}
+ 301              	.LCFI3:
+ 302              		.cfi_def_cfa_offset 8
+ 303              		.cfi_offset 3, -8
+ 304              		.cfi_offset 14, -4
+ 305              	.LVL25:
+ 306              	.L18:
+  37:src/main.c    ****     while (1)
+ 307              		.loc 1 37 5 is_stmt 1 discriminator 1 view .LVU55
+  39:src/main.c    ****         Blink_task(5);
+ 308              		.loc 1 39 9 discriminator 1 view .LVU56
+ 309 0002 0520     		movs	r0, #5
+ 310 0004 FFF7FEFF 		bl	Blink_task
+ 311              	.LVL26:
+  40:src/main.c    ****         task_delay(1000);
+ 312              		.loc 1 40 9 discriminator 1 view .LVU57
+ 313 0008 4FF47A70 		mov	r0, #1000
+ 314 000c FFF7FEFF 		bl	task_delay
+ 315              	.LVL27:
+  37:src/main.c    ****     while (1)
+ 316              		.loc 1 37 11 discriminator 1 view .LVU58
+ 317 0010 F7E7     		b	.L18
+ 318              		.cfi_endproc
+ 319              	.LFE138:
+ 321              		.section	.text.task_2,"ax",%progbits
+ 322              		.align	1
+ 323              		.global	task_2
+ 324              		.syntax unified
+ 325              		.thumb
+ 326              		.thumb_func
+ 327              		.fpu fpv4-sp-d16
+ 329              	task_2:
+ 330              	.LFB139:
+  45:src/main.c    **** {
+ 331              		.loc 1 45 1 view -0
+ 332              		.cfi_startproc
+ 333              		@ Volatile: function does not return.
+ 334              		@ args = 0, pretend = 0, frame = 0
+ 335              		@ frame_needed = 0, uses_anonymous_args = 0
+ 336              	.LVL28:
+  45:src/main.c    **** {
+ 337              		.loc 1 45 1 is_stmt 0 view .LVU60
+ 338 0000 08B5     		push	{r3, lr}
+ 339              	.LCFI4:
+ARM GAS  /tmp/ccXJlRFA.s 			page 9
+
+
+ 340              		.cfi_def_cfa_offset 8
+ 341              		.cfi_offset 3, -8
+ 342              		.cfi_offset 14, -4
+ 343              	.LVL29:
+ 344              	.L21:
+  46:src/main.c    ****     while (1)
+ 345              		.loc 1 46 5 is_stmt 1 discriminator 1 view .LVU61
+  48:src/main.c    ****         Blink_task(6);
+ 346              		.loc 1 48 9 discriminator 1 view .LVU62
+ 347 0002 0620     		movs	r0, #6
+ 348 0004 FFF7FEFF 		bl	Blink_task
+ 349              	.LVL30:
+  49:src/main.c    ****         task_delay(1000);
+ 350              		.loc 1 49 9 discriminator 1 view .LVU63
+ 351 0008 4FF47A70 		mov	r0, #1000
+ 352 000c FFF7FEFF 		bl	task_delay
+ 353              	.LVL31:
+  46:src/main.c    ****     while (1)
+ 354              		.loc 1 46 11 discriminator 1 view .LVU64
+ 355 0010 F7E7     		b	.L21
+ 356              		.cfi_endproc
+ 357              	.LFE139:
+ 359              		.global	mutex
+ 360              		.section	.bss.mutex,"aw",%nobits
+ 361              		.align	2
+ 362              		.set	.LANCHOR0,. + 0
+ 365              	mutex:
+ 366 0000 00000000 		.space	4
+ 367              		.text
+ 368              	.Letext0:
+ 369              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 370              		.file 3 "/usr/include/newlib/sys/_stdint.h"
+ 371              		.file 4 "driver/Device/stm32f401xc.h"
+ 372              		.file 5 "inc/task.h"
+ 373              		.file 6 "inc/mutex.h"
+ 374              		.file 7 "inc/scheduler.h"
+ 375              		.file 8 "inc/main.h"
+ 376              		.file 9 "inc/Log.h"
+ARM GAS  /tmp/ccXJlRFA.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/ccXJlRFA.s:18     .text.task_3:0000000000000000 $t
+     /tmp/ccXJlRFA.s:26     .text.task_3:0000000000000000 task_3
+     /tmp/ccXJlRFA.s:68     .text.task_3:0000000000000028 $d
+     /tmp/ccXJlRFA.s:73     .rodata.main.str1.4:0000000000000000 $d
+     /tmp/ccXJlRFA.s:95     .text.main:0000000000000000 $t
+     /tmp/ccXJlRFA.s:102    .text.main:0000000000000000 main
+     /tmp/ccXJlRFA.s:169    .text.main:000000000000004c $d
+     /tmp/ccXJlRFA.s:291    .text.task_1:0000000000000000 task_1
+     /tmp/ccXJlRFA.s:329    .text.task_2:0000000000000000 task_2
+     /tmp/ccXJlRFA.s:184    .text.Blink_task:0000000000000000 $t
+     /tmp/ccXJlRFA.s:191    .text.Blink_task:0000000000000000 Blink_task
+     /tmp/ccXJlRFA.s:278    .text.Blink_task:000000000000004c $d
+     /tmp/ccXJlRFA.s:284    .text.task_1:0000000000000000 $t
+     /tmp/ccXJlRFA.s:322    .text.task_2:0000000000000000 $t
+     /tmp/ccXJlRFA.s:365    .bss.mutex:0000000000000000 mutex
+     /tmp/ccXJlRFA.s:361    .bss.mutex:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+task_delay
+SystemInit
+createMutex
+Log_s
+createTask
+start_scheduler
+MutexTake
+MutexGive
