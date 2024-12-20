@@ -1,0 +1,1826 @@
+ARM GAS  /tmp/ccgUGXPo.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"mutex.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.pushWaitingQueue,"ax",%progbits
+  18              		.align	1
+  19              		.global	pushWaitingQueue
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	pushWaitingQueue:
+  27              	.LVL0:
+  28              	.LFB137:
+  29              		.file 1 "src/mutex.c"
+   1:src/mutex.c   **** #include "mutex.h"
+   2:src/mutex.c   **** 
+   3:src/mutex.c   **** extern TCB_Typedef* getCurrentTask(void);
+   4:src/mutex.c   **** extern TCB_Typedef* idle_task;			// defined in task.c
+   5:src/mutex.c   **** extern ready_task_list* ReadyHead;      // defined in task.c
+   6:src/mutex.c   **** 
+   7:src/mutex.c   **** void pushWaitingQueue(mutexList** mutexListHead, TCB_Typedef* current_task)
+   8:src/mutex.c   **** {
+  30              		.loc 1 8 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 8
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 8 1 is_stmt 0 view .LVU1
+  35 0000 10B5     		push	{r4, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 4, -8
+  39              		.cfi_offset 14, -4
+  40 0002 82B0     		sub	sp, sp, #8
+  41              	.LCFI1:
+  42              		.cfi_def_cfa_offset 16
+  43 0004 0446     		mov	r4, r0
+  44 0006 0191     		str	r1, [sp, #4]
+   9:src/mutex.c   ****     removeFromReadyList(&current_task);
+  45              		.loc 1 9 5 is_stmt 1 view .LVU2
+  46 0008 01A8     		add	r0, sp, #4
+  47              	.LVL1:
+  48              		.loc 1 9 5 is_stmt 0 view .LVU3
+  49 000a FFF7FEFF 		bl	removeFromReadyList
+ARM GAS  /tmp/ccgUGXPo.s 			page 2
+
+
+  50              	.LVL2:
+  10:src/mutex.c   **** 
+  11:src/mutex.c   ****     if ((*mutexListHead)->head  == NULL)
+  51              		.loc 1 11 5 is_stmt 1 view .LVU4
+  52              		.loc 1 11 10 is_stmt 0 view .LVU5
+  53 000e 2268     		ldr	r2, [r4]
+  54              		.loc 1 11 25 view .LVU6
+  55 0010 1368     		ldr	r3, [r2]
+  56              		.loc 1 11 8 view .LVU7
+  57 0012 3BB1     		cbz	r3, .L5
+  58              	.L2:
+  59              	.LVL3:
+  60              	.LBB17:
+  12:src/mutex.c   ****     {
+  13:src/mutex.c   ****         (*mutexListHead)->head = current_task;
+  14:src/mutex.c   ****     }
+  15:src/mutex.c   ****     else
+  16:src/mutex.c   ****     {
+  17:src/mutex.c   ****         TCB_Typedef* temp = (*mutexListHead)->head;
+  18:src/mutex.c   ****         while (temp->next != NULL)
+  61              		.loc 1 18 15 is_stmt 1 view .LVU8
+  62 0014 1A46     		mov	r2, r3
+  63              		.loc 1 18 20 is_stmt 0 view .LVU9
+  64 0016 1B68     		ldr	r3, [r3]
+  65              	.LVL4:
+  66              		.loc 1 18 15 view .LVU10
+  67 0018 002B     		cmp	r3, #0
+  68 001a FBD1     		bne	.L2
+  19:src/mutex.c   ****         {
+  20:src/mutex.c   ****             temp = temp->next;
+  21:src/mutex.c   ****         }
+  22:src/mutex.c   ****         temp->next = current_task;
+  69              		.loc 1 22 9 is_stmt 1 view .LVU11
+  70              		.loc 1 22 20 is_stmt 0 view .LVU12
+  71 001c 019B     		ldr	r3, [sp, #4]
+  72 001e 1360     		str	r3, [r2]
+  73              	.LVL5:
+  74              	.L1:
+  75              		.loc 1 22 20 view .LVU13
+  76              	.LBE17:
+  23:src/mutex.c   ****     }
+  24:src/mutex.c   **** }
+  77              		.loc 1 24 1 view .LVU14
+  78 0020 02B0     		add	sp, sp, #8
+  79              	.LCFI2:
+  80              		.cfi_remember_state
+  81              		.cfi_def_cfa_offset 8
+  82              		@ sp needed
+  83 0022 10BD     		pop	{r4, pc}
+  84              	.LVL6:
+  85              	.L5:
+  86              	.LCFI3:
+  87              		.cfi_restore_state
+  13:src/mutex.c   ****     }
+  88              		.loc 1 13 9 is_stmt 1 view .LVU15
+  13:src/mutex.c   ****     }
+  89              		.loc 1 13 32 is_stmt 0 view .LVU16
+ARM GAS  /tmp/ccgUGXPo.s 			page 3
+
+
+  90 0024 019B     		ldr	r3, [sp, #4]
+  91 0026 1360     		str	r3, [r2]
+  92 0028 FAE7     		b	.L1
+  93              		.cfi_endproc
+  94              	.LFE137:
+  96              		.section	.text.popWaitingQueue,"ax",%progbits
+  97              		.align	1
+  98              		.global	popWaitingQueue
+  99              		.syntax unified
+ 100              		.thumb
+ 101              		.thumb_func
+ 102              		.fpu fpv4-sp-d16
+ 104              	popWaitingQueue:
+ 105              	.LVL7:
+ 106              	.LFB138:
+  25:src/mutex.c   **** 
+  26:src/mutex.c   **** TCB_Typedef* popWaitingQueue(mutexList** mutexListHead)
+  27:src/mutex.c   **** {
+ 107              		.loc 1 27 1 is_stmt 1 view -0
+ 108              		.cfi_startproc
+ 109              		@ args = 0, pretend = 0, frame = 0
+ 110              		@ frame_needed = 0, uses_anonymous_args = 0
+ 111              		@ link register save eliminated.
+  28:src/mutex.c   ****     if ((*mutexListHead)->head == NULL)
+ 112              		.loc 1 28 5 view .LVU18
+ 113              		.loc 1 28 10 is_stmt 0 view .LVU19
+ 114 0000 0368     		ldr	r3, [r0]
+ 115              		.loc 1 28 25 view .LVU20
+ 116 0002 1868     		ldr	r0, [r3]
+ 117              	.LVL8:
+ 118              		.loc 1 28 8 view .LVU21
+ 119 0004 08B1     		cbz	r0, .L6
+  29:src/mutex.c   ****     {
+  30:src/mutex.c   ****         return NULL;
+  31:src/mutex.c   ****     }
+  32:src/mutex.c   **** 
+  33:src/mutex.c   ****     TCB_Typedef* next_task = (*mutexListHead)->head;
+ 120              		.loc 1 33 5 is_stmt 1 view .LVU22
+ 121              	.LVL9:
+  34:src/mutex.c   ****     (*mutexListHead)->head = next_task->next;
+ 122              		.loc 1 34 5 view .LVU23
+ 123              		.loc 1 34 39 is_stmt 0 view .LVU24
+ 124 0006 0268     		ldr	r2, [r0]
+ 125              		.loc 1 34 28 view .LVU25
+ 126 0008 1A60     		str	r2, [r3]
+  35:src/mutex.c   ****     
+  36:src/mutex.c   ****     return next_task;
+ 127              		.loc 1 36 5 is_stmt 1 view .LVU26
+ 128              	.LVL10:
+ 129              	.L6:
+  37:src/mutex.c   **** }
+ 130              		.loc 1 37 1 is_stmt 0 view .LVU27
+ 131 000a 7047     		bx	lr
+ 132              		.cfi_endproc
+ 133              	.LFE138:
+ 135              		.section	.text.MutexTake,"ax",%progbits
+ 136              		.align	1
+ARM GAS  /tmp/ccgUGXPo.s 			page 4
+
+
+ 137              		.global	MutexTake
+ 138              		.syntax unified
+ 139              		.thumb
+ 140              		.thumb_func
+ 141              		.fpu fpv4-sp-d16
+ 143              	MutexTake:
+ 144              	.LVL11:
+ 145              	.LFB139:
+  38:src/mutex.c   **** 
+  39:src/mutex.c   **** /*
+  40:src/mutex.c   **** void MutexTake(Mutex_Typedef** mutex)
+  41:src/mutex.c   **** {
+  42:src/mutex.c   ****     __disable_irq();
+  43:src/mutex.c   **** 
+  44:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();
+  45:src/mutex.c   ****     
+  46:src/mutex.c   ****     if (!((*mutex)->lock))
+  47:src/mutex.c   ****     {
+  48:src/mutex.c   ****         (*mutex)->lock = 1;
+  49:src/mutex.c   ****         (*mutex)->owner = current_task;
+  50:src/mutex.c   ****         return;
+  51:src/mutex.c   ****     }
+  52:src/mutex.c   ****     else
+  53:src/mutex.c   ****     {
+  54:src/mutex.c   ****         current_task->state = BLOCKED;      // change state from running to waiting / blocked
+  55:src/mutex.c   ****         pushWaitingQueue(&((*mutex)->waiting_task), current_task);
+  56:src/mutex.c   ****         SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+  57:src/mutex.c   ****     }
+  58:src/mutex.c   ****     __enable_irq();
+  59:src/mutex.c   **** }
+  60:src/mutex.c   **** 
+  61:src/mutex.c   **** void MutexGive(Mutex_Typedef** mutex)
+  62:src/mutex.c   **** {
+  63:src/mutex.c   ****     __disable_irq();
+  64:src/mutex.c   **** 
+  65:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();
+  66:src/mutex.c   ****     
+  67:src/mutex.c   ****     if ((*mutex)->owner != current_task)
+  68:src/mutex.c   ****     {
+  69:src/mutex.c   ****         __enable_irq();
+  70:src/mutex.c   ****         return;
+  71:src/mutex.c   ****     }
+  72:src/mutex.c   **** 
+  73:src/mutex.c   ****     if ((*mutex)->waiting_task->head == NULL)
+  74:src/mutex.c   ****     {
+  75:src/mutex.c   ****         (*mutex)->lock = 0;
+  76:src/mutex.c   ****         (*mutex)->owner = NULL;
+  77:src/mutex.c   ****     }
+  78:src/mutex.c   ****     else
+  79:src/mutex.c   ****     {
+  80:src/mutex.c   ****         TCB_Typedef* next_task = popWaitingQueue(&((*mutex)->waiting_task));
+  81:src/mutex.c   ****         if (next_task != NULL)
+  82:src/mutex.c   ****         {
+  83:src/mutex.c   ****             next_task->state = READY;
+  84:src/mutex.c   ****             addToReadyList(&next_task);
+  85:src/mutex.c   ****             (*mutex)->owner = next_task;
+  86:src/mutex.c   ****             SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
+ARM GAS  /tmp/ccgUGXPo.s 			page 5
+
+
+  87:src/mutex.c   ****         }
+  88:src/mutex.c   ****     }
+  89:src/mutex.c   ****     __enable_irq();
+  90:src/mutex.c   **** }
+  91:src/mutex.c   **** */
+  92:src/mutex.c   **** void MutexTake(Mutex_Typedef** mutex)
+  93:src/mutex.c   **** {
+ 146              		.loc 1 93 1 is_stmt 1 view -0
+ 147              		.cfi_startproc
+ 148              		@ args = 0, pretend = 0, frame = 0
+ 149              		@ frame_needed = 0, uses_anonymous_args = 0
+ 150              		.loc 1 93 1 is_stmt 0 view .LVU29
+ 151 0000 38B5     		push	{r3, r4, r5, lr}
+ 152              	.LCFI4:
+ 153              		.cfi_def_cfa_offset 16
+ 154              		.cfi_offset 3, -16
+ 155              		.cfi_offset 4, -12
+ 156              		.cfi_offset 5, -8
+ 157              		.cfi_offset 14, -4
+ 158 0002 0546     		mov	r5, r0
+  94:src/mutex.c   ****     __disable_irq(); // Enter critical section
+ 159              		.loc 1 94 5 is_stmt 1 view .LVU30
+ 160              	.LBB18:
+ 161              	.LBI18:
+ 162              		.file 2 "driver/Core/cmsis_gcc.h"
+   1:driver/Core/cmsis_gcc.h **** /**************************************************************************//**
+   2:driver/Core/cmsis_gcc.h ****  * @file     cmsis_gcc.h
+   3:driver/Core/cmsis_gcc.h ****  * @brief    CMSIS compiler GCC header file
+   4:driver/Core/cmsis_gcc.h ****  * @version  V5.4.1
+   5:driver/Core/cmsis_gcc.h ****  * @date     27. May 2021
+   6:driver/Core/cmsis_gcc.h ****  ******************************************************************************/
+   7:driver/Core/cmsis_gcc.h **** /*
+   8:driver/Core/cmsis_gcc.h ****  * Copyright (c) 2009-2021 Arm Limited. All rights reserved.
+   9:driver/Core/cmsis_gcc.h ****  *
+  10:driver/Core/cmsis_gcc.h ****  * SPDX-License-Identifier: Apache-2.0
+  11:driver/Core/cmsis_gcc.h ****  *
+  12:driver/Core/cmsis_gcc.h ****  * Licensed under the Apache License, Version 2.0 (the License); you may
+  13:driver/Core/cmsis_gcc.h ****  * not use this file except in compliance with the License.
+  14:driver/Core/cmsis_gcc.h ****  * You may obtain a copy of the License at
+  15:driver/Core/cmsis_gcc.h ****  *
+  16:driver/Core/cmsis_gcc.h ****  * www.apache.org/licenses/LICENSE-2.0
+  17:driver/Core/cmsis_gcc.h ****  *
+  18:driver/Core/cmsis_gcc.h ****  * Unless required by applicable law or agreed to in writing, software
+  19:driver/Core/cmsis_gcc.h ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+  20:driver/Core/cmsis_gcc.h ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  21:driver/Core/cmsis_gcc.h ****  * See the License for the specific language governing permissions and
+  22:driver/Core/cmsis_gcc.h ****  * limitations under the License.
+  23:driver/Core/cmsis_gcc.h ****  */
+  24:driver/Core/cmsis_gcc.h **** 
+  25:driver/Core/cmsis_gcc.h **** #ifndef __CMSIS_GCC_H
+  26:driver/Core/cmsis_gcc.h **** #define __CMSIS_GCC_H
+  27:driver/Core/cmsis_gcc.h **** 
+  28:driver/Core/cmsis_gcc.h **** /* ignore some GCC warnings */
+  29:driver/Core/cmsis_gcc.h **** #pragma GCC diagnostic push
+  30:driver/Core/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wsign-conversion"
+  31:driver/Core/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wconversion"
+  32:driver/Core/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wunused-parameter"
+ARM GAS  /tmp/ccgUGXPo.s 			page 6
+
+
+  33:driver/Core/cmsis_gcc.h **** 
+  34:driver/Core/cmsis_gcc.h **** /* Fallback for __has_builtin */
+  35:driver/Core/cmsis_gcc.h **** #ifndef __has_builtin
+  36:driver/Core/cmsis_gcc.h ****   #define __has_builtin(x) (0)
+  37:driver/Core/cmsis_gcc.h **** #endif
+  38:driver/Core/cmsis_gcc.h **** 
+  39:driver/Core/cmsis_gcc.h **** /* CMSIS compiler specific defines */
+  40:driver/Core/cmsis_gcc.h **** #ifndef   __ASM
+  41:driver/Core/cmsis_gcc.h ****   #define __ASM                                  __asm
+  42:driver/Core/cmsis_gcc.h **** #endif
+  43:driver/Core/cmsis_gcc.h **** #ifndef   __INLINE
+  44:driver/Core/cmsis_gcc.h ****   #define __INLINE                               inline
+  45:driver/Core/cmsis_gcc.h **** #endif
+  46:driver/Core/cmsis_gcc.h **** #ifndef   __STATIC_INLINE
+  47:driver/Core/cmsis_gcc.h ****   #define __STATIC_INLINE                        static inline
+  48:driver/Core/cmsis_gcc.h **** #endif
+  49:driver/Core/cmsis_gcc.h **** #ifndef   __STATIC_FORCEINLINE
+  50:driver/Core/cmsis_gcc.h ****   #define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static inline
+  51:driver/Core/cmsis_gcc.h **** #endif
+  52:driver/Core/cmsis_gcc.h **** #ifndef   __NO_RETURN
+  53:driver/Core/cmsis_gcc.h ****   #define __NO_RETURN                            __attribute__((__noreturn__))
+  54:driver/Core/cmsis_gcc.h **** #endif
+  55:driver/Core/cmsis_gcc.h **** #ifndef   __USED
+  56:driver/Core/cmsis_gcc.h ****   #define __USED                                 __attribute__((used))
+  57:driver/Core/cmsis_gcc.h **** #endif
+  58:driver/Core/cmsis_gcc.h **** #ifndef   __WEAK
+  59:driver/Core/cmsis_gcc.h ****   #define __WEAK                                 __attribute__((weak))
+  60:driver/Core/cmsis_gcc.h **** #endif
+  61:driver/Core/cmsis_gcc.h **** #ifndef   __PACKED
+  62:driver/Core/cmsis_gcc.h ****   #define __PACKED                               __attribute__((packed, aligned(1)))
+  63:driver/Core/cmsis_gcc.h **** #endif
+  64:driver/Core/cmsis_gcc.h **** #ifndef   __PACKED_STRUCT
+  65:driver/Core/cmsis_gcc.h ****   #define __PACKED_STRUCT                        struct __attribute__((packed, aligned(1)))
+  66:driver/Core/cmsis_gcc.h **** #endif
+  67:driver/Core/cmsis_gcc.h **** #ifndef   __PACKED_UNION
+  68:driver/Core/cmsis_gcc.h ****   #define __PACKED_UNION                         union __attribute__((packed, aligned(1)))
+  69:driver/Core/cmsis_gcc.h **** #endif
+  70:driver/Core/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32        /* deprecated */
+  71:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  72:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  73:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  74:driver/Core/cmsis_gcc.h ****   struct __attribute__((packed)) T_UINT32 { uint32_t v; };
+  75:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  76:driver/Core/cmsis_gcc.h ****   #define __UNALIGNED_UINT32(x)                  (((struct T_UINT32 *)(x))->v)
+  77:driver/Core/cmsis_gcc.h **** #endif
+  78:driver/Core/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_WRITE
+  79:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  80:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  81:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  82:driver/Core/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_WRITE { uint16_t v; };
+  83:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  84:driver/Core/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_WRITE(addr, val)    (void)((((struct T_UINT16_WRITE *)(void *)(addr))-
+  85:driver/Core/cmsis_gcc.h **** #endif
+  86:driver/Core/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_READ
+  87:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  88:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  89:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+ARM GAS  /tmp/ccgUGXPo.s 			page 7
+
+
+  90:driver/Core/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_READ { uint16_t v; };
+  91:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+  92:driver/Core/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_READ(addr)          (((const struct T_UINT16_READ *)(const void *)(add
+  93:driver/Core/cmsis_gcc.h **** #endif
+  94:driver/Core/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_WRITE
+  95:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic push
+  96:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+  97:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+  98:driver/Core/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_WRITE { uint32_t v; };
+  99:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 100:driver/Core/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_WRITE(addr, val)    (void)((((struct T_UINT32_WRITE *)(void *)(addr))-
+ 101:driver/Core/cmsis_gcc.h **** #endif
+ 102:driver/Core/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT32_READ
+ 103:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic push
+ 104:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
+ 105:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+ 106:driver/Core/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT32_READ { uint32_t v; };
+ 107:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic pop
+ 108:driver/Core/cmsis_gcc.h ****   #define __UNALIGNED_UINT32_READ(addr)          (((const struct T_UINT32_READ *)(const void *)(add
+ 109:driver/Core/cmsis_gcc.h **** #endif
+ 110:driver/Core/cmsis_gcc.h **** #ifndef   __ALIGNED
+ 111:driver/Core/cmsis_gcc.h ****   #define __ALIGNED(x)                           __attribute__((aligned(x)))
+ 112:driver/Core/cmsis_gcc.h **** #endif
+ 113:driver/Core/cmsis_gcc.h **** #ifndef   __RESTRICT
+ 114:driver/Core/cmsis_gcc.h ****   #define __RESTRICT                             __restrict
+ 115:driver/Core/cmsis_gcc.h **** #endif
+ 116:driver/Core/cmsis_gcc.h **** #ifndef   __COMPILER_BARRIER
+ 117:driver/Core/cmsis_gcc.h ****   #define __COMPILER_BARRIER()                   __ASM volatile("":::"memory")
+ 118:driver/Core/cmsis_gcc.h **** #endif
+ 119:driver/Core/cmsis_gcc.h **** 
+ 120:driver/Core/cmsis_gcc.h **** /* #########################  Startup and Lowlevel Init  ######################## */
+ 121:driver/Core/cmsis_gcc.h **** 
+ 122:driver/Core/cmsis_gcc.h **** #ifndef __PROGRAM_START
+ 123:driver/Core/cmsis_gcc.h **** 
+ 124:driver/Core/cmsis_gcc.h **** /**
+ 125:driver/Core/cmsis_gcc.h ****   \brief   Initializes data and bss sections
+ 126:driver/Core/cmsis_gcc.h ****   \details This default implementations initialized all data and additional bss
+ 127:driver/Core/cmsis_gcc.h ****            sections relying on .copy.table and .zero.table specified properly
+ 128:driver/Core/cmsis_gcc.h ****            in the used linker script.
+ 129:driver/Core/cmsis_gcc.h **** 
+ 130:driver/Core/cmsis_gcc.h ****  */
+ 131:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE __NO_RETURN void __cmsis_start(void)
+ 132:driver/Core/cmsis_gcc.h **** {
+ 133:driver/Core/cmsis_gcc.h ****   extern void _start(void) __NO_RETURN;
+ 134:driver/Core/cmsis_gcc.h **** 
+ 135:driver/Core/cmsis_gcc.h ****   typedef struct {
+ 136:driver/Core/cmsis_gcc.h ****     uint32_t const* src;
+ 137:driver/Core/cmsis_gcc.h ****     uint32_t* dest;
+ 138:driver/Core/cmsis_gcc.h ****     uint32_t  wlen;
+ 139:driver/Core/cmsis_gcc.h ****   } __copy_table_t;
+ 140:driver/Core/cmsis_gcc.h **** 
+ 141:driver/Core/cmsis_gcc.h ****   typedef struct {
+ 142:driver/Core/cmsis_gcc.h ****     uint32_t* dest;
+ 143:driver/Core/cmsis_gcc.h ****     uint32_t  wlen;
+ 144:driver/Core/cmsis_gcc.h ****   } __zero_table_t;
+ 145:driver/Core/cmsis_gcc.h **** 
+ 146:driver/Core/cmsis_gcc.h ****   extern const __copy_table_t __copy_table_start__;
+ARM GAS  /tmp/ccgUGXPo.s 			page 8
+
+
+ 147:driver/Core/cmsis_gcc.h ****   extern const __copy_table_t __copy_table_end__;
+ 148:driver/Core/cmsis_gcc.h ****   extern const __zero_table_t __zero_table_start__;
+ 149:driver/Core/cmsis_gcc.h ****   extern const __zero_table_t __zero_table_end__;
+ 150:driver/Core/cmsis_gcc.h **** 
+ 151:driver/Core/cmsis_gcc.h ****   for (__copy_table_t const* pTable = &__copy_table_start__; pTable < &__copy_table_end__; ++pTable
+ 152:driver/Core/cmsis_gcc.h ****     for(uint32_t i=0u; i<pTable->wlen; ++i) {
+ 153:driver/Core/cmsis_gcc.h ****       pTable->dest[i] = pTable->src[i];
+ 154:driver/Core/cmsis_gcc.h ****     }
+ 155:driver/Core/cmsis_gcc.h ****   }
+ 156:driver/Core/cmsis_gcc.h **** 
+ 157:driver/Core/cmsis_gcc.h ****   for (__zero_table_t const* pTable = &__zero_table_start__; pTable < &__zero_table_end__; ++pTable
+ 158:driver/Core/cmsis_gcc.h ****     for(uint32_t i=0u; i<pTable->wlen; ++i) {
+ 159:driver/Core/cmsis_gcc.h ****       pTable->dest[i] = 0u;
+ 160:driver/Core/cmsis_gcc.h ****     }
+ 161:driver/Core/cmsis_gcc.h ****   }
+ 162:driver/Core/cmsis_gcc.h **** 
+ 163:driver/Core/cmsis_gcc.h ****   _start();
+ 164:driver/Core/cmsis_gcc.h **** }
+ 165:driver/Core/cmsis_gcc.h **** 
+ 166:driver/Core/cmsis_gcc.h **** #define __PROGRAM_START           __cmsis_start
+ 167:driver/Core/cmsis_gcc.h **** #endif
+ 168:driver/Core/cmsis_gcc.h **** 
+ 169:driver/Core/cmsis_gcc.h **** #ifndef __INITIAL_SP
+ 170:driver/Core/cmsis_gcc.h **** #define __INITIAL_SP              __StackTop
+ 171:driver/Core/cmsis_gcc.h **** #endif
+ 172:driver/Core/cmsis_gcc.h **** 
+ 173:driver/Core/cmsis_gcc.h **** #ifndef __STACK_LIMIT
+ 174:driver/Core/cmsis_gcc.h **** #define __STACK_LIMIT             __StackLimit
+ 175:driver/Core/cmsis_gcc.h **** #endif
+ 176:driver/Core/cmsis_gcc.h **** 
+ 177:driver/Core/cmsis_gcc.h **** #ifndef __VECTOR_TABLE
+ 178:driver/Core/cmsis_gcc.h **** #define __VECTOR_TABLE            __Vectors
+ 179:driver/Core/cmsis_gcc.h **** #endif
+ 180:driver/Core/cmsis_gcc.h **** 
+ 181:driver/Core/cmsis_gcc.h **** #ifndef __VECTOR_TABLE_ATTRIBUTE
+ 182:driver/Core/cmsis_gcc.h **** #define __VECTOR_TABLE_ATTRIBUTE  __attribute__((used, section(".vectors")))
+ 183:driver/Core/cmsis_gcc.h **** #endif
+ 184:driver/Core/cmsis_gcc.h **** 
+ 185:driver/Core/cmsis_gcc.h **** #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+ 186:driver/Core/cmsis_gcc.h **** #ifndef __STACK_SEAL
+ 187:driver/Core/cmsis_gcc.h **** #define __STACK_SEAL              __StackSeal
+ 188:driver/Core/cmsis_gcc.h **** #endif
+ 189:driver/Core/cmsis_gcc.h **** 
+ 190:driver/Core/cmsis_gcc.h **** #ifndef __TZ_STACK_SEAL_SIZE
+ 191:driver/Core/cmsis_gcc.h **** #define __TZ_STACK_SEAL_SIZE      8U
+ 192:driver/Core/cmsis_gcc.h **** #endif
+ 193:driver/Core/cmsis_gcc.h **** 
+ 194:driver/Core/cmsis_gcc.h **** #ifndef __TZ_STACK_SEAL_VALUE
+ 195:driver/Core/cmsis_gcc.h **** #define __TZ_STACK_SEAL_VALUE     0xFEF5EDA5FEF5EDA5ULL
+ 196:driver/Core/cmsis_gcc.h **** #endif
+ 197:driver/Core/cmsis_gcc.h **** 
+ 198:driver/Core/cmsis_gcc.h **** 
+ 199:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __TZ_set_STACKSEAL_S (uint32_t* stackTop) {
+ 200:driver/Core/cmsis_gcc.h ****   *((uint64_t *)stackTop) = __TZ_STACK_SEAL_VALUE;
+ 201:driver/Core/cmsis_gcc.h **** }
+ 202:driver/Core/cmsis_gcc.h **** #endif
+ 203:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/ccgUGXPo.s 			page 9
+
+
+ 204:driver/Core/cmsis_gcc.h **** 
+ 205:driver/Core/cmsis_gcc.h **** /* ##########################  Core Instruction Access  ######################### */
+ 206:driver/Core/cmsis_gcc.h **** /** \defgroup CMSIS_Core_InstructionInterface CMSIS Core Instruction Interface
+ 207:driver/Core/cmsis_gcc.h ****   Access to dedicated instructions
+ 208:driver/Core/cmsis_gcc.h ****   @{
+ 209:driver/Core/cmsis_gcc.h **** */
+ 210:driver/Core/cmsis_gcc.h **** 
+ 211:driver/Core/cmsis_gcc.h **** /* Define macros for porting to both thumb1 and thumb2.
+ 212:driver/Core/cmsis_gcc.h ****  * For thumb1, use low register (r0-r7), specified by constraint "l"
+ 213:driver/Core/cmsis_gcc.h ****  * Otherwise, use general registers, specified by constraint "r" */
+ 214:driver/Core/cmsis_gcc.h **** #if defined (__thumb__) && !defined (__thumb2__)
+ 215:driver/Core/cmsis_gcc.h **** #define __CMSIS_GCC_OUT_REG(r) "=l" (r)
+ 216:driver/Core/cmsis_gcc.h **** #define __CMSIS_GCC_RW_REG(r) "+l" (r)
+ 217:driver/Core/cmsis_gcc.h **** #define __CMSIS_GCC_USE_REG(r) "l" (r)
+ 218:driver/Core/cmsis_gcc.h **** #else
+ 219:driver/Core/cmsis_gcc.h **** #define __CMSIS_GCC_OUT_REG(r) "=r" (r)
+ 220:driver/Core/cmsis_gcc.h **** #define __CMSIS_GCC_RW_REG(r) "+r" (r)
+ 221:driver/Core/cmsis_gcc.h **** #define __CMSIS_GCC_USE_REG(r) "r" (r)
+ 222:driver/Core/cmsis_gcc.h **** #endif
+ 223:driver/Core/cmsis_gcc.h **** 
+ 224:driver/Core/cmsis_gcc.h **** /**
+ 225:driver/Core/cmsis_gcc.h ****   \brief   No Operation
+ 226:driver/Core/cmsis_gcc.h ****   \details No Operation does nothing. This instruction can be used for code alignment purposes.
+ 227:driver/Core/cmsis_gcc.h ****  */
+ 228:driver/Core/cmsis_gcc.h **** #define __NOP()                             __ASM volatile ("nop")
+ 229:driver/Core/cmsis_gcc.h **** 
+ 230:driver/Core/cmsis_gcc.h **** /**
+ 231:driver/Core/cmsis_gcc.h ****   \brief   Wait For Interrupt
+ 232:driver/Core/cmsis_gcc.h ****   \details Wait For Interrupt is a hint instruction that suspends execution until one of a number o
+ 233:driver/Core/cmsis_gcc.h ****  */
+ 234:driver/Core/cmsis_gcc.h **** #define __WFI()                             __ASM volatile ("wfi":::"memory")
+ 235:driver/Core/cmsis_gcc.h **** 
+ 236:driver/Core/cmsis_gcc.h **** 
+ 237:driver/Core/cmsis_gcc.h **** /**
+ 238:driver/Core/cmsis_gcc.h ****   \brief   Wait For Event
+ 239:driver/Core/cmsis_gcc.h ****   \details Wait For Event is a hint instruction that permits the processor to enter
+ 240:driver/Core/cmsis_gcc.h ****            a low-power state until one of a number of events occurs.
+ 241:driver/Core/cmsis_gcc.h ****  */
+ 242:driver/Core/cmsis_gcc.h **** #define __WFE()                             __ASM volatile ("wfe":::"memory")
+ 243:driver/Core/cmsis_gcc.h **** 
+ 244:driver/Core/cmsis_gcc.h **** 
+ 245:driver/Core/cmsis_gcc.h **** /**
+ 246:driver/Core/cmsis_gcc.h ****   \brief   Send Event
+ 247:driver/Core/cmsis_gcc.h ****   \details Send Event is a hint instruction. It causes an event to be signaled to the CPU.
+ 248:driver/Core/cmsis_gcc.h ****  */
+ 249:driver/Core/cmsis_gcc.h **** #define __SEV()                             __ASM volatile ("sev")
+ 250:driver/Core/cmsis_gcc.h **** 
+ 251:driver/Core/cmsis_gcc.h **** 
+ 252:driver/Core/cmsis_gcc.h **** /**
+ 253:driver/Core/cmsis_gcc.h ****   \brief   Instruction Synchronization Barrier
+ 254:driver/Core/cmsis_gcc.h ****   \details Instruction Synchronization Barrier flushes the pipeline in the processor,
+ 255:driver/Core/cmsis_gcc.h ****            so that all instructions following the ISB are fetched from cache or memory,
+ 256:driver/Core/cmsis_gcc.h ****            after the instruction has been completed.
+ 257:driver/Core/cmsis_gcc.h ****  */
+ 258:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __ISB(void)
+ 259:driver/Core/cmsis_gcc.h **** {
+ 260:driver/Core/cmsis_gcc.h ****   __ASM volatile ("isb 0xF":::"memory");
+ARM GAS  /tmp/ccgUGXPo.s 			page 10
+
+
+ 261:driver/Core/cmsis_gcc.h **** }
+ 262:driver/Core/cmsis_gcc.h **** 
+ 263:driver/Core/cmsis_gcc.h **** 
+ 264:driver/Core/cmsis_gcc.h **** /**
+ 265:driver/Core/cmsis_gcc.h ****   \brief   Data Synchronization Barrier
+ 266:driver/Core/cmsis_gcc.h ****   \details Acts as a special kind of Data Memory Barrier.
+ 267:driver/Core/cmsis_gcc.h ****            It completes when all explicit memory accesses before this instruction complete.
+ 268:driver/Core/cmsis_gcc.h ****  */
+ 269:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __DSB(void)
+ 270:driver/Core/cmsis_gcc.h **** {
+ 271:driver/Core/cmsis_gcc.h ****   __ASM volatile ("dsb 0xF":::"memory");
+ 272:driver/Core/cmsis_gcc.h **** }
+ 273:driver/Core/cmsis_gcc.h **** 
+ 274:driver/Core/cmsis_gcc.h **** 
+ 275:driver/Core/cmsis_gcc.h **** /**
+ 276:driver/Core/cmsis_gcc.h ****   \brief   Data Memory Barrier
+ 277:driver/Core/cmsis_gcc.h ****   \details Ensures the apparent order of the explicit memory operations before
+ 278:driver/Core/cmsis_gcc.h ****            and after the instruction, without ensuring their completion.
+ 279:driver/Core/cmsis_gcc.h ****  */
+ 280:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __DMB(void)
+ 281:driver/Core/cmsis_gcc.h **** {
+ 282:driver/Core/cmsis_gcc.h ****   __ASM volatile ("dmb 0xF":::"memory");
+ 283:driver/Core/cmsis_gcc.h **** }
+ 284:driver/Core/cmsis_gcc.h **** 
+ 285:driver/Core/cmsis_gcc.h **** 
+ 286:driver/Core/cmsis_gcc.h **** /**
+ 287:driver/Core/cmsis_gcc.h ****   \brief   Reverse byte order (32 bit)
+ 288:driver/Core/cmsis_gcc.h ****   \details Reverses the byte order in unsigned integer value. For example, 0x12345678 becomes 0x785
+ 289:driver/Core/cmsis_gcc.h ****   \param [in]    value  Value to reverse
+ 290:driver/Core/cmsis_gcc.h ****   \return               Reversed value
+ 291:driver/Core/cmsis_gcc.h ****  */
+ 292:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __REV(uint32_t value)
+ 293:driver/Core/cmsis_gcc.h **** {
+ 294:driver/Core/cmsis_gcc.h **** #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)
+ 295:driver/Core/cmsis_gcc.h ****   return __builtin_bswap32(value);
+ 296:driver/Core/cmsis_gcc.h **** #else
+ 297:driver/Core/cmsis_gcc.h ****   uint32_t result;
+ 298:driver/Core/cmsis_gcc.h **** 
+ 299:driver/Core/cmsis_gcc.h ****   __ASM ("rev %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
+ 300:driver/Core/cmsis_gcc.h ****   return result;
+ 301:driver/Core/cmsis_gcc.h **** #endif
+ 302:driver/Core/cmsis_gcc.h **** }
+ 303:driver/Core/cmsis_gcc.h **** 
+ 304:driver/Core/cmsis_gcc.h **** 
+ 305:driver/Core/cmsis_gcc.h **** /**
+ 306:driver/Core/cmsis_gcc.h ****   \brief   Reverse byte order (16 bit)
+ 307:driver/Core/cmsis_gcc.h ****   \details Reverses the byte order within each halfword of a word. For example, 0x12345678 becomes 
+ 308:driver/Core/cmsis_gcc.h ****   \param [in]    value  Value to reverse
+ 309:driver/Core/cmsis_gcc.h ****   \return               Reversed value
+ 310:driver/Core/cmsis_gcc.h ****  */
+ 311:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __REV16(uint32_t value)
+ 312:driver/Core/cmsis_gcc.h **** {
+ 313:driver/Core/cmsis_gcc.h ****   uint32_t result;
+ 314:driver/Core/cmsis_gcc.h **** 
+ 315:driver/Core/cmsis_gcc.h ****   __ASM ("rev16 %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
+ 316:driver/Core/cmsis_gcc.h ****   return result;
+ 317:driver/Core/cmsis_gcc.h **** }
+ARM GAS  /tmp/ccgUGXPo.s 			page 11
+
+
+ 318:driver/Core/cmsis_gcc.h **** 
+ 319:driver/Core/cmsis_gcc.h **** 
+ 320:driver/Core/cmsis_gcc.h **** /**
+ 321:driver/Core/cmsis_gcc.h ****   \brief   Reverse byte order (16 bit)
+ 322:driver/Core/cmsis_gcc.h ****   \details Reverses the byte order in a 16-bit value and returns the signed 16-bit result. For exam
+ 323:driver/Core/cmsis_gcc.h ****   \param [in]    value  Value to reverse
+ 324:driver/Core/cmsis_gcc.h ****   \return               Reversed value
+ 325:driver/Core/cmsis_gcc.h ****  */
+ 326:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE int16_t __REVSH(int16_t value)
+ 327:driver/Core/cmsis_gcc.h **** {
+ 328:driver/Core/cmsis_gcc.h **** #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
+ 329:driver/Core/cmsis_gcc.h ****   return (int16_t)__builtin_bswap16(value);
+ 330:driver/Core/cmsis_gcc.h **** #else
+ 331:driver/Core/cmsis_gcc.h ****   int16_t result;
+ 332:driver/Core/cmsis_gcc.h **** 
+ 333:driver/Core/cmsis_gcc.h ****   __ASM ("revsh %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
+ 334:driver/Core/cmsis_gcc.h ****   return result;
+ 335:driver/Core/cmsis_gcc.h **** #endif
+ 336:driver/Core/cmsis_gcc.h **** }
+ 337:driver/Core/cmsis_gcc.h **** 
+ 338:driver/Core/cmsis_gcc.h **** 
+ 339:driver/Core/cmsis_gcc.h **** /**
+ 340:driver/Core/cmsis_gcc.h ****   \brief   Rotate Right in unsigned value (32 bit)
+ 341:driver/Core/cmsis_gcc.h ****   \details Rotate Right (immediate) provides the value of the contents of a register rotated by a v
+ 342:driver/Core/cmsis_gcc.h ****   \param [in]    op1  Value to rotate
+ 343:driver/Core/cmsis_gcc.h ****   \param [in]    op2  Number of Bits to rotate
+ 344:driver/Core/cmsis_gcc.h ****   \return               Rotated value
+ 345:driver/Core/cmsis_gcc.h ****  */
+ 346:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __ROR(uint32_t op1, uint32_t op2)
+ 347:driver/Core/cmsis_gcc.h **** {
+ 348:driver/Core/cmsis_gcc.h ****   op2 %= 32U;
+ 349:driver/Core/cmsis_gcc.h ****   if (op2 == 0U)
+ 350:driver/Core/cmsis_gcc.h ****   {
+ 351:driver/Core/cmsis_gcc.h ****     return op1;
+ 352:driver/Core/cmsis_gcc.h ****   }
+ 353:driver/Core/cmsis_gcc.h ****   return (op1 >> op2) | (op1 << (32U - op2));
+ 354:driver/Core/cmsis_gcc.h **** }
+ 355:driver/Core/cmsis_gcc.h **** 
+ 356:driver/Core/cmsis_gcc.h **** 
+ 357:driver/Core/cmsis_gcc.h **** /**
+ 358:driver/Core/cmsis_gcc.h ****   \brief   Breakpoint
+ 359:driver/Core/cmsis_gcc.h ****   \details Causes the processor to enter Debug state.
+ 360:driver/Core/cmsis_gcc.h ****            Debug tools can use this to investigate system state when the instruction at a particula
+ 361:driver/Core/cmsis_gcc.h ****   \param [in]    value  is ignored by the processor.
+ 362:driver/Core/cmsis_gcc.h ****                  If required, a debugger can use it to store additional information about the break
+ 363:driver/Core/cmsis_gcc.h ****  */
+ 364:driver/Core/cmsis_gcc.h **** #define __BKPT(value)                       __ASM volatile ("bkpt "#value)
+ 365:driver/Core/cmsis_gcc.h **** 
+ 366:driver/Core/cmsis_gcc.h **** 
+ 367:driver/Core/cmsis_gcc.h **** /**
+ 368:driver/Core/cmsis_gcc.h ****   \brief   Reverse bit order of value
+ 369:driver/Core/cmsis_gcc.h ****   \details Reverses the bit order of the given value.
+ 370:driver/Core/cmsis_gcc.h ****   \param [in]    value  Value to reverse
+ 371:driver/Core/cmsis_gcc.h ****   \return               Reversed value
+ 372:driver/Core/cmsis_gcc.h ****  */
+ 373:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __RBIT(uint32_t value)
+ 374:driver/Core/cmsis_gcc.h **** {
+ARM GAS  /tmp/ccgUGXPo.s 			page 12
+
+
+ 375:driver/Core/cmsis_gcc.h ****   uint32_t result;
+ 376:driver/Core/cmsis_gcc.h **** 
+ 377:driver/Core/cmsis_gcc.h **** #if ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
+ 378:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_7EM__     ) && (__ARM_ARCH_7EM__     == 1)) || \
+ 379:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1))    )
+ 380:driver/Core/cmsis_gcc.h ****    __ASM ("rbit %0, %1" : "=r" (result) : "r" (value) );
+ 381:driver/Core/cmsis_gcc.h **** #else
+ 382:driver/Core/cmsis_gcc.h ****   uint32_t s = (4U /*sizeof(v)*/ * 8U) - 1U; /* extra shift needed at end */
+ 383:driver/Core/cmsis_gcc.h **** 
+ 384:driver/Core/cmsis_gcc.h ****   result = value;                      /* r will be reversed bits of v; first get LSB of v */
+ 385:driver/Core/cmsis_gcc.h ****   for (value >>= 1U; value != 0U; value >>= 1U)
+ 386:driver/Core/cmsis_gcc.h ****   {
+ 387:driver/Core/cmsis_gcc.h ****     result <<= 1U;
+ 388:driver/Core/cmsis_gcc.h ****     result |= value & 1U;
+ 389:driver/Core/cmsis_gcc.h ****     s--;
+ 390:driver/Core/cmsis_gcc.h ****   }
+ 391:driver/Core/cmsis_gcc.h ****   result <<= s;                        /* shift when v's highest bits are zero */
+ 392:driver/Core/cmsis_gcc.h **** #endif
+ 393:driver/Core/cmsis_gcc.h ****   return result;
+ 394:driver/Core/cmsis_gcc.h **** }
+ 395:driver/Core/cmsis_gcc.h **** 
+ 396:driver/Core/cmsis_gcc.h **** 
+ 397:driver/Core/cmsis_gcc.h **** /**
+ 398:driver/Core/cmsis_gcc.h ****   \brief   Count leading zeros
+ 399:driver/Core/cmsis_gcc.h ****   \details Counts the number of leading zeros of a data value.
+ 400:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to count the leading zeros
+ 401:driver/Core/cmsis_gcc.h ****   \return             number of leading zeros in value
+ 402:driver/Core/cmsis_gcc.h ****  */
+ 403:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint8_t __CLZ(uint32_t value)
+ 404:driver/Core/cmsis_gcc.h **** {
+ 405:driver/Core/cmsis_gcc.h ****   /* Even though __builtin_clz produces a CLZ instruction on ARM, formally
+ 406:driver/Core/cmsis_gcc.h ****      __builtin_clz(0) is undefined behaviour, so handle this case specially.
+ 407:driver/Core/cmsis_gcc.h ****      This guarantees ARM-compatible results if happening to compile on a non-ARM
+ 408:driver/Core/cmsis_gcc.h ****      target, and ensures the compiler doesn't decide to activate any
+ 409:driver/Core/cmsis_gcc.h ****      optimisations using the logic "value was passed to __builtin_clz, so it
+ 410:driver/Core/cmsis_gcc.h ****      is non-zero".
+ 411:driver/Core/cmsis_gcc.h ****      ARM GCC 7.3 and possibly earlier will optimise this test away, leaving a
+ 412:driver/Core/cmsis_gcc.h ****      single CLZ instruction.
+ 413:driver/Core/cmsis_gcc.h ****    */
+ 414:driver/Core/cmsis_gcc.h ****   if (value == 0U)
+ 415:driver/Core/cmsis_gcc.h ****   {
+ 416:driver/Core/cmsis_gcc.h ****     return 32U;
+ 417:driver/Core/cmsis_gcc.h ****   }
+ 418:driver/Core/cmsis_gcc.h ****   return __builtin_clz(value);
+ 419:driver/Core/cmsis_gcc.h **** }
+ 420:driver/Core/cmsis_gcc.h **** 
+ 421:driver/Core/cmsis_gcc.h **** 
+ 422:driver/Core/cmsis_gcc.h **** #if ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
+ 423:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_7EM__     ) && (__ARM_ARCH_7EM__     == 1)) || \
+ 424:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
+ 425:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_8M_BASE__ ) && (__ARM_ARCH_8M_BASE__ == 1))    )
+ 426:driver/Core/cmsis_gcc.h **** /**
+ 427:driver/Core/cmsis_gcc.h ****   \brief   LDR Exclusive (8 bit)
+ 428:driver/Core/cmsis_gcc.h ****   \details Executes a exclusive LDR instruction for 8 bit value.
+ 429:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 430:driver/Core/cmsis_gcc.h ****   \return             value of type uint8_t at (*ptr)
+ 431:driver/Core/cmsis_gcc.h ****  */
+ARM GAS  /tmp/ccgUGXPo.s 			page 13
+
+
+ 432:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint8_t __LDREXB(volatile uint8_t *addr)
+ 433:driver/Core/cmsis_gcc.h **** {
+ 434:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 435:driver/Core/cmsis_gcc.h **** 
+ 436:driver/Core/cmsis_gcc.h **** #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
+ 437:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrexb %0, %1" : "=r" (result) : "Q" (*addr) );
+ 438:driver/Core/cmsis_gcc.h **** #else
+ 439:driver/Core/cmsis_gcc.h ****     /* Prior to GCC 4.8, "Q" will be expanded to [rx, #0] which is not
+ 440:driver/Core/cmsis_gcc.h ****        accepted by assembler. So has to use following less efficient pattern.
+ 441:driver/Core/cmsis_gcc.h ****     */
+ 442:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrexb %0, [%1]" : "=r" (result) : "r" (addr) : "memory" );
+ 443:driver/Core/cmsis_gcc.h **** #endif
+ 444:driver/Core/cmsis_gcc.h ****    return ((uint8_t) result);    /* Add explicit type cast here */
+ 445:driver/Core/cmsis_gcc.h **** }
+ 446:driver/Core/cmsis_gcc.h **** 
+ 447:driver/Core/cmsis_gcc.h **** 
+ 448:driver/Core/cmsis_gcc.h **** /**
+ 449:driver/Core/cmsis_gcc.h ****   \brief   LDR Exclusive (16 bit)
+ 450:driver/Core/cmsis_gcc.h ****   \details Executes a exclusive LDR instruction for 16 bit values.
+ 451:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 452:driver/Core/cmsis_gcc.h ****   \return        value of type uint16_t at (*ptr)
+ 453:driver/Core/cmsis_gcc.h ****  */
+ 454:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint16_t __LDREXH(volatile uint16_t *addr)
+ 455:driver/Core/cmsis_gcc.h **** {
+ 456:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 457:driver/Core/cmsis_gcc.h **** 
+ 458:driver/Core/cmsis_gcc.h **** #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
+ 459:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrexh %0, %1" : "=r" (result) : "Q" (*addr) );
+ 460:driver/Core/cmsis_gcc.h **** #else
+ 461:driver/Core/cmsis_gcc.h ****     /* Prior to GCC 4.8, "Q" will be expanded to [rx, #0] which is not
+ 462:driver/Core/cmsis_gcc.h ****        accepted by assembler. So has to use following less efficient pattern.
+ 463:driver/Core/cmsis_gcc.h ****     */
+ 464:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrexh %0, [%1]" : "=r" (result) : "r" (addr) : "memory" );
+ 465:driver/Core/cmsis_gcc.h **** #endif
+ 466:driver/Core/cmsis_gcc.h ****    return ((uint16_t) result);    /* Add explicit type cast here */
+ 467:driver/Core/cmsis_gcc.h **** }
+ 468:driver/Core/cmsis_gcc.h **** 
+ 469:driver/Core/cmsis_gcc.h **** 
+ 470:driver/Core/cmsis_gcc.h **** /**
+ 471:driver/Core/cmsis_gcc.h ****   \brief   LDR Exclusive (32 bit)
+ 472:driver/Core/cmsis_gcc.h ****   \details Executes a exclusive LDR instruction for 32 bit values.
+ 473:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 474:driver/Core/cmsis_gcc.h ****   \return        value of type uint32_t at (*ptr)
+ 475:driver/Core/cmsis_gcc.h ****  */
+ 476:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDREXW(volatile uint32_t *addr)
+ 477:driver/Core/cmsis_gcc.h **** {
+ 478:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 479:driver/Core/cmsis_gcc.h **** 
+ 480:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrex %0, %1" : "=r" (result) : "Q" (*addr) );
+ 481:driver/Core/cmsis_gcc.h ****    return(result);
+ 482:driver/Core/cmsis_gcc.h **** }
+ 483:driver/Core/cmsis_gcc.h **** 
+ 484:driver/Core/cmsis_gcc.h **** 
+ 485:driver/Core/cmsis_gcc.h **** /**
+ 486:driver/Core/cmsis_gcc.h ****   \brief   STR Exclusive (8 bit)
+ 487:driver/Core/cmsis_gcc.h ****   \details Executes a exclusive STR instruction for 8 bit values.
+ 488:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ARM GAS  /tmp/ccgUGXPo.s 			page 14
+
+
+ 489:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 490:driver/Core/cmsis_gcc.h ****   \return          0  Function succeeded
+ 491:driver/Core/cmsis_gcc.h ****   \return          1  Function failed
+ 492:driver/Core/cmsis_gcc.h ****  */
+ 493:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STREXB(uint8_t value, volatile uint8_t *addr)
+ 494:driver/Core/cmsis_gcc.h **** {
+ 495:driver/Core/cmsis_gcc.h ****    uint32_t result;
+ 496:driver/Core/cmsis_gcc.h **** 
+ 497:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strexb %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" ((uint32_t)value) );
+ 498:driver/Core/cmsis_gcc.h ****    return(result);
+ 499:driver/Core/cmsis_gcc.h **** }
+ 500:driver/Core/cmsis_gcc.h **** 
+ 501:driver/Core/cmsis_gcc.h **** 
+ 502:driver/Core/cmsis_gcc.h **** /**
+ 503:driver/Core/cmsis_gcc.h ****   \brief   STR Exclusive (16 bit)
+ 504:driver/Core/cmsis_gcc.h ****   \details Executes a exclusive STR instruction for 16 bit values.
+ 505:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 506:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 507:driver/Core/cmsis_gcc.h ****   \return          0  Function succeeded
+ 508:driver/Core/cmsis_gcc.h ****   \return          1  Function failed
+ 509:driver/Core/cmsis_gcc.h ****  */
+ 510:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STREXH(uint16_t value, volatile uint16_t *addr)
+ 511:driver/Core/cmsis_gcc.h **** {
+ 512:driver/Core/cmsis_gcc.h ****    uint32_t result;
+ 513:driver/Core/cmsis_gcc.h **** 
+ 514:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strexh %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" ((uint32_t)value) );
+ 515:driver/Core/cmsis_gcc.h ****    return(result);
+ 516:driver/Core/cmsis_gcc.h **** }
+ 517:driver/Core/cmsis_gcc.h **** 
+ 518:driver/Core/cmsis_gcc.h **** 
+ 519:driver/Core/cmsis_gcc.h **** /**
+ 520:driver/Core/cmsis_gcc.h ****   \brief   STR Exclusive (32 bit)
+ 521:driver/Core/cmsis_gcc.h ****   \details Executes a exclusive STR instruction for 32 bit values.
+ 522:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 523:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 524:driver/Core/cmsis_gcc.h ****   \return          0  Function succeeded
+ 525:driver/Core/cmsis_gcc.h ****   \return          1  Function failed
+ 526:driver/Core/cmsis_gcc.h ****  */
+ 527:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STREXW(uint32_t value, volatile uint32_t *addr)
+ 528:driver/Core/cmsis_gcc.h **** {
+ 529:driver/Core/cmsis_gcc.h ****    uint32_t result;
+ 530:driver/Core/cmsis_gcc.h **** 
+ 531:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strex %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" (value) );
+ 532:driver/Core/cmsis_gcc.h ****    return(result);
+ 533:driver/Core/cmsis_gcc.h **** }
+ 534:driver/Core/cmsis_gcc.h **** 
+ 535:driver/Core/cmsis_gcc.h **** 
+ 536:driver/Core/cmsis_gcc.h **** /**
+ 537:driver/Core/cmsis_gcc.h ****   \brief   Remove the exclusive lock
+ 538:driver/Core/cmsis_gcc.h ****   \details Removes the exclusive lock which is created by LDREX.
+ 539:driver/Core/cmsis_gcc.h ****  */
+ 540:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __CLREX(void)
+ 541:driver/Core/cmsis_gcc.h **** {
+ 542:driver/Core/cmsis_gcc.h ****   __ASM volatile ("clrex" ::: "memory");
+ 543:driver/Core/cmsis_gcc.h **** }
+ 544:driver/Core/cmsis_gcc.h **** 
+ 545:driver/Core/cmsis_gcc.h **** #endif /* ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
+ARM GAS  /tmp/ccgUGXPo.s 			page 15
+
+
+ 546:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_7EM__     ) && (__ARM_ARCH_7EM__     == 1)) || \
+ 547:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
+ 548:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_BASE__ ) && (__ARM_ARCH_8M_BASE__ == 1))    ) */
+ 549:driver/Core/cmsis_gcc.h **** 
+ 550:driver/Core/cmsis_gcc.h **** 
+ 551:driver/Core/cmsis_gcc.h **** #if ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
+ 552:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_7EM__     ) && (__ARM_ARCH_7EM__     == 1)) || \
+ 553:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1))    )
+ 554:driver/Core/cmsis_gcc.h **** /**
+ 555:driver/Core/cmsis_gcc.h ****   \brief   Signed Saturate
+ 556:driver/Core/cmsis_gcc.h ****   \details Saturates a signed value.
+ 557:driver/Core/cmsis_gcc.h ****   \param [in]  ARG1  Value to be saturated
+ 558:driver/Core/cmsis_gcc.h ****   \param [in]  ARG2  Bit position to saturate to (1..32)
+ 559:driver/Core/cmsis_gcc.h ****   \return             Saturated value
+ 560:driver/Core/cmsis_gcc.h ****  */
+ 561:driver/Core/cmsis_gcc.h **** #define __SSAT(ARG1, ARG2) \
+ 562:driver/Core/cmsis_gcc.h **** __extension__ \
+ 563:driver/Core/cmsis_gcc.h **** ({                          \
+ 564:driver/Core/cmsis_gcc.h ****   int32_t __RES, __ARG1 = (ARG1); \
+ 565:driver/Core/cmsis_gcc.h ****   __ASM volatile ("ssat %0, %1, %2" : "=r" (__RES) :  "I" (ARG2), "r" (__ARG1) : "cc" ); \
+ 566:driver/Core/cmsis_gcc.h ****   __RES; \
+ 567:driver/Core/cmsis_gcc.h ****  })
+ 568:driver/Core/cmsis_gcc.h **** 
+ 569:driver/Core/cmsis_gcc.h **** 
+ 570:driver/Core/cmsis_gcc.h **** /**
+ 571:driver/Core/cmsis_gcc.h ****   \brief   Unsigned Saturate
+ 572:driver/Core/cmsis_gcc.h ****   \details Saturates an unsigned value.
+ 573:driver/Core/cmsis_gcc.h ****   \param [in]  ARG1  Value to be saturated
+ 574:driver/Core/cmsis_gcc.h ****   \param [in]  ARG2  Bit position to saturate to (0..31)
+ 575:driver/Core/cmsis_gcc.h ****   \return             Saturated value
+ 576:driver/Core/cmsis_gcc.h ****  */
+ 577:driver/Core/cmsis_gcc.h **** #define __USAT(ARG1, ARG2) \
+ 578:driver/Core/cmsis_gcc.h **** __extension__ \
+ 579:driver/Core/cmsis_gcc.h **** ({                          \
+ 580:driver/Core/cmsis_gcc.h ****   uint32_t __RES, __ARG1 = (ARG1); \
+ 581:driver/Core/cmsis_gcc.h ****   __ASM volatile ("usat %0, %1, %2" : "=r" (__RES) :  "I" (ARG2), "r" (__ARG1) : "cc" ); \
+ 582:driver/Core/cmsis_gcc.h ****   __RES; \
+ 583:driver/Core/cmsis_gcc.h ****  })
+ 584:driver/Core/cmsis_gcc.h **** 
+ 585:driver/Core/cmsis_gcc.h **** 
+ 586:driver/Core/cmsis_gcc.h **** /**
+ 587:driver/Core/cmsis_gcc.h ****   \brief   Rotate Right with Extend (32 bit)
+ 588:driver/Core/cmsis_gcc.h ****   \details Moves each bit of a bitstring right by one bit.
+ 589:driver/Core/cmsis_gcc.h ****            The carry input is shifted in at the left end of the bitstring.
+ 590:driver/Core/cmsis_gcc.h ****   \param [in]    value  Value to rotate
+ 591:driver/Core/cmsis_gcc.h ****   \return               Rotated value
+ 592:driver/Core/cmsis_gcc.h ****  */
+ 593:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __RRX(uint32_t value)
+ 594:driver/Core/cmsis_gcc.h **** {
+ 595:driver/Core/cmsis_gcc.h ****   uint32_t result;
+ 596:driver/Core/cmsis_gcc.h **** 
+ 597:driver/Core/cmsis_gcc.h ****   __ASM volatile ("rrx %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
+ 598:driver/Core/cmsis_gcc.h ****   return(result);
+ 599:driver/Core/cmsis_gcc.h **** }
+ 600:driver/Core/cmsis_gcc.h **** 
+ 601:driver/Core/cmsis_gcc.h **** 
+ 602:driver/Core/cmsis_gcc.h **** /**
+ARM GAS  /tmp/ccgUGXPo.s 			page 16
+
+
+ 603:driver/Core/cmsis_gcc.h ****   \brief   LDRT Unprivileged (8 bit)
+ 604:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged LDRT instruction for 8 bit value.
+ 605:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 606:driver/Core/cmsis_gcc.h ****   \return             value of type uint8_t at (*ptr)
+ 607:driver/Core/cmsis_gcc.h ****  */
+ 608:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint8_t __LDRBT(volatile uint8_t *ptr)
+ 609:driver/Core/cmsis_gcc.h **** {
+ 610:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 611:driver/Core/cmsis_gcc.h **** 
+ 612:driver/Core/cmsis_gcc.h **** #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
+ 613:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrbt %0, %1" : "=r" (result) : "Q" (*ptr) );
+ 614:driver/Core/cmsis_gcc.h **** #else
+ 615:driver/Core/cmsis_gcc.h ****     /* Prior to GCC 4.8, "Q" will be expanded to [rx, #0] which is not
+ 616:driver/Core/cmsis_gcc.h ****        accepted by assembler. So has to use following less efficient pattern.
+ 617:driver/Core/cmsis_gcc.h ****     */
+ 618:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrbt %0, [%1]" : "=r" (result) : "r" (ptr) : "memory" );
+ 619:driver/Core/cmsis_gcc.h **** #endif
+ 620:driver/Core/cmsis_gcc.h ****    return ((uint8_t) result);    /* Add explicit type cast here */
+ 621:driver/Core/cmsis_gcc.h **** }
+ 622:driver/Core/cmsis_gcc.h **** 
+ 623:driver/Core/cmsis_gcc.h **** 
+ 624:driver/Core/cmsis_gcc.h **** /**
+ 625:driver/Core/cmsis_gcc.h ****   \brief   LDRT Unprivileged (16 bit)
+ 626:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged LDRT instruction for 16 bit values.
+ 627:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 628:driver/Core/cmsis_gcc.h ****   \return        value of type uint16_t at (*ptr)
+ 629:driver/Core/cmsis_gcc.h ****  */
+ 630:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint16_t __LDRHT(volatile uint16_t *ptr)
+ 631:driver/Core/cmsis_gcc.h **** {
+ 632:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 633:driver/Core/cmsis_gcc.h **** 
+ 634:driver/Core/cmsis_gcc.h **** #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
+ 635:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrht %0, %1" : "=r" (result) : "Q" (*ptr) );
+ 636:driver/Core/cmsis_gcc.h **** #else
+ 637:driver/Core/cmsis_gcc.h ****     /* Prior to GCC 4.8, "Q" will be expanded to [rx, #0] which is not
+ 638:driver/Core/cmsis_gcc.h ****        accepted by assembler. So has to use following less efficient pattern.
+ 639:driver/Core/cmsis_gcc.h ****     */
+ 640:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrht %0, [%1]" : "=r" (result) : "r" (ptr) : "memory" );
+ 641:driver/Core/cmsis_gcc.h **** #endif
+ 642:driver/Core/cmsis_gcc.h ****    return ((uint16_t) result);    /* Add explicit type cast here */
+ 643:driver/Core/cmsis_gcc.h **** }
+ 644:driver/Core/cmsis_gcc.h **** 
+ 645:driver/Core/cmsis_gcc.h **** 
+ 646:driver/Core/cmsis_gcc.h **** /**
+ 647:driver/Core/cmsis_gcc.h ****   \brief   LDRT Unprivileged (32 bit)
+ 648:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged LDRT instruction for 32 bit values.
+ 649:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 650:driver/Core/cmsis_gcc.h ****   \return        value of type uint32_t at (*ptr)
+ 651:driver/Core/cmsis_gcc.h ****  */
+ 652:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDRT(volatile uint32_t *ptr)
+ 653:driver/Core/cmsis_gcc.h **** {
+ 654:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 655:driver/Core/cmsis_gcc.h **** 
+ 656:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrt %0, %1" : "=r" (result) : "Q" (*ptr) );
+ 657:driver/Core/cmsis_gcc.h ****    return(result);
+ 658:driver/Core/cmsis_gcc.h **** }
+ 659:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/ccgUGXPo.s 			page 17
+
+
+ 660:driver/Core/cmsis_gcc.h **** 
+ 661:driver/Core/cmsis_gcc.h **** /**
+ 662:driver/Core/cmsis_gcc.h ****   \brief   STRT Unprivileged (8 bit)
+ 663:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged STRT instruction for 8 bit values.
+ 664:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 665:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 666:driver/Core/cmsis_gcc.h ****  */
+ 667:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __STRBT(uint8_t value, volatile uint8_t *ptr)
+ 668:driver/Core/cmsis_gcc.h **** {
+ 669:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strbt %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) );
+ 670:driver/Core/cmsis_gcc.h **** }
+ 671:driver/Core/cmsis_gcc.h **** 
+ 672:driver/Core/cmsis_gcc.h **** 
+ 673:driver/Core/cmsis_gcc.h **** /**
+ 674:driver/Core/cmsis_gcc.h ****   \brief   STRT Unprivileged (16 bit)
+ 675:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged STRT instruction for 16 bit values.
+ 676:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 677:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 678:driver/Core/cmsis_gcc.h ****  */
+ 679:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __STRHT(uint16_t value, volatile uint16_t *ptr)
+ 680:driver/Core/cmsis_gcc.h **** {
+ 681:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strht %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) );
+ 682:driver/Core/cmsis_gcc.h **** }
+ 683:driver/Core/cmsis_gcc.h **** 
+ 684:driver/Core/cmsis_gcc.h **** 
+ 685:driver/Core/cmsis_gcc.h **** /**
+ 686:driver/Core/cmsis_gcc.h ****   \brief   STRT Unprivileged (32 bit)
+ 687:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged STRT instruction for 32 bit values.
+ 688:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 689:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 690:driver/Core/cmsis_gcc.h ****  */
+ 691:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __STRT(uint32_t value, volatile uint32_t *ptr)
+ 692:driver/Core/cmsis_gcc.h **** {
+ 693:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strt %1, %0" : "=Q" (*ptr) : "r" (value) );
+ 694:driver/Core/cmsis_gcc.h **** }
+ 695:driver/Core/cmsis_gcc.h **** 
+ 696:driver/Core/cmsis_gcc.h **** #else  /* ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
+ 697:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_7EM__     ) && (__ARM_ARCH_7EM__     == 1)) || \
+ 698:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1))    ) */
+ 699:driver/Core/cmsis_gcc.h **** 
+ 700:driver/Core/cmsis_gcc.h **** /**
+ 701:driver/Core/cmsis_gcc.h ****   \brief   Signed Saturate
+ 702:driver/Core/cmsis_gcc.h ****   \details Saturates a signed value.
+ 703:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to be saturated
+ 704:driver/Core/cmsis_gcc.h ****   \param [in]    sat  Bit position to saturate to (1..32)
+ 705:driver/Core/cmsis_gcc.h ****   \return             Saturated value
+ 706:driver/Core/cmsis_gcc.h ****  */
+ 707:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE int32_t __SSAT(int32_t val, uint32_t sat)
+ 708:driver/Core/cmsis_gcc.h **** {
+ 709:driver/Core/cmsis_gcc.h ****   if ((sat >= 1U) && (sat <= 32U))
+ 710:driver/Core/cmsis_gcc.h ****   {
+ 711:driver/Core/cmsis_gcc.h ****     const int32_t max = (int32_t)((1U << (sat - 1U)) - 1U);
+ 712:driver/Core/cmsis_gcc.h ****     const int32_t min = -1 - max ;
+ 713:driver/Core/cmsis_gcc.h ****     if (val > max)
+ 714:driver/Core/cmsis_gcc.h ****     {
+ 715:driver/Core/cmsis_gcc.h ****       return max;
+ 716:driver/Core/cmsis_gcc.h ****     }
+ARM GAS  /tmp/ccgUGXPo.s 			page 18
+
+
+ 717:driver/Core/cmsis_gcc.h ****     else if (val < min)
+ 718:driver/Core/cmsis_gcc.h ****     {
+ 719:driver/Core/cmsis_gcc.h ****       return min;
+ 720:driver/Core/cmsis_gcc.h ****     }
+ 721:driver/Core/cmsis_gcc.h ****   }
+ 722:driver/Core/cmsis_gcc.h ****   return val;
+ 723:driver/Core/cmsis_gcc.h **** }
+ 724:driver/Core/cmsis_gcc.h **** 
+ 725:driver/Core/cmsis_gcc.h **** /**
+ 726:driver/Core/cmsis_gcc.h ****   \brief   Unsigned Saturate
+ 727:driver/Core/cmsis_gcc.h ****   \details Saturates an unsigned value.
+ 728:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to be saturated
+ 729:driver/Core/cmsis_gcc.h ****   \param [in]    sat  Bit position to saturate to (0..31)
+ 730:driver/Core/cmsis_gcc.h ****   \return             Saturated value
+ 731:driver/Core/cmsis_gcc.h ****  */
+ 732:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __USAT(int32_t val, uint32_t sat)
+ 733:driver/Core/cmsis_gcc.h **** {
+ 734:driver/Core/cmsis_gcc.h ****   if (sat <= 31U)
+ 735:driver/Core/cmsis_gcc.h ****   {
+ 736:driver/Core/cmsis_gcc.h ****     const uint32_t max = ((1U << sat) - 1U);
+ 737:driver/Core/cmsis_gcc.h ****     if (val > (int32_t)max)
+ 738:driver/Core/cmsis_gcc.h ****     {
+ 739:driver/Core/cmsis_gcc.h ****       return max;
+ 740:driver/Core/cmsis_gcc.h ****     }
+ 741:driver/Core/cmsis_gcc.h ****     else if (val < 0)
+ 742:driver/Core/cmsis_gcc.h ****     {
+ 743:driver/Core/cmsis_gcc.h ****       return 0U;
+ 744:driver/Core/cmsis_gcc.h ****     }
+ 745:driver/Core/cmsis_gcc.h ****   }
+ 746:driver/Core/cmsis_gcc.h ****   return (uint32_t)val;
+ 747:driver/Core/cmsis_gcc.h **** }
+ 748:driver/Core/cmsis_gcc.h **** 
+ 749:driver/Core/cmsis_gcc.h **** #endif /* ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
+ 750:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_7EM__     ) && (__ARM_ARCH_7EM__     == 1)) || \
+ 751:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1))    ) */
+ 752:driver/Core/cmsis_gcc.h **** 
+ 753:driver/Core/cmsis_gcc.h **** 
+ 754:driver/Core/cmsis_gcc.h **** #if ((defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
+ 755:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_8M_BASE__ ) && (__ARM_ARCH_8M_BASE__ == 1))    )
+ 756:driver/Core/cmsis_gcc.h **** /**
+ 757:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire (8 bit)
+ 758:driver/Core/cmsis_gcc.h ****   \details Executes a LDAB instruction for 8 bit value.
+ 759:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 760:driver/Core/cmsis_gcc.h ****   \return             value of type uint8_t at (*ptr)
+ 761:driver/Core/cmsis_gcc.h ****  */
+ 762:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint8_t __LDAB(volatile uint8_t *ptr)
+ 763:driver/Core/cmsis_gcc.h **** {
+ 764:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 765:driver/Core/cmsis_gcc.h **** 
+ 766:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldab %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
+ 767:driver/Core/cmsis_gcc.h ****    return ((uint8_t) result);
+ 768:driver/Core/cmsis_gcc.h **** }
+ 769:driver/Core/cmsis_gcc.h **** 
+ 770:driver/Core/cmsis_gcc.h **** 
+ 771:driver/Core/cmsis_gcc.h **** /**
+ 772:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire (16 bit)
+ 773:driver/Core/cmsis_gcc.h ****   \details Executes a LDAH instruction for 16 bit values.
+ARM GAS  /tmp/ccgUGXPo.s 			page 19
+
+
+ 774:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 775:driver/Core/cmsis_gcc.h ****   \return        value of type uint16_t at (*ptr)
+ 776:driver/Core/cmsis_gcc.h ****  */
+ 777:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint16_t __LDAH(volatile uint16_t *ptr)
+ 778:driver/Core/cmsis_gcc.h **** {
+ 779:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 780:driver/Core/cmsis_gcc.h **** 
+ 781:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldah %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
+ 782:driver/Core/cmsis_gcc.h ****    return ((uint16_t) result);
+ 783:driver/Core/cmsis_gcc.h **** }
+ 784:driver/Core/cmsis_gcc.h **** 
+ 785:driver/Core/cmsis_gcc.h **** 
+ 786:driver/Core/cmsis_gcc.h **** /**
+ 787:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire (32 bit)
+ 788:driver/Core/cmsis_gcc.h ****   \details Executes a LDA instruction for 32 bit values.
+ 789:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 790:driver/Core/cmsis_gcc.h ****   \return        value of type uint32_t at (*ptr)
+ 791:driver/Core/cmsis_gcc.h ****  */
+ 792:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDA(volatile uint32_t *ptr)
+ 793:driver/Core/cmsis_gcc.h **** {
+ 794:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 795:driver/Core/cmsis_gcc.h **** 
+ 796:driver/Core/cmsis_gcc.h ****    __ASM volatile ("lda %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
+ 797:driver/Core/cmsis_gcc.h ****    return(result);
+ 798:driver/Core/cmsis_gcc.h **** }
+ 799:driver/Core/cmsis_gcc.h **** 
+ 800:driver/Core/cmsis_gcc.h **** 
+ 801:driver/Core/cmsis_gcc.h **** /**
+ 802:driver/Core/cmsis_gcc.h ****   \brief   Store-Release (8 bit)
+ 803:driver/Core/cmsis_gcc.h ****   \details Executes a STLB instruction for 8 bit values.
+ 804:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 805:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 806:driver/Core/cmsis_gcc.h ****  */
+ 807:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __STLB(uint8_t value, volatile uint8_t *ptr)
+ 808:driver/Core/cmsis_gcc.h **** {
+ 809:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stlb %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) : "memory" );
+ 810:driver/Core/cmsis_gcc.h **** }
+ 811:driver/Core/cmsis_gcc.h **** 
+ 812:driver/Core/cmsis_gcc.h **** 
+ 813:driver/Core/cmsis_gcc.h **** /**
+ 814:driver/Core/cmsis_gcc.h ****   \brief   Store-Release (16 bit)
+ 815:driver/Core/cmsis_gcc.h ****   \details Executes a STLH instruction for 16 bit values.
+ 816:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 817:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 818:driver/Core/cmsis_gcc.h ****  */
+ 819:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __STLH(uint16_t value, volatile uint16_t *ptr)
+ 820:driver/Core/cmsis_gcc.h **** {
+ 821:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stlh %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) : "memory" );
+ 822:driver/Core/cmsis_gcc.h **** }
+ 823:driver/Core/cmsis_gcc.h **** 
+ 824:driver/Core/cmsis_gcc.h **** 
+ 825:driver/Core/cmsis_gcc.h **** /**
+ 826:driver/Core/cmsis_gcc.h ****   \brief   Store-Release (32 bit)
+ 827:driver/Core/cmsis_gcc.h ****   \details Executes a STL instruction for 32 bit values.
+ 828:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 829:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 830:driver/Core/cmsis_gcc.h ****  */
+ARM GAS  /tmp/ccgUGXPo.s 			page 20
+
+
+ 831:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __STL(uint32_t value, volatile uint32_t *ptr)
+ 832:driver/Core/cmsis_gcc.h **** {
+ 833:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stl %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) : "memory" );
+ 834:driver/Core/cmsis_gcc.h **** }
+ 835:driver/Core/cmsis_gcc.h **** 
+ 836:driver/Core/cmsis_gcc.h **** 
+ 837:driver/Core/cmsis_gcc.h **** /**
+ 838:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire Exclusive (8 bit)
+ 839:driver/Core/cmsis_gcc.h ****   \details Executes a LDAB exclusive instruction for 8 bit value.
+ 840:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 841:driver/Core/cmsis_gcc.h ****   \return             value of type uint8_t at (*ptr)
+ 842:driver/Core/cmsis_gcc.h ****  */
+ 843:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint8_t __LDAEXB(volatile uint8_t *ptr)
+ 844:driver/Core/cmsis_gcc.h **** {
+ 845:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 846:driver/Core/cmsis_gcc.h **** 
+ 847:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldaexb %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
+ 848:driver/Core/cmsis_gcc.h ****    return ((uint8_t) result);
+ 849:driver/Core/cmsis_gcc.h **** }
+ 850:driver/Core/cmsis_gcc.h **** 
+ 851:driver/Core/cmsis_gcc.h **** 
+ 852:driver/Core/cmsis_gcc.h **** /**
+ 853:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire Exclusive (16 bit)
+ 854:driver/Core/cmsis_gcc.h ****   \details Executes a LDAH exclusive instruction for 16 bit values.
+ 855:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 856:driver/Core/cmsis_gcc.h ****   \return        value of type uint16_t at (*ptr)
+ 857:driver/Core/cmsis_gcc.h ****  */
+ 858:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint16_t __LDAEXH(volatile uint16_t *ptr)
+ 859:driver/Core/cmsis_gcc.h **** {
+ 860:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 861:driver/Core/cmsis_gcc.h **** 
+ 862:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldaexh %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
+ 863:driver/Core/cmsis_gcc.h ****    return ((uint16_t) result);
+ 864:driver/Core/cmsis_gcc.h **** }
+ 865:driver/Core/cmsis_gcc.h **** 
+ 866:driver/Core/cmsis_gcc.h **** 
+ 867:driver/Core/cmsis_gcc.h **** /**
+ 868:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire Exclusive (32 bit)
+ 869:driver/Core/cmsis_gcc.h ****   \details Executes a LDA exclusive instruction for 32 bit values.
+ 870:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ 871:driver/Core/cmsis_gcc.h ****   \return        value of type uint32_t at (*ptr)
+ 872:driver/Core/cmsis_gcc.h ****  */
+ 873:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDAEX(volatile uint32_t *ptr)
+ 874:driver/Core/cmsis_gcc.h **** {
+ 875:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ 876:driver/Core/cmsis_gcc.h **** 
+ 877:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldaex %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
+ 878:driver/Core/cmsis_gcc.h ****    return(result);
+ 879:driver/Core/cmsis_gcc.h **** }
+ 880:driver/Core/cmsis_gcc.h **** 
+ 881:driver/Core/cmsis_gcc.h **** 
+ 882:driver/Core/cmsis_gcc.h **** /**
+ 883:driver/Core/cmsis_gcc.h ****   \brief   Store-Release Exclusive (8 bit)
+ 884:driver/Core/cmsis_gcc.h ****   \details Executes a STLB exclusive instruction for 8 bit values.
+ 885:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 886:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 887:driver/Core/cmsis_gcc.h ****   \return          0  Function succeeded
+ARM GAS  /tmp/ccgUGXPo.s 			page 21
+
+
+ 888:driver/Core/cmsis_gcc.h ****   \return          1  Function failed
+ 889:driver/Core/cmsis_gcc.h ****  */
+ 890:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STLEXB(uint8_t value, volatile uint8_t *ptr)
+ 891:driver/Core/cmsis_gcc.h **** {
+ 892:driver/Core/cmsis_gcc.h ****    uint32_t result;
+ 893:driver/Core/cmsis_gcc.h **** 
+ 894:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stlexb %0, %2, %1" : "=&r" (result), "=Q" (*ptr) : "r" ((uint32_t)value) : "mem
+ 895:driver/Core/cmsis_gcc.h ****    return(result);
+ 896:driver/Core/cmsis_gcc.h **** }
+ 897:driver/Core/cmsis_gcc.h **** 
+ 898:driver/Core/cmsis_gcc.h **** 
+ 899:driver/Core/cmsis_gcc.h **** /**
+ 900:driver/Core/cmsis_gcc.h ****   \brief   Store-Release Exclusive (16 bit)
+ 901:driver/Core/cmsis_gcc.h ****   \details Executes a STLH exclusive instruction for 16 bit values.
+ 902:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 903:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 904:driver/Core/cmsis_gcc.h ****   \return          0  Function succeeded
+ 905:driver/Core/cmsis_gcc.h ****   \return          1  Function failed
+ 906:driver/Core/cmsis_gcc.h ****  */
+ 907:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STLEXH(uint16_t value, volatile uint16_t *ptr)
+ 908:driver/Core/cmsis_gcc.h **** {
+ 909:driver/Core/cmsis_gcc.h ****    uint32_t result;
+ 910:driver/Core/cmsis_gcc.h **** 
+ 911:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stlexh %0, %2, %1" : "=&r" (result), "=Q" (*ptr) : "r" ((uint32_t)value) : "mem
+ 912:driver/Core/cmsis_gcc.h ****    return(result);
+ 913:driver/Core/cmsis_gcc.h **** }
+ 914:driver/Core/cmsis_gcc.h **** 
+ 915:driver/Core/cmsis_gcc.h **** 
+ 916:driver/Core/cmsis_gcc.h **** /**
+ 917:driver/Core/cmsis_gcc.h ****   \brief   Store-Release Exclusive (32 bit)
+ 918:driver/Core/cmsis_gcc.h ****   \details Executes a STL exclusive instruction for 32 bit values.
+ 919:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
+ 920:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
+ 921:driver/Core/cmsis_gcc.h ****   \return          0  Function succeeded
+ 922:driver/Core/cmsis_gcc.h ****   \return          1  Function failed
+ 923:driver/Core/cmsis_gcc.h ****  */
+ 924:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STLEX(uint32_t value, volatile uint32_t *ptr)
+ 925:driver/Core/cmsis_gcc.h **** {
+ 926:driver/Core/cmsis_gcc.h ****    uint32_t result;
+ 927:driver/Core/cmsis_gcc.h **** 
+ 928:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stlex %0, %2, %1" : "=&r" (result), "=Q" (*ptr) : "r" ((uint32_t)value) : "memo
+ 929:driver/Core/cmsis_gcc.h ****    return(result);
+ 930:driver/Core/cmsis_gcc.h **** }
+ 931:driver/Core/cmsis_gcc.h **** 
+ 932:driver/Core/cmsis_gcc.h **** #endif /* ((defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
+ 933:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_BASE__ ) && (__ARM_ARCH_8M_BASE__ == 1))    ) */
+ 934:driver/Core/cmsis_gcc.h **** 
+ 935:driver/Core/cmsis_gcc.h **** /*@}*/ /* end of group CMSIS_Core_InstructionInterface */
+ 936:driver/Core/cmsis_gcc.h **** 
+ 937:driver/Core/cmsis_gcc.h **** 
+ 938:driver/Core/cmsis_gcc.h **** /* ###########################  Core Function Access  ########################### */
+ 939:driver/Core/cmsis_gcc.h **** /** \ingroup  CMSIS_Core_FunctionInterface
+ 940:driver/Core/cmsis_gcc.h ****     \defgroup CMSIS_Core_RegAccFunctions CMSIS Core Register Access Functions
+ 941:driver/Core/cmsis_gcc.h ****   @{
+ 942:driver/Core/cmsis_gcc.h ****  */
+ 943:driver/Core/cmsis_gcc.h **** 
+ 944:driver/Core/cmsis_gcc.h **** /**
+ARM GAS  /tmp/ccgUGXPo.s 			page 22
+
+
+ 945:driver/Core/cmsis_gcc.h ****   \brief   Enable IRQ Interrupts
+ 946:driver/Core/cmsis_gcc.h ****   \details Enables IRQ interrupts by clearing special-purpose register PRIMASK.
+ 947:driver/Core/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 948:driver/Core/cmsis_gcc.h ****  */
+ 949:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __enable_irq(void)
+ 950:driver/Core/cmsis_gcc.h **** {
+ 951:driver/Core/cmsis_gcc.h ****   __ASM volatile ("cpsie i" : : : "memory");
+ 952:driver/Core/cmsis_gcc.h **** }
+ 953:driver/Core/cmsis_gcc.h **** 
+ 954:driver/Core/cmsis_gcc.h **** 
+ 955:driver/Core/cmsis_gcc.h **** /**
+ 956:driver/Core/cmsis_gcc.h ****   \brief   Disable IRQ Interrupts
+ 957:driver/Core/cmsis_gcc.h ****   \details Disables IRQ interrupts by setting special-purpose register PRIMASK.
+ 958:driver/Core/cmsis_gcc.h ****            Can only be executed in Privileged modes.
+ 959:driver/Core/cmsis_gcc.h ****  */
+ 960:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __disable_irq(void)
+ 163              		.loc 2 960 27 view .LVU31
+ 164              	.LBB19:
+ 961:driver/Core/cmsis_gcc.h **** {
+ 962:driver/Core/cmsis_gcc.h ****   __ASM volatile ("cpsid i" : : : "memory");
+ 165              		.loc 2 962 3 view .LVU32
+ 166              		.syntax unified
+ 167              	@ 962 "driver/Core/cmsis_gcc.h" 1
+ 168 0004 72B6     		cpsid i
+ 169              	@ 0 "" 2
+ 170              		.thumb
+ 171              		.syntax unified
+ 172              	.LBE19:
+ 173              	.LBE18:
+  95:src/mutex.c   **** 
+  96:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();
+ 174              		.loc 1 96 5 view .LVU33
+ 175              		.loc 1 96 33 is_stmt 0 view .LVU34
+ 176 0006 FFF7FEFF 		bl	getCurrentTask
+ 177              	.LVL12:
+ 178              		.loc 1 96 33 view .LVU35
+ 179 000a 0446     		mov	r4, r0
+ 180              	.LVL13:
+  97:src/mutex.c   **** 
+  98:src/mutex.c   ****     // If the mutex is not locked, acquire it
+  99:src/mutex.c   ****     if (!((*mutex)->lock)) 
+ 181              		.loc 1 99 5 is_stmt 1 view .LVU36
+ 182              		.loc 1 99 12 is_stmt 0 view .LVU37
+ 183 000c 2B68     		ldr	r3, [r5]
+ 184              		.loc 1 99 19 view .LVU38
+ 185 000e 1A7A     		ldrb	r2, [r3, #8]	@ zero_extendqisi2
+ 186              		.loc 1 99 8 view .LVU39
+ 187 0010 82B1     		cbz	r2, .L15
+ 100:src/mutex.c   ****     {
+ 101:src/mutex.c   ****         (*mutex)->lock = 1;            // Lock the mutex
+ 102:src/mutex.c   ****         (*mutex)->owner = current_task; // Assign ownership
+ 103:src/mutex.c   ****         __enable_irq();               // Exit critical section
+ 104:src/mutex.c   ****         return;
+ 105:src/mutex.c   ****     }
+ 106:src/mutex.c   **** 
+ 107:src/mutex.c   ****     // If the current task already owns the mutex, do nothing
+ 108:src/mutex.c   ****     if ((*mutex)->owner == current_task) 
+ARM GAS  /tmp/ccgUGXPo.s 			page 23
+
+
+ 188              		.loc 1 108 5 is_stmt 1 view .LVU40
+ 189              		.loc 1 108 17 is_stmt 0 view .LVU41
+ 190 0012 1B68     		ldr	r3, [r3]
+ 191              		.loc 1 108 8 view .LVU42
+ 192 0014 8342     		cmp	r3, r0
+ 193 0016 13D0     		beq	.L16
+ 109:src/mutex.c   ****     {
+ 110:src/mutex.c   ****         __enable_irq(); // Exit critical section
+ 111:src/mutex.c   ****         return;
+ 112:src/mutex.c   ****     }
+ 113:src/mutex.c   **** 
+ 114:src/mutex.c   ****     // Block the current task and add it to the waiting queue
+ 115:src/mutex.c   ****     current_task->state = BLOCKED; // Set task state to BLOCKED
+ 194              		.loc 1 115 5 is_stmt 1 view .LVU43
+ 195              		.loc 1 115 25 is_stmt 0 view .LVU44
+ 196 0018 0323     		movs	r3, #3
+ 197 001a 8382     		strh	r3, [r0, #20]	@ movhi
+ 116:src/mutex.c   ****     pushWaitingQueue(&((*mutex)->waiting_task), current_task); // Add to waiting queue
+ 198              		.loc 1 116 5 is_stmt 1 view .LVU45
+ 199              		.loc 1 116 25 is_stmt 0 view .LVU46
+ 200 001c 2868     		ldr	r0, [r5]
+ 201              	.LVL14:
+ 202              		.loc 1 116 5 view .LVU47
+ 203 001e 2146     		mov	r1, r4
+ 204 0020 0430     		adds	r0, r0, #4
+ 205 0022 FFF7FEFF 		bl	pushWaitingQueue
+ 206              	.LVL15:
+ 117:src/mutex.c   **** 
+ 118:src/mutex.c   ****     SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // Trigger PendSV for context switch
+ 207              		.loc 1 118 5 is_stmt 1 view .LVU48
+ 208              		.loc 1 118 15 is_stmt 0 view .LVU49
+ 209 0026 0A4A     		ldr	r2, .L17
+ 210 0028 5368     		ldr	r3, [r2, #4]
+ 211 002a 43F08053 		orr	r3, r3, #268435456
+ 212 002e 5360     		str	r3, [r2, #4]
+ 119:src/mutex.c   **** 
+ 120:src/mutex.c   ****     __enable_irq(); // Exit critical section
+ 213              		.loc 1 120 5 is_stmt 1 view .LVU50
+ 214              	.LBB20:
+ 215              	.LBI20:
+ 949:driver/Core/cmsis_gcc.h **** {
+ 216              		.loc 2 949 27 view .LVU51
+ 217              	.LBB21:
+ 951:driver/Core/cmsis_gcc.h **** }
+ 218              		.loc 2 951 3 view .LVU52
+ 219              		.syntax unified
+ 220              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 221 0030 62B6     		cpsie i
+ 222              	@ 0 "" 2
+ 952:driver/Core/cmsis_gcc.h **** 
+ 223              		.loc 2 952 1 is_stmt 0 view .LVU53
+ 224              		.thumb
+ 225              		.syntax unified
+ 226 0032 08E0     		b	.L12
+ 227              	.LVL16:
+ 228              	.L15:
+ 952:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/ccgUGXPo.s 			page 24
+
+
+ 229              		.loc 2 952 1 view .LVU54
+ 230              	.LBE21:
+ 231              	.LBE20:
+ 101:src/mutex.c   ****         (*mutex)->owner = current_task; // Assign ownership
+ 232              		.loc 1 101 9 is_stmt 1 view .LVU55
+ 101:src/mutex.c   ****         (*mutex)->owner = current_task; // Assign ownership
+ 233              		.loc 1 101 24 is_stmt 0 view .LVU56
+ 234 0034 0122     		movs	r2, #1
+ 235 0036 1A72     		strb	r2, [r3, #8]
+ 102:src/mutex.c   ****         __enable_irq();               // Exit critical section
+ 236              		.loc 1 102 9 is_stmt 1 view .LVU57
+ 102:src/mutex.c   ****         __enable_irq();               // Exit critical section
+ 237              		.loc 1 102 10 is_stmt 0 view .LVU58
+ 238 0038 2B68     		ldr	r3, [r5]
+ 102:src/mutex.c   ****         __enable_irq();               // Exit critical section
+ 239              		.loc 1 102 25 view .LVU59
+ 240 003a 1860     		str	r0, [r3]
+ 103:src/mutex.c   ****         return;
+ 241              		.loc 1 103 9 is_stmt 1 view .LVU60
+ 242              	.LBB22:
+ 243              	.LBI22:
+ 949:driver/Core/cmsis_gcc.h **** {
+ 244              		.loc 2 949 27 view .LVU61
+ 245              	.LBB23:
+ 951:driver/Core/cmsis_gcc.h **** }
+ 246              		.loc 2 951 3 view .LVU62
+ 247              		.syntax unified
+ 248              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 249 003c 62B6     		cpsie i
+ 250              	@ 0 "" 2
+ 251              		.thumb
+ 252              		.syntax unified
+ 253              	.LBE23:
+ 254              	.LBE22:
+ 104:src/mutex.c   ****     }
+ 255              		.loc 1 104 9 view .LVU63
+ 256 003e 05E0     		b	.L8
+ 257              	.L16:
+ 110:src/mutex.c   ****         return;
+ 258              		.loc 1 110 9 view .LVU64
+ 259              	.LBB24:
+ 260              	.LBI24:
+ 949:driver/Core/cmsis_gcc.h **** {
+ 261              		.loc 2 949 27 view .LVU65
+ 262              	.LBB25:
+ 951:driver/Core/cmsis_gcc.h **** }
+ 263              		.loc 2 951 3 view .LVU66
+ 264              		.syntax unified
+ 265              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 266 0040 62B6     		cpsie i
+ 267              	@ 0 "" 2
+ 268              		.thumb
+ 269              		.syntax unified
+ 270              	.LBE25:
+ 271              	.LBE24:
+ 111:src/mutex.c   ****     }
+ 272              		.loc 1 111 9 view .LVU67
+ARM GAS  /tmp/ccgUGXPo.s 			page 25
+
+
+ 273 0042 03E0     		b	.L8
+ 274              	.LVL17:
+ 275              	.L13:
+ 121:src/mutex.c   **** 
+ 122:src/mutex.c   ****     // Wait here until the task is unblocked (scheduler will switch context)
+ 123:src/mutex.c   ****     while (current_task->state != READY) 
+ 124:src/mutex.c   ****     {
+ 125:src/mutex.c   ****         __NOP();
+ 276              		.loc 1 125 9 view .LVU68
+ 277              		.syntax unified
+ 278              	@ 125 "src/mutex.c" 1
+ 279 0044 00BF     		nop
+ 280              	@ 0 "" 2
+ 281              		.thumb
+ 282              		.syntax unified
+ 283              	.L12:
+ 123:src/mutex.c   ****     {
+ 284              		.loc 1 123 11 view .LVU69
+ 123:src/mutex.c   ****     {
+ 285              		.loc 1 123 24 is_stmt 0 view .LVU70
+ 286 0046 A38A     		ldrh	r3, [r4, #20]
+ 123:src/mutex.c   ****     {
+ 287              		.loc 1 123 11 view .LVU71
+ 288 0048 012B     		cmp	r3, #1
+ 289 004a FBD1     		bne	.L13
+ 290              	.L8:
+ 126:src/mutex.c   ****     }
+ 127:src/mutex.c   **** }
+ 291              		.loc 1 127 1 view .LVU72
+ 292 004c 38BD     		pop	{r3, r4, r5, pc}
+ 293              	.LVL18:
+ 294              	.L18:
+ 295              		.loc 1 127 1 view .LVU73
+ 296 004e 00BF     		.align	2
+ 297              	.L17:
+ 298 0050 00ED00E0 		.word	-536810240
+ 299              		.cfi_endproc
+ 300              	.LFE139:
+ 302              		.section	.text.MutexGive,"ax",%progbits
+ 303              		.align	1
+ 304              		.global	MutexGive
+ 305              		.syntax unified
+ 306              		.thumb
+ 307              		.thumb_func
+ 308              		.fpu fpv4-sp-d16
+ 310              	MutexGive:
+ 311              	.LVL19:
+ 312              	.LFB140:
+ 128:src/mutex.c   **** 
+ 129:src/mutex.c   **** void MutexGive(Mutex_Typedef** mutex)
+ 130:src/mutex.c   **** {
+ 313              		.loc 1 130 1 is_stmt 1 view -0
+ 314              		.cfi_startproc
+ 315              		@ args = 0, pretend = 0, frame = 8
+ 316              		@ frame_needed = 0, uses_anonymous_args = 0
+ 317              		.loc 1 130 1 is_stmt 0 view .LVU75
+ 318 0000 10B5     		push	{r4, lr}
+ARM GAS  /tmp/ccgUGXPo.s 			page 26
+
+
+ 319              	.LCFI5:
+ 320              		.cfi_def_cfa_offset 8
+ 321              		.cfi_offset 4, -8
+ 322              		.cfi_offset 14, -4
+ 323 0002 82B0     		sub	sp, sp, #8
+ 324              	.LCFI6:
+ 325              		.cfi_def_cfa_offset 16
+ 326 0004 0446     		mov	r4, r0
+ 131:src/mutex.c   ****     __disable_irq(); // Enter critical section
+ 327              		.loc 1 131 5 is_stmt 1 view .LVU76
+ 328              	.LBB26:
+ 329              	.LBI26:
+ 960:driver/Core/cmsis_gcc.h **** {
+ 330              		.loc 2 960 27 view .LVU77
+ 331              	.LBB27:
+ 332              		.loc 2 962 3 view .LVU78
+ 333              		.syntax unified
+ 334              	@ 962 "driver/Core/cmsis_gcc.h" 1
+ 335 0006 72B6     		cpsid i
+ 336              	@ 0 "" 2
+ 337              		.thumb
+ 338              		.syntax unified
+ 339              	.LBE27:
+ 340              	.LBE26:
+ 132:src/mutex.c   **** 
+ 133:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();
+ 341              		.loc 1 133 5 view .LVU79
+ 342              		.loc 1 133 33 is_stmt 0 view .LVU80
+ 343 0008 FFF7FEFF 		bl	getCurrentTask
+ 344              	.LVL20:
+ 134:src/mutex.c   **** 
+ 135:src/mutex.c   ****     // Only the owner can release the mutex
+ 136:src/mutex.c   ****     if ((*mutex)->owner != current_task) 
+ 345              		.loc 1 136 5 is_stmt 1 view .LVU81
+ 346              		.loc 1 136 10 is_stmt 0 view .LVU82
+ 347 000c 2368     		ldr	r3, [r4]
+ 348              		.loc 1 136 17 view .LVU83
+ 349 000e 1A68     		ldr	r2, [r3]
+ 350              		.loc 1 136 8 view .LVU84
+ 351 0010 8242     		cmp	r2, r0
+ 352 0012 02D0     		beq	.L20
+ 137:src/mutex.c   ****     {
+ 138:src/mutex.c   ****         __enable_irq(); // Exit critical section
+ 353              		.loc 1 138 9 is_stmt 1 view .LVU85
+ 354              	.LBB28:
+ 355              	.LBI28:
+ 949:driver/Core/cmsis_gcc.h **** {
+ 356              		.loc 2 949 27 view .LVU86
+ 357              	.LBB29:
+ 951:driver/Core/cmsis_gcc.h **** }
+ 358              		.loc 2 951 3 view .LVU87
+ 359              		.syntax unified
+ 360              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 361 0014 62B6     		cpsie i
+ 362              	@ 0 "" 2
+ 363              		.thumb
+ 364              		.syntax unified
+ARM GAS  /tmp/ccgUGXPo.s 			page 27
+
+
+ 365              	.LBE29:
+ 366              	.LBE28:
+ 139:src/mutex.c   ****         return;
+ 367              		.loc 1 139 9 view .LVU88
+ 368              	.LVL21:
+ 369              	.L19:
+ 140:src/mutex.c   ****     }
+ 141:src/mutex.c   **** 
+ 142:src/mutex.c   ****     // If no tasks are waiting, release the mutex
+ 143:src/mutex.c   ****     if ((*mutex)->waiting_task->head == NULL) 
+ 144:src/mutex.c   ****     {
+ 145:src/mutex.c   ****         (*mutex)->lock = 0;            // Unlock the mutex
+ 146:src/mutex.c   ****         (*mutex)->owner = NULL;        // Clear ownership
+ 147:src/mutex.c   ****     } 
+ 148:src/mutex.c   ****     else 
+ 149:src/mutex.c   ****     {
+ 150:src/mutex.c   ****         // Unblock the next task in the waiting queue
+ 151:src/mutex.c   ****         TCB_Typedef* next_task = popWaitingQueue(&((*mutex)->waiting_task));
+ 152:src/mutex.c   ****         if (next_task != NULL) 
+ 153:src/mutex.c   ****         {
+ 154:src/mutex.c   ****             next_task->state = READY;       // Set next task to READY
+ 155:src/mutex.c   ****             addToReadyList(&next_task);     // Add next task to ready list
+ 156:src/mutex.c   ****             (*mutex)->owner = next_task;   // Assign mutex to next task
+ 157:src/mutex.c   ****         }
+ 158:src/mutex.c   ****     }
+ 159:src/mutex.c   **** 
+ 160:src/mutex.c   ****     SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // Trigger PendSV for context switch
+ 161:src/mutex.c   ****     __enable_irq(); // Exit critical section
+ 162:src/mutex.c   **** }
+ 370              		.loc 1 162 1 is_stmt 0 view .LVU89
+ 371 0016 02B0     		add	sp, sp, #8
+ 372              	.LCFI7:
+ 373              		.cfi_remember_state
+ 374              		.cfi_def_cfa_offset 8
+ 375              		@ sp needed
+ 376 0018 10BD     		pop	{r4, pc}
+ 377              	.LVL22:
+ 378              	.L20:
+ 379              	.LCFI8:
+ 380              		.cfi_restore_state
+ 143:src/mutex.c   ****     {
+ 381              		.loc 1 143 5 is_stmt 1 view .LVU90
+ 143:src/mutex.c   ****     {
+ 382              		.loc 1 143 17 is_stmt 0 view .LVU91
+ 383 001a 5A68     		ldr	r2, [r3, #4]
+ 143:src/mutex.c   ****     {
+ 384              		.loc 1 143 31 view .LVU92
+ 385 001c 1268     		ldr	r2, [r2]
+ 143:src/mutex.c   ****     {
+ 386              		.loc 1 143 8 view .LVU93
+ 387 001e 6AB1     		cbz	r2, .L26
+ 388              	.LBB30:
+ 151:src/mutex.c   ****         if (next_task != NULL) 
+ 389              		.loc 1 151 9 is_stmt 1 view .LVU94
+ 151:src/mutex.c   ****         if (next_task != NULL) 
+ 390              		.loc 1 151 34 is_stmt 0 view .LVU95
+ 391 0020 181D     		adds	r0, r3, #4
+ARM GAS  /tmp/ccgUGXPo.s 			page 28
+
+
+ 392              	.LVL23:
+ 151:src/mutex.c   ****         if (next_task != NULL) 
+ 393              		.loc 1 151 34 view .LVU96
+ 394 0022 FFF7FEFF 		bl	popWaitingQueue
+ 395              	.LVL24:
+ 151:src/mutex.c   ****         if (next_task != NULL) 
+ 396              		.loc 1 151 22 view .LVU97
+ 397 0026 0190     		str	r0, [sp, #4]
+ 152:src/mutex.c   ****         {
+ 398              		.loc 1 152 9 is_stmt 1 view .LVU98
+ 152:src/mutex.c   ****         {
+ 399              		.loc 1 152 12 is_stmt 0 view .LVU99
+ 400 0028 58B1     		cbz	r0, .L23
+ 154:src/mutex.c   ****             addToReadyList(&next_task);     // Add next task to ready list
+ 401              		.loc 1 154 13 is_stmt 1 view .LVU100
+ 154:src/mutex.c   ****             addToReadyList(&next_task);     // Add next task to ready list
+ 402              		.loc 1 154 30 is_stmt 0 view .LVU101
+ 403 002a 0123     		movs	r3, #1
+ 404 002c 8382     		strh	r3, [r0, #20]	@ movhi
+ 155:src/mutex.c   ****             (*mutex)->owner = next_task;   // Assign mutex to next task
+ 405              		.loc 1 155 13 is_stmt 1 view .LVU102
+ 406 002e 01A8     		add	r0, sp, #4
+ 407 0030 FFF7FEFF 		bl	addToReadyList
+ 408              	.LVL25:
+ 156:src/mutex.c   ****         }
+ 409              		.loc 1 156 13 view .LVU103
+ 156:src/mutex.c   ****         }
+ 410              		.loc 1 156 14 is_stmt 0 view .LVU104
+ 411 0034 2368     		ldr	r3, [r4]
+ 156:src/mutex.c   ****         }
+ 412              		.loc 1 156 29 view .LVU105
+ 413 0036 019A     		ldr	r2, [sp, #4]
+ 414 0038 1A60     		str	r2, [r3]
+ 415 003a 02E0     		b	.L23
+ 416              	.LVL26:
+ 417              	.L26:
+ 156:src/mutex.c   ****         }
+ 418              		.loc 1 156 29 view .LVU106
+ 419              	.LBE30:
+ 145:src/mutex.c   ****         (*mutex)->owner = NULL;        // Clear ownership
+ 420              		.loc 1 145 9 is_stmt 1 view .LVU107
+ 145:src/mutex.c   ****         (*mutex)->owner = NULL;        // Clear ownership
+ 421              		.loc 1 145 24 is_stmt 0 view .LVU108
+ 422 003c 1A72     		strb	r2, [r3, #8]
+ 146:src/mutex.c   ****     } 
+ 423              		.loc 1 146 9 is_stmt 1 view .LVU109
+ 146:src/mutex.c   ****     } 
+ 424              		.loc 1 146 10 is_stmt 0 view .LVU110
+ 425 003e 2368     		ldr	r3, [r4]
+ 146:src/mutex.c   ****     } 
+ 426              		.loc 1 146 25 view .LVU111
+ 427 0040 1A60     		str	r2, [r3]
+ 428              	.LVL27:
+ 429              	.L23:
+ 160:src/mutex.c   ****     __enable_irq(); // Exit critical section
+ 430              		.loc 1 160 5 is_stmt 1 view .LVU112
+ 160:src/mutex.c   ****     __enable_irq(); // Exit critical section
+ARM GAS  /tmp/ccgUGXPo.s 			page 29
+
+
+ 431              		.loc 1 160 15 is_stmt 0 view .LVU113
+ 432 0042 034A     		ldr	r2, .L27
+ 433 0044 5368     		ldr	r3, [r2, #4]
+ 434 0046 43F08053 		orr	r3, r3, #268435456
+ 435 004a 5360     		str	r3, [r2, #4]
+ 161:src/mutex.c   **** }
+ 436              		.loc 1 161 5 is_stmt 1 view .LVU114
+ 437              	.LBB31:
+ 438              	.LBI31:
+ 949:driver/Core/cmsis_gcc.h **** {
+ 439              		.loc 2 949 27 view .LVU115
+ 440              	.LBB32:
+ 951:driver/Core/cmsis_gcc.h **** }
+ 441              		.loc 2 951 3 view .LVU116
+ 442              		.syntax unified
+ 443              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 444 004c 62B6     		cpsie i
+ 445              	@ 0 "" 2
+ 952:driver/Core/cmsis_gcc.h **** 
+ 446              		.loc 2 952 1 is_stmt 0 view .LVU117
+ 447              		.thumb
+ 448              		.syntax unified
+ 449 004e E2E7     		b	.L19
+ 450              	.L28:
+ 451              		.align	2
+ 452              	.L27:
+ 453 0050 00ED00E0 		.word	-536810240
+ 454              	.LBE32:
+ 455              	.LBE31:
+ 456              		.cfi_endproc
+ 457              	.LFE140:
+ 459              		.section	.text.createMutex,"ax",%progbits
+ 460              		.align	1
+ 461              		.global	createMutex
+ 462              		.syntax unified
+ 463              		.thumb
+ 464              		.thumb_func
+ 465              		.fpu fpv4-sp-d16
+ 467              	createMutex:
+ 468              	.LFB141:
+ 163:src/mutex.c   **** 
+ 164:src/mutex.c   **** 
+ 165:src/mutex.c   **** 
+ 166:src/mutex.c   **** 
+ 167:src/mutex.c   **** Mutex_Typedef* createMutex(void)
+ 168:src/mutex.c   **** {
+ 469              		.loc 1 168 1 is_stmt 1 view -0
+ 470              		.cfi_startproc
+ 471              		@ args = 0, pretend = 0, frame = 0
+ 472              		@ frame_needed = 0, uses_anonymous_args = 0
+ 473 0000 38B5     		push	{r3, r4, r5, lr}
+ 474              	.LCFI9:
+ 475              		.cfi_def_cfa_offset 16
+ 476              		.cfi_offset 3, -16
+ 477              		.cfi_offset 4, -12
+ 478              		.cfi_offset 5, -8
+ 479              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccgUGXPo.s 			page 30
+
+
+ 169:src/mutex.c   ****     Mutex_Typedef* newMutex = (Mutex_Typedef*)malloc(sizeof(Mutex_Typedef));
+ 480              		.loc 1 169 5 view .LVU119
+ 481              		.loc 1 169 47 is_stmt 0 view .LVU120
+ 482 0002 0C20     		movs	r0, #12
+ 483 0004 FFF7FEFF 		bl	malloc
+ 484              	.LVL28:
+ 170:src/mutex.c   ****     if (newMutex == NULL)
+ 485              		.loc 1 170 5 is_stmt 1 view .LVU121
+ 486              		.loc 1 170 8 is_stmt 0 view .LVU122
+ 487 0008 0446     		mov	r4, r0
+ 488 000a 40B1     		cbz	r0, .L29
+ 171:src/mutex.c   ****     {
+ 172:src/mutex.c   ****         return NULL;
+ 173:src/mutex.c   ****     }
+ 174:src/mutex.c   **** 
+ 175:src/mutex.c   ****     memset(newMutex, 0, sizeof(Mutex_Typedef));
+ 489              		.loc 1 175 5 is_stmt 1 view .LVU123
+ 490 000c 0025     		movs	r5, #0
+ 491 000e 0560     		str	r5, [r0]	@ unaligned
+ 492 0010 4560     		str	r5, [r0, #4]	@ unaligned
+ 493 0012 8560     		str	r5, [r0, #8]	@ unaligned
+ 176:src/mutex.c   **** 
+ 177:src/mutex.c   ****     mutexList* dummy = (mutexList*)malloc(sizeof(mutexList));
+ 494              		.loc 1 177 5 view .LVU124
+ 495              		.loc 1 177 36 is_stmt 0 view .LVU125
+ 496 0014 0420     		movs	r0, #4
+ 497              	.LVL29:
+ 498              		.loc 1 177 36 view .LVU126
+ 499 0016 FFF7FEFF 		bl	malloc
+ 500              	.LVL30:
+ 178:src/mutex.c   ****     newMutex->waiting_task = dummy;
+ 501              		.loc 1 178 5 is_stmt 1 view .LVU127
+ 502              		.loc 1 178 28 is_stmt 0 view .LVU128
+ 503 001a 6060     		str	r0, [r4, #4]
+ 179:src/mutex.c   ****     newMutex->waiting_task->head = NULL;
+ 504              		.loc 1 179 5 is_stmt 1 view .LVU129
+ 505              		.loc 1 179 34 is_stmt 0 view .LVU130
+ 506 001c 0560     		str	r5, [r0]
+ 180:src/mutex.c   **** 
+ 181:src/mutex.c   ****     return newMutex;
+ 507              		.loc 1 181 5 is_stmt 1 view .LVU131
+ 508              	.LVL31:
+ 509              	.L29:
+ 182:src/mutex.c   **** }...
+ 510              		.loc 1 182 1 is_stmt 0 view .LVU132
+ 511 001e 2046     		mov	r0, r4
+ 512 0020 38BD     		pop	{r3, r4, r5, pc}
+ 513              		.loc 1 182 1 view .LVU133
+ 514              		.cfi_endproc
+ 515              	.LFE141:
+ 517              		.text
+ 518              	.Letext0:
+ 519              		.file 3 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 520              		.file 4 "driver/Core/core_cm4.h"
+ 521              		.file 5 "inc/task.h"
+ 522              		.file 6 "inc/mutex.h"
+ 523              		.file 7 "/usr/include/newlib/stdlib.h"
+ARM GAS  /tmp/ccgUGXPo.s 			page 31
+
+
+ARM GAS  /tmp/ccgUGXPo.s 			page 32
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 mutex.c
+     /tmp/ccgUGXPo.s:18     .text.pushWaitingQueue:0000000000000000 $t
+     /tmp/ccgUGXPo.s:26     .text.pushWaitingQueue:0000000000000000 pushWaitingQueue
+     /tmp/ccgUGXPo.s:97     .text.popWaitingQueue:0000000000000000 $t
+     /tmp/ccgUGXPo.s:104    .text.popWaitingQueue:0000000000000000 popWaitingQueue
+     /tmp/ccgUGXPo.s:136    .text.MutexTake:0000000000000000 $t
+     /tmp/ccgUGXPo.s:143    .text.MutexTake:0000000000000000 MutexTake
+     /tmp/ccgUGXPo.s:298    .text.MutexTake:0000000000000050 $d
+     /tmp/ccgUGXPo.s:303    .text.MutexGive:0000000000000000 $t
+     /tmp/ccgUGXPo.s:310    .text.MutexGive:0000000000000000 MutexGive
+     /tmp/ccgUGXPo.s:453    .text.MutexGive:0000000000000050 $d
+     /tmp/ccgUGXPo.s:460    .text.createMutex:0000000000000000 $t
+     /tmp/ccgUGXPo.s:467    .text.createMutex:0000000000000000 createMutex
+
+UNDEFINED SYMBOLS
+removeFromReadyList
+getCurrentTask
+addToReadyList
+malloc
