@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccgUGXPo.s 			page 1
+ARM GAS  /tmp/ccmIpolH.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -31,17 +31,18 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
   29              		.file 1 "src/mutex.c"
    1:src/mutex.c   **** #include "mutex.h"
    2:src/mutex.c   **** 
-   3:src/mutex.c   **** extern TCB_Typedef* getCurrentTask(void);
+   3:src/mutex.c   **** extern TCB_Typedef* getCurrentTask(void);       // define in scheduler.c
    4:src/mutex.c   **** extern TCB_Typedef* idle_task;			// defined in task.c
    5:src/mutex.c   **** extern ready_task_list* ReadyHead;      // defined in task.c
    6:src/mutex.c   **** 
-   7:src/mutex.c   **** void pushWaitingQueue(mutexList** mutexListHead, TCB_Typedef* current_task)
-   8:src/mutex.c   **** {
-  30              		.loc 1 8 1 view -0
+   7:src/mutex.c   **** /********************************* Function to add task in mutex waiting List *********************
+   8:src/mutex.c   **** void pushWaitingQueue(mutexList** mutexListHead, TCB_Typedef* current_task)
+   9:src/mutex.c   **** {
+  30              		.loc 1 9 1 view -0
   31              		.cfi_startproc
   32              		@ args = 0, pretend = 0, frame = 8
   33              		@ frame_needed = 0, uses_anonymous_args = 0
-  34              		.loc 1 8 1 is_stmt 0 view .LVU1
+  34              		.loc 1 9 1 is_stmt 0 view .LVU1
   35 0000 10B5     		push	{r4, lr}
   36              	.LCFI0:
   37              		.cfi_def_cfa_offset 8
@@ -52,58 +53,58 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
   42              		.cfi_def_cfa_offset 16
   43 0004 0446     		mov	r4, r0
   44 0006 0191     		str	r1, [sp, #4]
-   9:src/mutex.c   ****     removeFromReadyList(&current_task);
-  45              		.loc 1 9 5 is_stmt 1 view .LVU2
+  10:src/mutex.c   ****     removeFromReadyList(&current_task);         // remove from ready list
+  45              		.loc 1 10 5 is_stmt 1 view .LVU2
   46 0008 01A8     		add	r0, sp, #4
   47              	.LVL1:
-  48              		.loc 1 9 5 is_stmt 0 view .LVU3
+  48              		.loc 1 10 5 is_stmt 0 view .LVU3
+ARM GAS  /tmp/ccmIpolH.s 			page 2
+
+
   49 000a FFF7FEFF 		bl	removeFromReadyList
-ARM GAS  /tmp/ccgUGXPo.s 			page 2
-
-
   50              	.LVL2:
-  10:src/mutex.c   **** 
-  11:src/mutex.c   ****     if ((*mutexListHead)->head  == NULL)
-  51              		.loc 1 11 5 is_stmt 1 view .LVU4
-  52              		.loc 1 11 10 is_stmt 0 view .LVU5
+  11:src/mutex.c   **** 
+  12:src/mutex.c   ****     if ((*mutexListHead)->head  == NULL)
+  51              		.loc 1 12 5 is_stmt 1 view .LVU4
+  52              		.loc 1 12 10 is_stmt 0 view .LVU5
   53 000e 2268     		ldr	r2, [r4]
-  54              		.loc 1 11 25 view .LVU6
+  54              		.loc 1 12 25 view .LVU6
   55 0010 1368     		ldr	r3, [r2]
-  56              		.loc 1 11 8 view .LVU7
+  56              		.loc 1 12 8 view .LVU7
   57 0012 3BB1     		cbz	r3, .L5
   58              	.L2:
   59              	.LVL3:
-  60              	.LBB17:
-  12:src/mutex.c   ****     {
-  13:src/mutex.c   ****         (*mutexListHead)->head = current_task;
-  14:src/mutex.c   ****     }
-  15:src/mutex.c   ****     else
-  16:src/mutex.c   ****     {
-  17:src/mutex.c   ****         TCB_Typedef* temp = (*mutexListHead)->head;
-  18:src/mutex.c   ****         while (temp->next != NULL)
-  61              		.loc 1 18 15 is_stmt 1 view .LVU8
+  60              	.LBB13:
+  13:src/mutex.c   ****     {
+  14:src/mutex.c   ****         (*mutexListHead)->head = current_task;          // first node if mutexHead is null
+  15:src/mutex.c   ****     }
+  16:src/mutex.c   ****     else
+  17:src/mutex.c   ****     {
+  18:src/mutex.c   ****         TCB_Typedef* temp = (*mutexListHead)->head;
+  19:src/mutex.c   ****         while (temp->next != NULL)
+  61              		.loc 1 19 15 is_stmt 1 view .LVU8
   62 0014 1A46     		mov	r2, r3
-  63              		.loc 1 18 20 is_stmt 0 view .LVU9
+  63              		.loc 1 19 20 is_stmt 0 view .LVU9
   64 0016 1B68     		ldr	r3, [r3]
   65              	.LVL4:
-  66              		.loc 1 18 15 view .LVU10
+  66              		.loc 1 19 15 view .LVU10
   67 0018 002B     		cmp	r3, #0
   68 001a FBD1     		bne	.L2
-  19:src/mutex.c   ****         {
-  20:src/mutex.c   ****             temp = temp->next;
-  21:src/mutex.c   ****         }
-  22:src/mutex.c   ****         temp->next = current_task;
-  69              		.loc 1 22 9 is_stmt 1 view .LVU11
-  70              		.loc 1 22 20 is_stmt 0 view .LVU12
+  20:src/mutex.c   ****         {
+  21:src/mutex.c   ****             temp = temp->next;          // iterate to last node
+  22:src/mutex.c   ****         }
+  23:src/mutex.c   ****         temp->next = current_task;      // add new node in last
+  69              		.loc 1 23 9 is_stmt 1 view .LVU11
+  70              		.loc 1 23 20 is_stmt 0 view .LVU12
   71 001c 019B     		ldr	r3, [sp, #4]
   72 001e 1360     		str	r3, [r2]
   73              	.LVL5:
   74              	.L1:
-  75              		.loc 1 22 20 view .LVU13
-  76              	.LBE17:
-  23:src/mutex.c   ****     }
-  24:src/mutex.c   **** }
-  77              		.loc 1 24 1 view .LVU14
+  75              		.loc 1 23 20 view .LVU13
+  76              	.LBE13:
+  24:src/mutex.c   ****     }
+  25:src/mutex.c   **** }
+  77              		.loc 1 25 1 view .LVU14
   78 0020 02B0     		add	sp, sp, #8
   79              	.LCFI2:
   80              		.cfi_remember_state
@@ -114,13 +115,13 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
   85              	.L5:
   86              	.LCFI3:
   87              		.cfi_restore_state
-  13:src/mutex.c   ****     }
-  88              		.loc 1 13 9 is_stmt 1 view .LVU15
-  13:src/mutex.c   ****     }
-  89              		.loc 1 13 32 is_stmt 0 view .LVU16
-ARM GAS  /tmp/ccgUGXPo.s 			page 3
+  14:src/mutex.c   ****     }
+  88              		.loc 1 14 9 is_stmt 1 view .LVU15
+  14:src/mutex.c   ****     }
+ARM GAS  /tmp/ccmIpolH.s 			page 3
 
 
+  89              		.loc 1 14 32 is_stmt 0 view .LVU16
   90 0024 019B     		ldr	r3, [sp, #4]
   91 0026 1360     		str	r3, [r2]
   92 0028 FAE7     		b	.L1
@@ -136,136 +137,91 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  104              	popWaitingQueue:
  105              	.LVL7:
  106              	.LFB138:
-  25:src/mutex.c   **** 
-  26:src/mutex.c   **** TCB_Typedef* popWaitingQueue(mutexList** mutexListHead)
-  27:src/mutex.c   **** {
- 107              		.loc 1 27 1 is_stmt 1 view -0
+  26:src/mutex.c   **** 
+  27:src/mutex.c   **** /****************************** Function to remove task in mutex waiting List *********************
+  28:src/mutex.c   **** TCB_Typedef* popWaitingQueue(mutexList** mutexListHead)
+  29:src/mutex.c   **** {
+ 107              		.loc 1 29 1 is_stmt 1 view -0
  108              		.cfi_startproc
  109              		@ args = 0, pretend = 0, frame = 0
  110              		@ frame_needed = 0, uses_anonymous_args = 0
  111              		@ link register save eliminated.
-  28:src/mutex.c   ****     if ((*mutexListHead)->head == NULL)
- 112              		.loc 1 28 5 view .LVU18
- 113              		.loc 1 28 10 is_stmt 0 view .LVU19
- 114 0000 0368     		ldr	r3, [r0]
- 115              		.loc 1 28 25 view .LVU20
- 116 0002 1868     		ldr	r0, [r3]
- 117              	.LVL8:
- 118              		.loc 1 28 8 view .LVU21
- 119 0004 08B1     		cbz	r0, .L6
-  29:src/mutex.c   ****     {
-  30:src/mutex.c   ****         return NULL;
-  31:src/mutex.c   ****     }
-  32:src/mutex.c   **** 
-  33:src/mutex.c   ****     TCB_Typedef* next_task = (*mutexListHead)->head;
- 120              		.loc 1 33 5 is_stmt 1 view .LVU22
- 121              	.LVL9:
-  34:src/mutex.c   ****     (*mutexListHead)->head = next_task->next;
- 122              		.loc 1 34 5 view .LVU23
- 123              		.loc 1 34 39 is_stmt 0 view .LVU24
- 124 0006 0268     		ldr	r2, [r0]
- 125              		.loc 1 34 28 view .LVU25
- 126 0008 1A60     		str	r2, [r3]
-  35:src/mutex.c   ****     
-  36:src/mutex.c   ****     return next_task;
- 127              		.loc 1 36 5 is_stmt 1 view .LVU26
- 128              	.LVL10:
- 129              	.L6:
-  37:src/mutex.c   **** }
- 130              		.loc 1 37 1 is_stmt 0 view .LVU27
- 131 000a 7047     		bx	lr
- 132              		.cfi_endproc
- 133              	.LFE138:
- 135              		.section	.text.MutexTake,"ax",%progbits
- 136              		.align	1
-ARM GAS  /tmp/ccgUGXPo.s 			page 4
+ 112              		.loc 1 29 1 is_stmt 0 view .LVU18
+ 113 0000 0346     		mov	r3, r0
+  30:src/mutex.c   ****     if ((*mutexListHead)->head == NULL) 
+ 114              		.loc 1 30 5 is_stmt 1 view .LVU19
+ 115              		.loc 1 30 10 is_stmt 0 view .LVU20
+ 116 0002 0268     		ldr	r2, [r0]
+ 117              		.loc 1 30 25 view .LVU21
+ 118 0004 1068     		ldr	r0, [r2]
+ 119              	.LVL8:
+ 120              		.loc 1 30 8 view .LVU22
+ 121 0006 18B1     		cbz	r0, .L6
+  31:src/mutex.c   ****     {
+  32:src/mutex.c   ****         return NULL;        // return if list is empty
+  33:src/mutex.c   ****     }
+  34:src/mutex.c   **** 
+  35:src/mutex.c   ****     TCB_Typedef* next_task = (*mutexListHead)->head;    // copy the first node
+ 122              		.loc 1 35 5 is_stmt 1 view .LVU23
+ 123              	.LVL9:
+  36:src/mutex.c   ****     next_task->next = NULL;                             // detach from mutex list
+ 124              		.loc 1 36 5 view .LVU24
+ 125              		.loc 1 36 21 is_stmt 0 view .LVU25
+ 126 0008 0022     		movs	r2, #0
+ 127 000a 0260     		str	r2, [r0]
+  37:src/mutex.c   **** 
+  38:src/mutex.c   ****     (*mutexListHead)->head = next_task->next;           // move to next node in mutex list
+ 128              		.loc 1 38 5 is_stmt 1 view .LVU26
+ 129              		.loc 1 38 6 is_stmt 0 view .LVU27
+ 130 000c 1B68     		ldr	r3, [r3]
+ 131              	.LVL10:
+ 132              		.loc 1 38 28 view .LVU28
+ 133 000e 1A60     		str	r2, [r3]
+  39:src/mutex.c   ****     
+ARM GAS  /tmp/ccmIpolH.s 			page 4
 
 
- 137              		.global	MutexTake
- 138              		.syntax unified
- 139              		.thumb
- 140              		.thumb_func
- 141              		.fpu fpv4-sp-d16
- 143              	MutexTake:
- 144              	.LVL11:
- 145              	.LFB139:
-  38:src/mutex.c   **** 
-  39:src/mutex.c   **** /*
-  40:src/mutex.c   **** void MutexTake(Mutex_Typedef** mutex)
-  41:src/mutex.c   **** {
-  42:src/mutex.c   ****     __disable_irq();
-  43:src/mutex.c   **** 
-  44:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();
-  45:src/mutex.c   ****     
-  46:src/mutex.c   ****     if (!((*mutex)->lock))
-  47:src/mutex.c   ****     {
-  48:src/mutex.c   ****         (*mutex)->lock = 1;
-  49:src/mutex.c   ****         (*mutex)->owner = current_task;
-  50:src/mutex.c   ****         return;
-  51:src/mutex.c   ****     }
-  52:src/mutex.c   ****     else
-  53:src/mutex.c   ****     {
-  54:src/mutex.c   ****         current_task->state = BLOCKED;      // change state from running to waiting / blocked
-  55:src/mutex.c   ****         pushWaitingQueue(&((*mutex)->waiting_task), current_task);
-  56:src/mutex.c   ****         SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
-  57:src/mutex.c   ****     }
-  58:src/mutex.c   ****     __enable_irq();
-  59:src/mutex.c   **** }
-  60:src/mutex.c   **** 
-  61:src/mutex.c   **** void MutexGive(Mutex_Typedef** mutex)
-  62:src/mutex.c   **** {
-  63:src/mutex.c   ****     __disable_irq();
-  64:src/mutex.c   **** 
-  65:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();
-  66:src/mutex.c   ****     
-  67:src/mutex.c   ****     if ((*mutex)->owner != current_task)
-  68:src/mutex.c   ****     {
-  69:src/mutex.c   ****         __enable_irq();
-  70:src/mutex.c   ****         return;
-  71:src/mutex.c   ****     }
-  72:src/mutex.c   **** 
-  73:src/mutex.c   ****     if ((*mutex)->waiting_task->head == NULL)
-  74:src/mutex.c   ****     {
-  75:src/mutex.c   ****         (*mutex)->lock = 0;
-  76:src/mutex.c   ****         (*mutex)->owner = NULL;
-  77:src/mutex.c   ****     }
-  78:src/mutex.c   ****     else
-  79:src/mutex.c   ****     {
-  80:src/mutex.c   ****         TCB_Typedef* next_task = popWaitingQueue(&((*mutex)->waiting_task));
-  81:src/mutex.c   ****         if (next_task != NULL)
-  82:src/mutex.c   ****         {
-  83:src/mutex.c   ****             next_task->state = READY;
-  84:src/mutex.c   ****             addToReadyList(&next_task);
-  85:src/mutex.c   ****             (*mutex)->owner = next_task;
-  86:src/mutex.c   ****             SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;
-ARM GAS  /tmp/ccgUGXPo.s 			page 5
-
-
-  87:src/mutex.c   ****         }
-  88:src/mutex.c   ****     }
-  89:src/mutex.c   ****     __enable_irq();
-  90:src/mutex.c   **** }
-  91:src/mutex.c   **** */
-  92:src/mutex.c   **** void MutexTake(Mutex_Typedef** mutex)
-  93:src/mutex.c   **** {
- 146              		.loc 1 93 1 is_stmt 1 view -0
- 147              		.cfi_startproc
- 148              		@ args = 0, pretend = 0, frame = 0
- 149              		@ frame_needed = 0, uses_anonymous_args = 0
- 150              		.loc 1 93 1 is_stmt 0 view .LVU29
- 151 0000 38B5     		push	{r3, r4, r5, lr}
- 152              	.LCFI4:
- 153              		.cfi_def_cfa_offset 16
- 154              		.cfi_offset 3, -16
- 155              		.cfi_offset 4, -12
- 156              		.cfi_offset 5, -8
- 157              		.cfi_offset 14, -4
- 158 0002 0546     		mov	r5, r0
-  94:src/mutex.c   ****     __disable_irq(); // Enter critical section
- 159              		.loc 1 94 5 is_stmt 1 view .LVU30
- 160              	.LBB18:
- 161              	.LBI18:
- 162              		.file 2 "driver/Core/cmsis_gcc.h"
+  40:src/mutex.c   ****     return next_task;       // return the poped node
+ 134              		.loc 1 40 5 is_stmt 1 view .LVU29
+ 135              	.LVL11:
+ 136              	.L6:
+  41:src/mutex.c   **** }
+ 137              		.loc 1 41 1 is_stmt 0 view .LVU30
+ 138 0010 7047     		bx	lr
+ 139              		.cfi_endproc
+ 140              	.LFE138:
+ 142              		.section	.text.MutexTake,"ax",%progbits
+ 143              		.align	1
+ 144              		.global	MutexTake
+ 145              		.syntax unified
+ 146              		.thumb
+ 147              		.thumb_func
+ 148              		.fpu fpv4-sp-d16
+ 150              	MutexTake:
+ 151              	.LVL12:
+ 152              	.LFB139:
+  42:src/mutex.c   **** 
+  43:src/mutex.c   **** /************************************** Function to aquire mutex lock *****************************
+  44:src/mutex.c   **** void MutexTake(Mutex_Typedef** mutex)
+  45:src/mutex.c   **** {
+ 153              		.loc 1 45 1 is_stmt 1 view -0
+ 154              		.cfi_startproc
+ 155              		@ args = 0, pretend = 0, frame = 0
+ 156              		@ frame_needed = 0, uses_anonymous_args = 0
+ 157              		.loc 1 45 1 is_stmt 0 view .LVU32
+ 158 0000 38B5     		push	{r3, r4, r5, lr}
+ 159              	.LCFI4:
+ 160              		.cfi_def_cfa_offset 16
+ 161              		.cfi_offset 3, -16
+ 162              		.cfi_offset 4, -12
+ 163              		.cfi_offset 5, -8
+ 164              		.cfi_offset 14, -4
+ 165 0002 0446     		mov	r4, r0
+  46:src/mutex.c   ****     __disable_irq();
+ 166              		.loc 1 46 5 is_stmt 1 view .LVU33
+ 167              	.LBB14:
+ 168              	.LBI14:
+ 169              		.file 2 "driver/Core/cmsis_gcc.h"
    1:driver/Core/cmsis_gcc.h **** /**************************************************************************//**
    2:driver/Core/cmsis_gcc.h ****  * @file     cmsis_gcc.h
    3:driver/Core/cmsis_gcc.h ****  * @brief    CMSIS compiler GCC header file
@@ -282,6 +238,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
   14:driver/Core/cmsis_gcc.h ****  * You may obtain a copy of the License at
   15:driver/Core/cmsis_gcc.h ****  *
   16:driver/Core/cmsis_gcc.h ****  * www.apache.org/licenses/LICENSE-2.0
+ARM GAS  /tmp/ccmIpolH.s 			page 5
+
+
   17:driver/Core/cmsis_gcc.h ****  *
   18:driver/Core/cmsis_gcc.h ****  * Unless required by applicable law or agreed to in writing, software
   19:driver/Core/cmsis_gcc.h ****  * distributed under the License is distributed on an AS IS BASIS, WITHOUT
@@ -298,9 +257,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
   30:driver/Core/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wsign-conversion"
   31:driver/Core/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wconversion"
   32:driver/Core/cmsis_gcc.h **** #pragma GCC diagnostic ignored "-Wunused-parameter"
-ARM GAS  /tmp/ccgUGXPo.s 			page 6
-
-
   33:driver/Core/cmsis_gcc.h **** 
   34:driver/Core/cmsis_gcc.h **** /* Fallback for __has_builtin */
   35:driver/Core/cmsis_gcc.h **** #ifndef __has_builtin
@@ -342,6 +298,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
   71:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic push
   72:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
   73:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
+ARM GAS  /tmp/ccmIpolH.s 			page 6
+
+
   74:driver/Core/cmsis_gcc.h ****   struct __attribute__((packed)) T_UINT32 { uint32_t v; };
   75:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic pop
   76:driver/Core/cmsis_gcc.h ****   #define __UNALIGNED_UINT32(x)                  (((struct T_UINT32 *)(x))->v)
@@ -358,9 +317,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
   87:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic push
   88:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
   89:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
-ARM GAS  /tmp/ccgUGXPo.s 			page 7
-
-
   90:driver/Core/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_READ { uint16_t v; };
   91:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic pop
   92:driver/Core/cmsis_gcc.h ****   #define __UNALIGNED_UINT16_READ(addr)          (((const struct T_UINT16_READ *)(const void *)(add
@@ -402,6 +358,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  128:driver/Core/cmsis_gcc.h ****            in the used linker script.
  129:driver/Core/cmsis_gcc.h **** 
  130:driver/Core/cmsis_gcc.h ****  */
+ARM GAS  /tmp/ccmIpolH.s 			page 7
+
+
  131:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE __NO_RETURN void __cmsis_start(void)
  132:driver/Core/cmsis_gcc.h **** {
  133:driver/Core/cmsis_gcc.h ****   extern void _start(void) __NO_RETURN;
@@ -418,9 +377,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  144:driver/Core/cmsis_gcc.h ****   } __zero_table_t;
  145:driver/Core/cmsis_gcc.h **** 
  146:driver/Core/cmsis_gcc.h ****   extern const __copy_table_t __copy_table_start__;
-ARM GAS  /tmp/ccgUGXPo.s 			page 8
-
-
  147:driver/Core/cmsis_gcc.h ****   extern const __copy_table_t __copy_table_end__;
  148:driver/Core/cmsis_gcc.h ****   extern const __zero_table_t __zero_table_start__;
  149:driver/Core/cmsis_gcc.h ****   extern const __zero_table_t __zero_table_end__;
@@ -462,6 +418,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  185:driver/Core/cmsis_gcc.h **** #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
  186:driver/Core/cmsis_gcc.h **** #ifndef __STACK_SEAL
  187:driver/Core/cmsis_gcc.h **** #define __STACK_SEAL              __StackSeal
+ARM GAS  /tmp/ccmIpolH.s 			page 8
+
+
  188:driver/Core/cmsis_gcc.h **** #endif
  189:driver/Core/cmsis_gcc.h **** 
  190:driver/Core/cmsis_gcc.h **** #ifndef __TZ_STACK_SEAL_SIZE
@@ -478,9 +437,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  201:driver/Core/cmsis_gcc.h **** }
  202:driver/Core/cmsis_gcc.h **** #endif
  203:driver/Core/cmsis_gcc.h **** 
-ARM GAS  /tmp/ccgUGXPo.s 			page 9
-
-
  204:driver/Core/cmsis_gcc.h **** 
  205:driver/Core/cmsis_gcc.h **** /* ##########################  Core Instruction Access  ######################### */
  206:driver/Core/cmsis_gcc.h **** /** \defgroup CMSIS_Core_InstructionInterface CMSIS Core Instruction Interface
@@ -522,6 +478,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  242:driver/Core/cmsis_gcc.h **** #define __WFE()                             __ASM volatile ("wfe":::"memory")
  243:driver/Core/cmsis_gcc.h **** 
  244:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/ccmIpolH.s 			page 9
+
+
  245:driver/Core/cmsis_gcc.h **** /**
  246:driver/Core/cmsis_gcc.h ****   \brief   Send Event
  247:driver/Core/cmsis_gcc.h ****   \details Send Event is a hint instruction. It causes an event to be signaled to the CPU.
@@ -538,9 +497,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  258:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __ISB(void)
  259:driver/Core/cmsis_gcc.h **** {
  260:driver/Core/cmsis_gcc.h ****   __ASM volatile ("isb 0xF":::"memory");
-ARM GAS  /tmp/ccgUGXPo.s 			page 10
-
-
  261:driver/Core/cmsis_gcc.h **** }
  262:driver/Core/cmsis_gcc.h **** 
  263:driver/Core/cmsis_gcc.h **** 
@@ -582,6 +538,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  299:driver/Core/cmsis_gcc.h ****   __ASM ("rev %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
  300:driver/Core/cmsis_gcc.h ****   return result;
  301:driver/Core/cmsis_gcc.h **** #endif
+ARM GAS  /tmp/ccmIpolH.s 			page 10
+
+
  302:driver/Core/cmsis_gcc.h **** }
  303:driver/Core/cmsis_gcc.h **** 
  304:driver/Core/cmsis_gcc.h **** 
@@ -598,9 +557,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  315:driver/Core/cmsis_gcc.h ****   __ASM ("rev16 %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
  316:driver/Core/cmsis_gcc.h ****   return result;
  317:driver/Core/cmsis_gcc.h **** }
-ARM GAS  /tmp/ccgUGXPo.s 			page 11
-
-
  318:driver/Core/cmsis_gcc.h **** 
  319:driver/Core/cmsis_gcc.h **** 
  320:driver/Core/cmsis_gcc.h **** /**
@@ -642,6 +598,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  356:driver/Core/cmsis_gcc.h **** 
  357:driver/Core/cmsis_gcc.h **** /**
  358:driver/Core/cmsis_gcc.h ****   \brief   Breakpoint
+ARM GAS  /tmp/ccmIpolH.s 			page 11
+
+
  359:driver/Core/cmsis_gcc.h ****   \details Causes the processor to enter Debug state.
  360:driver/Core/cmsis_gcc.h ****            Debug tools can use this to investigate system state when the instruction at a particula
  361:driver/Core/cmsis_gcc.h ****   \param [in]    value  is ignored by the processor.
@@ -658,9 +617,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  372:driver/Core/cmsis_gcc.h ****  */
  373:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __RBIT(uint32_t value)
  374:driver/Core/cmsis_gcc.h **** {
-ARM GAS  /tmp/ccgUGXPo.s 			page 12
-
-
  375:driver/Core/cmsis_gcc.h ****   uint32_t result;
  376:driver/Core/cmsis_gcc.h **** 
  377:driver/Core/cmsis_gcc.h **** #if ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
@@ -702,6 +658,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  413:driver/Core/cmsis_gcc.h ****    */
  414:driver/Core/cmsis_gcc.h ****   if (value == 0U)
  415:driver/Core/cmsis_gcc.h ****   {
+ARM GAS  /tmp/ccmIpolH.s 			page 12
+
+
  416:driver/Core/cmsis_gcc.h ****     return 32U;
  417:driver/Core/cmsis_gcc.h ****   }
  418:driver/Core/cmsis_gcc.h ****   return __builtin_clz(value);
@@ -718,9 +677,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  429:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  430:driver/Core/cmsis_gcc.h ****   \return             value of type uint8_t at (*ptr)
  431:driver/Core/cmsis_gcc.h ****  */
-ARM GAS  /tmp/ccgUGXPo.s 			page 13
-
-
  432:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint8_t __LDREXB(volatile uint8_t *addr)
  433:driver/Core/cmsis_gcc.h **** {
  434:driver/Core/cmsis_gcc.h ****     uint32_t result;
@@ -762,6 +718,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  470:driver/Core/cmsis_gcc.h **** /**
  471:driver/Core/cmsis_gcc.h ****   \brief   LDR Exclusive (32 bit)
  472:driver/Core/cmsis_gcc.h ****   \details Executes a exclusive LDR instruction for 32 bit values.
+ARM GAS  /tmp/ccmIpolH.s 			page 13
+
+
  473:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  474:driver/Core/cmsis_gcc.h ****   \return        value of type uint32_t at (*ptr)
  475:driver/Core/cmsis_gcc.h ****  */
@@ -778,9 +737,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  486:driver/Core/cmsis_gcc.h ****   \brief   STR Exclusive (8 bit)
  487:driver/Core/cmsis_gcc.h ****   \details Executes a exclusive STR instruction for 8 bit values.
  488:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
-ARM GAS  /tmp/ccgUGXPo.s 			page 14
-
-
  489:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
  490:driver/Core/cmsis_gcc.h ****   \return          0  Function succeeded
  491:driver/Core/cmsis_gcc.h ****   \return          1  Function failed
@@ -822,6 +778,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  527:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STREXW(uint32_t value, volatile uint32_t *addr)
  528:driver/Core/cmsis_gcc.h **** {
  529:driver/Core/cmsis_gcc.h ****    uint32_t result;
+ARM GAS  /tmp/ccmIpolH.s 			page 14
+
+
  530:driver/Core/cmsis_gcc.h **** 
  531:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strex %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" (value) );
  532:driver/Core/cmsis_gcc.h ****    return(result);
@@ -838,9 +797,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  543:driver/Core/cmsis_gcc.h **** }
  544:driver/Core/cmsis_gcc.h **** 
  545:driver/Core/cmsis_gcc.h **** #endif /* ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
-ARM GAS  /tmp/ccgUGXPo.s 			page 15
-
-
  546:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_7EM__     ) && (__ARM_ARCH_7EM__     == 1)) || \
  547:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
  548:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_BASE__ ) && (__ARM_ARCH_8M_BASE__ == 1))    ) */
@@ -882,6 +838,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  584:driver/Core/cmsis_gcc.h **** 
  585:driver/Core/cmsis_gcc.h **** 
  586:driver/Core/cmsis_gcc.h **** /**
+ARM GAS  /tmp/ccmIpolH.s 			page 15
+
+
  587:driver/Core/cmsis_gcc.h ****   \brief   Rotate Right with Extend (32 bit)
  588:driver/Core/cmsis_gcc.h ****   \details Moves each bit of a bitstring right by one bit.
  589:driver/Core/cmsis_gcc.h ****            The carry input is shifted in at the left end of the bitstring.
@@ -898,9 +857,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  600:driver/Core/cmsis_gcc.h **** 
  601:driver/Core/cmsis_gcc.h **** 
  602:driver/Core/cmsis_gcc.h **** /**
-ARM GAS  /tmp/ccgUGXPo.s 			page 16
-
-
  603:driver/Core/cmsis_gcc.h ****   \brief   LDRT Unprivileged (8 bit)
  604:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged LDRT instruction for 8 bit value.
  605:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
@@ -942,6 +898,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  641:driver/Core/cmsis_gcc.h **** #endif
  642:driver/Core/cmsis_gcc.h ****    return ((uint16_t) result);    /* Add explicit type cast here */
  643:driver/Core/cmsis_gcc.h **** }
+ARM GAS  /tmp/ccmIpolH.s 			page 16
+
+
  644:driver/Core/cmsis_gcc.h **** 
  645:driver/Core/cmsis_gcc.h **** 
  646:driver/Core/cmsis_gcc.h **** /**
@@ -958,9 +917,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  657:driver/Core/cmsis_gcc.h ****    return(result);
  658:driver/Core/cmsis_gcc.h **** }
  659:driver/Core/cmsis_gcc.h **** 
-ARM GAS  /tmp/ccgUGXPo.s 			page 17
-
-
  660:driver/Core/cmsis_gcc.h **** 
  661:driver/Core/cmsis_gcc.h **** /**
  662:driver/Core/cmsis_gcc.h ****   \brief   STRT Unprivileged (8 bit)
@@ -1002,6 +958,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  698:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1))    ) */
  699:driver/Core/cmsis_gcc.h **** 
  700:driver/Core/cmsis_gcc.h **** /**
+ARM GAS  /tmp/ccmIpolH.s 			page 17
+
+
  701:driver/Core/cmsis_gcc.h ****   \brief   Signed Saturate
  702:driver/Core/cmsis_gcc.h ****   \details Saturates a signed value.
  703:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to be saturated
@@ -1018,9 +977,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  714:driver/Core/cmsis_gcc.h ****     {
  715:driver/Core/cmsis_gcc.h ****       return max;
  716:driver/Core/cmsis_gcc.h ****     }
-ARM GAS  /tmp/ccgUGXPo.s 			page 18
-
-
  717:driver/Core/cmsis_gcc.h ****     else if (val < min)
  718:driver/Core/cmsis_gcc.h ****     {
  719:driver/Core/cmsis_gcc.h ****       return min;
@@ -1062,6 +1018,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  755:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_8M_BASE__ ) && (__ARM_ARCH_8M_BASE__ == 1))    )
  756:driver/Core/cmsis_gcc.h **** /**
  757:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire (8 bit)
+ARM GAS  /tmp/ccmIpolH.s 			page 18
+
+
  758:driver/Core/cmsis_gcc.h ****   \details Executes a LDAB instruction for 8 bit value.
  759:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  760:driver/Core/cmsis_gcc.h ****   \return             value of type uint8_t at (*ptr)
@@ -1078,9 +1037,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  771:driver/Core/cmsis_gcc.h **** /**
  772:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire (16 bit)
  773:driver/Core/cmsis_gcc.h ****   \details Executes a LDAH instruction for 16 bit values.
-ARM GAS  /tmp/ccgUGXPo.s 			page 19
-
-
  774:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  775:driver/Core/cmsis_gcc.h ****   \return        value of type uint16_t at (*ptr)
  776:driver/Core/cmsis_gcc.h ****  */
@@ -1122,6 +1078,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  812:driver/Core/cmsis_gcc.h **** 
  813:driver/Core/cmsis_gcc.h **** /**
  814:driver/Core/cmsis_gcc.h ****   \brief   Store-Release (16 bit)
+ARM GAS  /tmp/ccmIpolH.s 			page 19
+
+
  815:driver/Core/cmsis_gcc.h ****   \details Executes a STLH instruction for 16 bit values.
  816:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
  817:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
@@ -1138,9 +1097,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  828:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
  829:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
  830:driver/Core/cmsis_gcc.h ****  */
-ARM GAS  /tmp/ccgUGXPo.s 			page 20
-
-
  831:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __STL(uint32_t value, volatile uint32_t *ptr)
  832:driver/Core/cmsis_gcc.h **** {
  833:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stl %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) : "memory" );
@@ -1182,6 +1138,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  869:driver/Core/cmsis_gcc.h ****   \details Executes a LDA exclusive instruction for 32 bit values.
  870:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  871:driver/Core/cmsis_gcc.h ****   \return        value of type uint32_t at (*ptr)
+ARM GAS  /tmp/ccmIpolH.s 			page 20
+
+
  872:driver/Core/cmsis_gcc.h ****  */
  873:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDAEX(volatile uint32_t *ptr)
  874:driver/Core/cmsis_gcc.h **** {
@@ -1198,9 +1157,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  885:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to store
  886:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to location
  887:driver/Core/cmsis_gcc.h ****   \return          0  Function succeeded
-ARM GAS  /tmp/ccgUGXPo.s 			page 21
-
-
  888:driver/Core/cmsis_gcc.h ****   \return          1  Function failed
  889:driver/Core/cmsis_gcc.h ****  */
  890:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STLEXB(uint8_t value, volatile uint8_t *ptr)
@@ -1242,6 +1198,9 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  926:driver/Core/cmsis_gcc.h ****    uint32_t result;
  927:driver/Core/cmsis_gcc.h **** 
  928:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stlex %0, %2, %1" : "=&r" (result), "=Q" (*ptr) : "r" ((uint32_t)value) : "memo
+ARM GAS  /tmp/ccmIpolH.s 			page 21
+
+
  929:driver/Core/cmsis_gcc.h ****    return(result);
  930:driver/Core/cmsis_gcc.h **** }
  931:driver/Core/cmsis_gcc.h **** 
@@ -1258,9 +1217,6 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  942:driver/Core/cmsis_gcc.h ****  */
  943:driver/Core/cmsis_gcc.h **** 
  944:driver/Core/cmsis_gcc.h **** /**
-ARM GAS  /tmp/ccgUGXPo.s 			page 22
-
-
  945:driver/Core/cmsis_gcc.h ****   \brief   Enable IRQ Interrupts
  946:driver/Core/cmsis_gcc.h ****   \details Enables IRQ interrupts by clearing special-purpose register PRIMASK.
  947:driver/Core/cmsis_gcc.h ****            Can only be executed in Privileged modes.
@@ -1277,547 +1233,542 @@ ARM GAS  /tmp/ccgUGXPo.s 			page 1
  958:driver/Core/cmsis_gcc.h ****            Can only be executed in Privileged modes.
  959:driver/Core/cmsis_gcc.h ****  */
  960:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __disable_irq(void)
- 163              		.loc 2 960 27 view .LVU31
- 164              	.LBB19:
+ 170              		.loc 2 960 27 view .LVU34
+ 171              	.LBB15:
  961:driver/Core/cmsis_gcc.h **** {
  962:driver/Core/cmsis_gcc.h ****   __ASM volatile ("cpsid i" : : : "memory");
- 165              		.loc 2 962 3 view .LVU32
- 166              		.syntax unified
- 167              	@ 962 "driver/Core/cmsis_gcc.h" 1
- 168 0004 72B6     		cpsid i
- 169              	@ 0 "" 2
- 170              		.thumb
- 171              		.syntax unified
- 172              	.LBE19:
- 173              	.LBE18:
-  95:src/mutex.c   **** 
-  96:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();
- 174              		.loc 1 96 5 view .LVU33
- 175              		.loc 1 96 33 is_stmt 0 view .LVU34
- 176 0006 FFF7FEFF 		bl	getCurrentTask
- 177              	.LVL12:
- 178              		.loc 1 96 33 view .LVU35
- 179 000a 0446     		mov	r4, r0
- 180              	.LVL13:
-  97:src/mutex.c   **** 
-  98:src/mutex.c   ****     // If the mutex is not locked, acquire it
-  99:src/mutex.c   ****     if (!((*mutex)->lock)) 
- 181              		.loc 1 99 5 is_stmt 1 view .LVU36
- 182              		.loc 1 99 12 is_stmt 0 view .LVU37
- 183 000c 2B68     		ldr	r3, [r5]
- 184              		.loc 1 99 19 view .LVU38
- 185 000e 1A7A     		ldrb	r2, [r3, #8]	@ zero_extendqisi2
- 186              		.loc 1 99 8 view .LVU39
- 187 0010 82B1     		cbz	r2, .L15
- 100:src/mutex.c   ****     {
- 101:src/mutex.c   ****         (*mutex)->lock = 1;            // Lock the mutex
- 102:src/mutex.c   ****         (*mutex)->owner = current_task; // Assign ownership
- 103:src/mutex.c   ****         __enable_irq();               // Exit critical section
- 104:src/mutex.c   ****         return;
- 105:src/mutex.c   ****     }
- 106:src/mutex.c   **** 
- 107:src/mutex.c   ****     // If the current task already owns the mutex, do nothing
- 108:src/mutex.c   ****     if ((*mutex)->owner == current_task) 
-ARM GAS  /tmp/ccgUGXPo.s 			page 23
+ 172              		.loc 2 962 3 view .LVU35
+ 173              		.syntax unified
+ 174              	@ 962 "driver/Core/cmsis_gcc.h" 1
+ 175 0004 72B6     		cpsid i
+ 176              	@ 0 "" 2
+ 177              		.thumb
+ 178              		.syntax unified
+ 179              	.LBE15:
+ 180              	.LBE14:
+  47:src/mutex.c   **** 
+  48:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();       // get current task
+ 181              		.loc 1 48 5 view .LVU36
+ 182              		.loc 1 48 33 is_stmt 0 view .LVU37
+ 183 0006 FFF7FEFF 		bl	getCurrentTask
+ 184              	.LVL13:
+ 185              		.loc 1 48 33 view .LVU38
+ 186 000a 0546     		mov	r5, r0
+ 187              	.LVL14:
+  49:src/mutex.c   ****     
+  50:src/mutex.c   ****     if (!((*mutex)->lock))
+ 188              		.loc 1 50 5 is_stmt 1 view .LVU39
+ARM GAS  /tmp/ccmIpolH.s 			page 22
 
 
- 188              		.loc 1 108 5 is_stmt 1 view .LVU40
- 189              		.loc 1 108 17 is_stmt 0 view .LVU41
- 190 0012 1B68     		ldr	r3, [r3]
- 191              		.loc 1 108 8 view .LVU42
- 192 0014 8342     		cmp	r3, r0
- 193 0016 13D0     		beq	.L16
- 109:src/mutex.c   ****     {
- 110:src/mutex.c   ****         __enable_irq(); // Exit critical section
- 111:src/mutex.c   ****         return;
- 112:src/mutex.c   ****     }
- 113:src/mutex.c   **** 
- 114:src/mutex.c   ****     // Block the current task and add it to the waiting queue
- 115:src/mutex.c   ****     current_task->state = BLOCKED; // Set task state to BLOCKED
- 194              		.loc 1 115 5 is_stmt 1 view .LVU43
- 195              		.loc 1 115 25 is_stmt 0 view .LVU44
- 196 0018 0323     		movs	r3, #3
- 197 001a 8382     		strh	r3, [r0, #20]	@ movhi
- 116:src/mutex.c   ****     pushWaitingQueue(&((*mutex)->waiting_task), current_task); // Add to waiting queue
- 198              		.loc 1 116 5 is_stmt 1 view .LVU45
- 199              		.loc 1 116 25 is_stmt 0 view .LVU46
- 200 001c 2868     		ldr	r0, [r5]
- 201              	.LVL14:
- 202              		.loc 1 116 5 view .LVU47
- 203 001e 2146     		mov	r1, r4
- 204 0020 0430     		adds	r0, r0, #4
- 205 0022 FFF7FEFF 		bl	pushWaitingQueue
- 206              	.LVL15:
- 117:src/mutex.c   **** 
- 118:src/mutex.c   ****     SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // Trigger PendSV for context switch
- 207              		.loc 1 118 5 is_stmt 1 view .LVU48
- 208              		.loc 1 118 15 is_stmt 0 view .LVU49
- 209 0026 0A4A     		ldr	r2, .L17
- 210 0028 5368     		ldr	r3, [r2, #4]
- 211 002a 43F08053 		orr	r3, r3, #268435456
- 212 002e 5360     		str	r3, [r2, #4]
- 119:src/mutex.c   **** 
- 120:src/mutex.c   ****     __enable_irq(); // Exit critical section
- 213              		.loc 1 120 5 is_stmt 1 view .LVU50
- 214              	.LBB20:
- 215              	.LBI20:
+ 189              		.loc 1 50 12 is_stmt 0 view .LVU40
+ 190 000c 2368     		ldr	r3, [r4]
+ 191              		.loc 1 50 19 view .LVU41
+ 192 000e 1A7A     		ldrb	r2, [r3, #8]	@ zero_extendqisi2
+ 193              		.loc 1 50 8 view .LVU42
+ 194 0010 3AB9     		cbnz	r2, .L9
+  51:src/mutex.c   ****     {
+  52:src/mutex.c   ****         (*mutex)->lock = 1;         // set lock
+ 195              		.loc 1 52 9 is_stmt 1 view .LVU43
+ 196              		.loc 1 52 24 is_stmt 0 view .LVU44
+ 197 0012 0122     		movs	r2, #1
+ 198 0014 1A72     		strb	r2, [r3, #8]
+  53:src/mutex.c   ****         (*mutex)->owner = current_task;
+ 199              		.loc 1 53 9 is_stmt 1 view .LVU45
+ 200              		.loc 1 53 10 is_stmt 0 view .LVU46
+ 201 0016 2368     		ldr	r3, [r4]
+ 202              		.loc 1 53 25 view .LVU47
+ 203 0018 1860     		str	r0, [r3]
+  54:src/mutex.c   ****         (*mutex)->priority = current_task->priority;        // copy mutex aquired task priority for
+ 204              		.loc 1 54 9 is_stmt 1 view .LVU48
+ 205              		.loc 1 54 10 is_stmt 0 view .LVU49
+ 206 001a 2368     		ldr	r3, [r4]
+ 207              		.loc 1 54 28 view .LVU50
+ 208 001c 827D     		ldrb	r2, [r0, #22]	@ zero_extendqisi2
+ 209 001e 5A72     		strb	r2, [r3, #9]
+  55:src/mutex.c   ****         return;
+ 210              		.loc 1 55 9 is_stmt 1 view .LVU51
+ 211              	.LVL15:
+ 212              	.L8:
+  56:src/mutex.c   ****     }
+  57:src/mutex.c   ****     else
+  58:src/mutex.c   ****     {
+  59:src/mutex.c   ****         current_task->state = BLOCKED;      // change state from running to waiting / blocked
+  60:src/mutex.c   ****         pushWaitingQueue(&((*mutex)->waiting_task), current_task);      // push to mutex list
+  61:src/mutex.c   **** 
+  62:src/mutex.c   ****         if (current_task->priority < (*mutex)->priority)
+  63:src/mutex.c   ****         {
+  64:src/mutex.c   ****             (*mutex)->owner->priority = current_task->priority;         // waiting task priority is
+  65:src/mutex.c   ****         }
+  66:src/mutex.c   **** 
+  67:src/mutex.c   ****         SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;        // trigger PendSV interrupt for context switchi
+  68:src/mutex.c   ****     }
+  69:src/mutex.c   ****     __enable_irq();
+  70:src/mutex.c   **** }
+ 213              		.loc 1 70 1 is_stmt 0 view .LVU52
+ 214 0020 38BD     		pop	{r3, r4, r5, pc}
+ 215              	.LVL16:
+ 216              	.L9:
+  59:src/mutex.c   ****         pushWaitingQueue(&((*mutex)->waiting_task), current_task);      // push to mutex list
+ 217              		.loc 1 59 9 is_stmt 1 view .LVU53
+  59:src/mutex.c   ****         pushWaitingQueue(&((*mutex)->waiting_task), current_task);      // push to mutex list
+ 218              		.loc 1 59 29 is_stmt 0 view .LVU54
+ 219 0022 0323     		movs	r3, #3
+ 220 0024 8382     		strh	r3, [r0, #20]	@ movhi
+  60:src/mutex.c   **** 
+ 221              		.loc 1 60 9 is_stmt 1 view .LVU55
+  60:src/mutex.c   **** 
+ARM GAS  /tmp/ccmIpolH.s 			page 23
+
+
+ 222              		.loc 1 60 29 is_stmt 0 view .LVU56
+ 223 0026 2068     		ldr	r0, [r4]
+ 224              	.LVL17:
+  60:src/mutex.c   **** 
+ 225              		.loc 1 60 9 view .LVU57
+ 226 0028 2946     		mov	r1, r5
+ 227 002a 0430     		adds	r0, r0, #4
+ 228 002c FFF7FEFF 		bl	pushWaitingQueue
+ 229              	.LVL18:
+  62:src/mutex.c   ****         {
+ 230              		.loc 1 62 9 is_stmt 1 view .LVU58
+  62:src/mutex.c   ****         {
+ 231              		.loc 1 62 25 is_stmt 0 view .LVU59
+ 232 0030 EB8A     		ldrh	r3, [r5, #22]
+  62:src/mutex.c   ****         {
+ 233              		.loc 1 62 39 view .LVU60
+ 234 0032 2268     		ldr	r2, [r4]
+  62:src/mutex.c   ****         {
+ 235              		.loc 1 62 46 view .LVU61
+ 236 0034 517A     		ldrb	r1, [r2, #9]	@ zero_extendqisi2
+  62:src/mutex.c   ****         {
+ 237              		.loc 1 62 12 view .LVU62
+ 238 0036 8B42     		cmp	r3, r1
+ 239 0038 01D2     		bcs	.L11
+  64:src/mutex.c   ****         }
+ 240              		.loc 1 64 13 is_stmt 1 view .LVU63
+  64:src/mutex.c   ****         }
+ 241              		.loc 1 64 21 is_stmt 0 view .LVU64
+ 242 003a 1268     		ldr	r2, [r2]
+  64:src/mutex.c   ****         }
+ 243              		.loc 1 64 39 view .LVU65
+ 244 003c D382     		strh	r3, [r2, #22]	@ movhi
+ 245              	.L11:
+  67:src/mutex.c   ****     }
+ 246              		.loc 1 67 9 is_stmt 1 view .LVU66
+  67:src/mutex.c   ****     }
+ 247              		.loc 1 67 19 is_stmt 0 view .LVU67
+ 248 003e 034A     		ldr	r2, .L13
+ 249 0040 5368     		ldr	r3, [r2, #4]
+ 250 0042 43F08053 		orr	r3, r3, #268435456
+ 251 0046 5360     		str	r3, [r2, #4]
+  69:src/mutex.c   **** }
+ 252              		.loc 1 69 5 is_stmt 1 view .LVU68
+ 253              	.LBB16:
+ 254              	.LBI16:
  949:driver/Core/cmsis_gcc.h **** {
- 216              		.loc 2 949 27 view .LVU51
- 217              	.LBB21:
+ 255              		.loc 2 949 27 view .LVU69
+ 256              	.LBB17:
  951:driver/Core/cmsis_gcc.h **** }
- 218              		.loc 2 951 3 view .LVU52
- 219              		.syntax unified
- 220              	@ 951 "driver/Core/cmsis_gcc.h" 1
- 221 0030 62B6     		cpsie i
- 222              	@ 0 "" 2
+ 257              		.loc 2 951 3 view .LVU70
+ 258              		.syntax unified
+ 259              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 260 0048 62B6     		cpsie i
+ 261              	@ 0 "" 2
  952:driver/Core/cmsis_gcc.h **** 
- 223              		.loc 2 952 1 is_stmt 0 view .LVU53
- 224              		.thumb
- 225              		.syntax unified
- 226 0032 08E0     		b	.L12
- 227              	.LVL16:
- 228              	.L15:
- 952:driver/Core/cmsis_gcc.h **** 
-ARM GAS  /tmp/ccgUGXPo.s 			page 24
+ 262              		.loc 2 952 1 is_stmt 0 view .LVU71
+ 263              		.thumb
+ARM GAS  /tmp/ccmIpolH.s 			page 24
 
 
- 229              		.loc 2 952 1 view .LVU54
- 230              	.LBE21:
- 231              	.LBE20:
- 101:src/mutex.c   ****         (*mutex)->owner = current_task; // Assign ownership
- 232              		.loc 1 101 9 is_stmt 1 view .LVU55
- 101:src/mutex.c   ****         (*mutex)->owner = current_task; // Assign ownership
- 233              		.loc 1 101 24 is_stmt 0 view .LVU56
- 234 0034 0122     		movs	r2, #1
- 235 0036 1A72     		strb	r2, [r3, #8]
- 102:src/mutex.c   ****         __enable_irq();               // Exit critical section
- 236              		.loc 1 102 9 is_stmt 1 view .LVU57
- 102:src/mutex.c   ****         __enable_irq();               // Exit critical section
- 237              		.loc 1 102 10 is_stmt 0 view .LVU58
- 238 0038 2B68     		ldr	r3, [r5]
- 102:src/mutex.c   ****         __enable_irq();               // Exit critical section
- 239              		.loc 1 102 25 view .LVU59
- 240 003a 1860     		str	r0, [r3]
- 103:src/mutex.c   ****         return;
- 241              		.loc 1 103 9 is_stmt 1 view .LVU60
- 242              	.LBB22:
- 243              	.LBI22:
- 949:driver/Core/cmsis_gcc.h **** {
- 244              		.loc 2 949 27 view .LVU61
- 245              	.LBB23:
- 951:driver/Core/cmsis_gcc.h **** }
- 246              		.loc 2 951 3 view .LVU62
- 247              		.syntax unified
- 248              	@ 951 "driver/Core/cmsis_gcc.h" 1
- 249 003c 62B6     		cpsie i
- 250              	@ 0 "" 2
- 251              		.thumb
- 252              		.syntax unified
- 253              	.LBE23:
- 254              	.LBE22:
- 104:src/mutex.c   ****     }
- 255              		.loc 1 104 9 view .LVU63
- 256 003e 05E0     		b	.L8
- 257              	.L16:
- 110:src/mutex.c   ****         return;
- 258              		.loc 1 110 9 view .LVU64
- 259              	.LBB24:
- 260              	.LBI24:
- 949:driver/Core/cmsis_gcc.h **** {
- 261              		.loc 2 949 27 view .LVU65
- 262              	.LBB25:
- 951:driver/Core/cmsis_gcc.h **** }
- 263              		.loc 2 951 3 view .LVU66
  264              		.syntax unified
- 265              	@ 951 "driver/Core/cmsis_gcc.h" 1
- 266 0040 62B6     		cpsie i
- 267              	@ 0 "" 2
- 268              		.thumb
- 269              		.syntax unified
- 270              	.LBE25:
- 271              	.LBE24:
- 111:src/mutex.c   ****     }
- 272              		.loc 1 111 9 view .LVU67
-ARM GAS  /tmp/ccgUGXPo.s 			page 25
-
-
- 273 0042 03E0     		b	.L8
- 274              	.LVL17:
- 275              	.L13:
- 121:src/mutex.c   **** 
- 122:src/mutex.c   ****     // Wait here until the task is unblocked (scheduler will switch context)
- 123:src/mutex.c   ****     while (current_task->state != READY) 
- 124:src/mutex.c   ****     {
- 125:src/mutex.c   ****         __NOP();
- 276              		.loc 1 125 9 view .LVU68
- 277              		.syntax unified
- 278              	@ 125 "src/mutex.c" 1
- 279 0044 00BF     		nop
- 280              	@ 0 "" 2
- 281              		.thumb
- 282              		.syntax unified
- 283              	.L12:
- 123:src/mutex.c   ****     {
- 284              		.loc 1 123 11 view .LVU69
- 123:src/mutex.c   ****     {
- 285              		.loc 1 123 24 is_stmt 0 view .LVU70
- 286 0046 A38A     		ldrh	r3, [r4, #20]
- 123:src/mutex.c   ****     {
- 287              		.loc 1 123 11 view .LVU71
- 288 0048 012B     		cmp	r3, #1
- 289 004a FBD1     		bne	.L13
- 290              	.L8:
- 126:src/mutex.c   ****     }
- 127:src/mutex.c   **** }
- 291              		.loc 1 127 1 view .LVU72
- 292 004c 38BD     		pop	{r3, r4, r5, pc}
- 293              	.LVL18:
- 294              	.L18:
- 295              		.loc 1 127 1 view .LVU73
- 296 004e 00BF     		.align	2
- 297              	.L17:
- 298 0050 00ED00E0 		.word	-536810240
- 299              		.cfi_endproc
- 300              	.LFE139:
- 302              		.section	.text.MutexGive,"ax",%progbits
- 303              		.align	1
- 304              		.global	MutexGive
- 305              		.syntax unified
- 306              		.thumb
- 307              		.thumb_func
- 308              		.fpu fpv4-sp-d16
- 310              	MutexGive:
- 311              	.LVL19:
- 312              	.LFB140:
- 128:src/mutex.c   **** 
- 129:src/mutex.c   **** void MutexGive(Mutex_Typedef** mutex)
- 130:src/mutex.c   **** {
- 313              		.loc 1 130 1 is_stmt 1 view -0
- 314              		.cfi_startproc
- 315              		@ args = 0, pretend = 0, frame = 8
- 316              		@ frame_needed = 0, uses_anonymous_args = 0
- 317              		.loc 1 130 1 is_stmt 0 view .LVU75
- 318 0000 10B5     		push	{r4, lr}
-ARM GAS  /tmp/ccgUGXPo.s 			page 26
-
-
- 319              	.LCFI5:
- 320              		.cfi_def_cfa_offset 8
- 321              		.cfi_offset 4, -8
- 322              		.cfi_offset 14, -4
- 323 0002 82B0     		sub	sp, sp, #8
- 324              	.LCFI6:
- 325              		.cfi_def_cfa_offset 16
- 326 0004 0446     		mov	r4, r0
- 131:src/mutex.c   ****     __disable_irq(); // Enter critical section
- 327              		.loc 1 131 5 is_stmt 1 view .LVU76
- 328              	.LBB26:
- 329              	.LBI26:
+ 265 004a E9E7     		b	.L8
+ 266              	.L14:
+ 267              		.align	2
+ 268              	.L13:
+ 269 004c 00ED00E0 		.word	-536810240
+ 270              	.LBE17:
+ 271              	.LBE16:
+ 272              		.cfi_endproc
+ 273              	.LFE139:
+ 275              		.section	.text.MutexGive,"ax",%progbits
+ 276              		.align	1
+ 277              		.global	MutexGive
+ 278              		.syntax unified
+ 279              		.thumb
+ 280              		.thumb_func
+ 281              		.fpu fpv4-sp-d16
+ 283              	MutexGive:
+ 284              	.LVL19:
+ 285              	.LFB140:
+  71:src/mutex.c   **** 
+  72:src/mutex.c   **** /************************************** Function to return mutex lock *****************************
+  73:src/mutex.c   **** void MutexGive(Mutex_Typedef** mutex)
+  74:src/mutex.c   **** {
+ 286              		.loc 1 74 1 is_stmt 1 view -0
+ 287              		.cfi_startproc
+ 288              		@ args = 0, pretend = 0, frame = 8
+ 289              		@ frame_needed = 0, uses_anonymous_args = 0
+ 290              		.loc 1 74 1 is_stmt 0 view .LVU73
+ 291 0000 10B5     		push	{r4, lr}
+ 292              	.LCFI5:
+ 293              		.cfi_def_cfa_offset 8
+ 294              		.cfi_offset 4, -8
+ 295              		.cfi_offset 14, -4
+ 296 0002 82B0     		sub	sp, sp, #8
+ 297              	.LCFI6:
+ 298              		.cfi_def_cfa_offset 16
+ 299 0004 0446     		mov	r4, r0
+  75:src/mutex.c   ****     __disable_irq();
+ 300              		.loc 1 75 5 is_stmt 1 view .LVU74
+ 301              	.LBB18:
+ 302              	.LBI18:
  960:driver/Core/cmsis_gcc.h **** {
- 330              		.loc 2 960 27 view .LVU77
- 331              	.LBB27:
- 332              		.loc 2 962 3 view .LVU78
- 333              		.syntax unified
- 334              	@ 962 "driver/Core/cmsis_gcc.h" 1
- 335 0006 72B6     		cpsid i
- 336              	@ 0 "" 2
- 337              		.thumb
- 338              		.syntax unified
- 339              	.LBE27:
- 340              	.LBE26:
- 132:src/mutex.c   **** 
- 133:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();
- 341              		.loc 1 133 5 view .LVU79
- 342              		.loc 1 133 33 is_stmt 0 view .LVU80
- 343 0008 FFF7FEFF 		bl	getCurrentTask
- 344              	.LVL20:
- 134:src/mutex.c   **** 
- 135:src/mutex.c   ****     // Only the owner can release the mutex
- 136:src/mutex.c   ****     if ((*mutex)->owner != current_task) 
- 345              		.loc 1 136 5 is_stmt 1 view .LVU81
- 346              		.loc 1 136 10 is_stmt 0 view .LVU82
- 347 000c 2368     		ldr	r3, [r4]
- 348              		.loc 1 136 17 view .LVU83
- 349 000e 1A68     		ldr	r2, [r3]
- 350              		.loc 1 136 8 view .LVU84
- 351 0010 8242     		cmp	r2, r0
- 352 0012 02D0     		beq	.L20
- 137:src/mutex.c   ****     {
- 138:src/mutex.c   ****         __enable_irq(); // Exit critical section
- 353              		.loc 1 138 9 is_stmt 1 view .LVU85
- 354              	.LBB28:
- 355              	.LBI28:
+ 303              		.loc 2 960 27 view .LVU75
+ 304              	.LBB19:
+ 305              		.loc 2 962 3 view .LVU76
+ 306              		.syntax unified
+ 307              	@ 962 "driver/Core/cmsis_gcc.h" 1
+ 308 0006 72B6     		cpsid i
+ 309              	@ 0 "" 2
+ 310              		.thumb
+ 311              		.syntax unified
+ 312              	.LBE19:
+ 313              	.LBE18:
+  76:src/mutex.c   **** 
+  77:src/mutex.c   ****     TCB_Typedef* current_task = getCurrentTask();       // get current running task
+ 314              		.loc 1 77 5 view .LVU77
+ARM GAS  /tmp/ccmIpolH.s 			page 25
+
+
+ 315              		.loc 1 77 33 is_stmt 0 view .LVU78
+ 316 0008 FFF7FEFF 		bl	getCurrentTask
+ 317              	.LVL20:
+  78:src/mutex.c   ****     
+  79:src/mutex.c   ****     if ((*mutex)->owner != current_task)
+ 318              		.loc 1 79 5 is_stmt 1 view .LVU79
+ 319              		.loc 1 79 10 is_stmt 0 view .LVU80
+ 320 000c 2368     		ldr	r3, [r4]
+ 321              		.loc 1 79 17 view .LVU81
+ 322 000e 1A68     		ldr	r2, [r3]
+ 323              		.loc 1 79 8 view .LVU82
+ 324 0010 8242     		cmp	r2, r0
+ 325 0012 02D0     		beq	.L16
+  80:src/mutex.c   ****     {
+  81:src/mutex.c   ****         __enable_irq();
+ 326              		.loc 1 81 9 is_stmt 1 view .LVU83
+ 327              	.LBB20:
+ 328              	.LBI20:
  949:driver/Core/cmsis_gcc.h **** {
- 356              		.loc 2 949 27 view .LVU86
- 357              	.LBB29:
+ 329              		.loc 2 949 27 view .LVU84
+ 330              	.LBB21:
  951:driver/Core/cmsis_gcc.h **** }
- 358              		.loc 2 951 3 view .LVU87
- 359              		.syntax unified
- 360              	@ 951 "driver/Core/cmsis_gcc.h" 1
- 361 0014 62B6     		cpsie i
- 362              	@ 0 "" 2
- 363              		.thumb
- 364              		.syntax unified
-ARM GAS  /tmp/ccgUGXPo.s 			page 27
+ 331              		.loc 2 951 3 view .LVU85
+ 332              		.syntax unified
+ 333              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 334 0014 62B6     		cpsie i
+ 335              	@ 0 "" 2
+ 336              		.thumb
+ 337              		.syntax unified
+ 338              	.LBE21:
+ 339              	.LBE20:
+  82:src/mutex.c   ****         return;         // return if no task aquired the mutex
+ 340              		.loc 1 82 9 view .LVU86
+ 341              	.LVL21:
+ 342              	.L15:
+  83:src/mutex.c   ****     }
+  84:src/mutex.c   **** 
+  85:src/mutex.c   ****     if ((*mutex)->waiting_task->head == NULL)
+  86:src/mutex.c   ****     {
+  87:src/mutex.c   ****         (*mutex)->lock = 0;
+  88:src/mutex.c   ****         (*mutex)->owner->priority = (*mutex)->priority;     // return the old priority of the task
+  89:src/mutex.c   ****         (*mutex)->owner = NULL;
+  90:src/mutex.c   ****     }
+  91:src/mutex.c   ****     else
+  92:src/mutex.c   ****     {
+  93:src/mutex.c   ****         TCB_Typedef* next_task = popWaitingQueue(&((*mutex)->waiting_task));        // pop next tas
+  94:src/mutex.c   ****         
+  95:src/mutex.c   ****         if (next_task != NULL)
+  96:src/mutex.c   ****         {
+  97:src/mutex.c   ****             next_task->state = READY;       // change next task state to ready
+  98:src/mutex.c   ****             addToReadyList(&next_task);     // add in ready list
+  99:src/mutex.c   **** 
+ 100:src/mutex.c   ****             (*mutex)->owner->priority = (*mutex)->priority;     // return task previous priority
+ 101:src/mutex.c   ****             (*mutex)->owner = next_task;            // change the task that aquired mutex lock
+ 102:src/mutex.c   ****             (*mutex)->priority = next_task->priority;       // copy task priority for priority inhe
+ 103:src/mutex.c   **** 
+ 104:src/mutex.c   ****             SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;        // trigger PendSV interrupt for context swi
+ARM GAS  /tmp/ccmIpolH.s 			page 26
 
 
- 365              	.LBE29:
- 366              	.LBE28:
- 139:src/mutex.c   ****         return;
- 367              		.loc 1 139 9 view .LVU88
- 368              	.LVL21:
- 369              	.L19:
- 140:src/mutex.c   ****     }
- 141:src/mutex.c   **** 
- 142:src/mutex.c   ****     // If no tasks are waiting, release the mutex
- 143:src/mutex.c   ****     if ((*mutex)->waiting_task->head == NULL) 
- 144:src/mutex.c   ****     {
- 145:src/mutex.c   ****         (*mutex)->lock = 0;            // Unlock the mutex
- 146:src/mutex.c   ****         (*mutex)->owner = NULL;        // Clear ownership
- 147:src/mutex.c   ****     } 
- 148:src/mutex.c   ****     else 
- 149:src/mutex.c   ****     {
- 150:src/mutex.c   ****         // Unblock the next task in the waiting queue
- 151:src/mutex.c   ****         TCB_Typedef* next_task = popWaitingQueue(&((*mutex)->waiting_task));
- 152:src/mutex.c   ****         if (next_task != NULL) 
- 153:src/mutex.c   ****         {
- 154:src/mutex.c   ****             next_task->state = READY;       // Set next task to READY
- 155:src/mutex.c   ****             addToReadyList(&next_task);     // Add next task to ready list
- 156:src/mutex.c   ****             (*mutex)->owner = next_task;   // Assign mutex to next task
- 157:src/mutex.c   ****         }
- 158:src/mutex.c   ****     }
- 159:src/mutex.c   **** 
- 160:src/mutex.c   ****     SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // Trigger PendSV for context switch
- 161:src/mutex.c   ****     __enable_irq(); // Exit critical section
- 162:src/mutex.c   **** }
- 370              		.loc 1 162 1 is_stmt 0 view .LVU89
- 371 0016 02B0     		add	sp, sp, #8
- 372              	.LCFI7:
- 373              		.cfi_remember_state
- 374              		.cfi_def_cfa_offset 8
- 375              		@ sp needed
- 376 0018 10BD     		pop	{r4, pc}
- 377              	.LVL22:
- 378              	.L20:
- 379              	.LCFI8:
- 380              		.cfi_restore_state
- 143:src/mutex.c   ****     {
- 381              		.loc 1 143 5 is_stmt 1 view .LVU90
- 143:src/mutex.c   ****     {
- 382              		.loc 1 143 17 is_stmt 0 view .LVU91
- 383 001a 5A68     		ldr	r2, [r3, #4]
- 143:src/mutex.c   ****     {
- 384              		.loc 1 143 31 view .LVU92
- 385 001c 1268     		ldr	r2, [r2]
- 143:src/mutex.c   ****     {
- 386              		.loc 1 143 8 view .LVU93
- 387 001e 6AB1     		cbz	r2, .L26
- 388              	.LBB30:
- 151:src/mutex.c   ****         if (next_task != NULL) 
- 389              		.loc 1 151 9 is_stmt 1 view .LVU94
- 151:src/mutex.c   ****         if (next_task != NULL) 
- 390              		.loc 1 151 34 is_stmt 0 view .LVU95
- 391 0020 181D     		adds	r0, r3, #4
-ARM GAS  /tmp/ccgUGXPo.s 			page 28
+ 105:src/mutex.c   ****         }
+ 106:src/mutex.c   ****     }
+ 107:src/mutex.c   ****     __enable_irq();
+ 108:src/mutex.c   **** }
+ 343              		.loc 1 108 1 is_stmt 0 view .LVU87
+ 344 0016 02B0     		add	sp, sp, #8
+ 345              	.LCFI7:
+ 346              		.cfi_remember_state
+ 347              		.cfi_def_cfa_offset 8
+ 348              		@ sp needed
+ 349 0018 10BD     		pop	{r4, pc}
+ 350              	.LVL22:
+ 351              	.L16:
+ 352              	.LCFI8:
+ 353              		.cfi_restore_state
+  85:src/mutex.c   ****     {
+ 354              		.loc 1 85 5 is_stmt 1 view .LVU88
+  85:src/mutex.c   ****     {
+ 355              		.loc 1 85 17 is_stmt 0 view .LVU89
+ 356 001a 5A68     		ldr	r2, [r3, #4]
+  85:src/mutex.c   ****     {
+ 357              		.loc 1 85 31 view .LVU90
+ 358 001c 1268     		ldr	r2, [r2]
+  85:src/mutex.c   ****     {
+ 359              		.loc 1 85 8 view .LVU91
+ 360 001e D2B1     		cbz	r2, .L22
+ 361              	.LBB22:
+  93:src/mutex.c   ****         
+ 362              		.loc 1 93 9 is_stmt 1 view .LVU92
+  93:src/mutex.c   ****         
+ 363              		.loc 1 93 34 is_stmt 0 view .LVU93
+ 364 0020 181D     		adds	r0, r3, #4
+ 365              	.LVL23:
+  93:src/mutex.c   ****         
+ 366              		.loc 1 93 34 view .LVU94
+ 367 0022 FFF7FEFF 		bl	popWaitingQueue
+ 368              	.LVL24:
+  93:src/mutex.c   ****         
+ 369              		.loc 1 93 22 view .LVU95
+ 370 0026 0190     		str	r0, [sp, #4]
+  95:src/mutex.c   ****         {
+ 371              		.loc 1 95 9 is_stmt 1 view .LVU96
+  95:src/mutex.c   ****         {
+ 372              		.loc 1 95 12 is_stmt 0 view .LVU97
+ 373 0028 E0B1     		cbz	r0, .L19
+  97:src/mutex.c   ****             addToReadyList(&next_task);     // add in ready list
+ 374              		.loc 1 97 13 is_stmt 1 view .LVU98
+  97:src/mutex.c   ****             addToReadyList(&next_task);     // add in ready list
+ 375              		.loc 1 97 30 is_stmt 0 view .LVU99
+ 376 002a 0123     		movs	r3, #1
+ 377 002c 8382     		strh	r3, [r0, #20]	@ movhi
+  98:src/mutex.c   **** 
+ 378              		.loc 1 98 13 is_stmt 1 view .LVU100
+ 379 002e 01A8     		add	r0, sp, #4
+ 380 0030 FFF7FEFF 		bl	addToReadyList
+ 381              	.LVL25:
+ 100:src/mutex.c   ****             (*mutex)->owner = next_task;            // change the task that aquired mutex lock
+ARM GAS  /tmp/ccmIpolH.s 			page 27
 
 
- 392              	.LVL23:
- 151:src/mutex.c   ****         if (next_task != NULL) 
- 393              		.loc 1 151 34 view .LVU96
- 394 0022 FFF7FEFF 		bl	popWaitingQueue
- 395              	.LVL24:
- 151:src/mutex.c   ****         if (next_task != NULL) 
- 396              		.loc 1 151 22 view .LVU97
- 397 0026 0190     		str	r0, [sp, #4]
- 152:src/mutex.c   ****         {
- 398              		.loc 1 152 9 is_stmt 1 view .LVU98
- 152:src/mutex.c   ****         {
- 399              		.loc 1 152 12 is_stmt 0 view .LVU99
- 400 0028 58B1     		cbz	r0, .L23
- 154:src/mutex.c   ****             addToReadyList(&next_task);     // Add next task to ready list
- 401              		.loc 1 154 13 is_stmt 1 view .LVU100
- 154:src/mutex.c   ****             addToReadyList(&next_task);     // Add next task to ready list
- 402              		.loc 1 154 30 is_stmt 0 view .LVU101
- 403 002a 0123     		movs	r3, #1
- 404 002c 8382     		strh	r3, [r0, #20]	@ movhi
- 155:src/mutex.c   ****             (*mutex)->owner = next_task;   // Assign mutex to next task
- 405              		.loc 1 155 13 is_stmt 1 view .LVU102
- 406 002e 01A8     		add	r0, sp, #4
- 407 0030 FFF7FEFF 		bl	addToReadyList
- 408              	.LVL25:
- 156:src/mutex.c   ****         }
- 409              		.loc 1 156 13 view .LVU103
- 156:src/mutex.c   ****         }
- 410              		.loc 1 156 14 is_stmt 0 view .LVU104
- 411 0034 2368     		ldr	r3, [r4]
- 156:src/mutex.c   ****         }
- 412              		.loc 1 156 29 view .LVU105
- 413 0036 019A     		ldr	r2, [sp, #4]
- 414 0038 1A60     		str	r2, [r3]
- 415 003a 02E0     		b	.L23
- 416              	.LVL26:
- 417              	.L26:
- 156:src/mutex.c   ****         }
- 418              		.loc 1 156 29 view .LVU106
- 419              	.LBE30:
- 145:src/mutex.c   ****         (*mutex)->owner = NULL;        // Clear ownership
- 420              		.loc 1 145 9 is_stmt 1 view .LVU107
- 145:src/mutex.c   ****         (*mutex)->owner = NULL;        // Clear ownership
- 421              		.loc 1 145 24 is_stmt 0 view .LVU108
- 422 003c 1A72     		strb	r2, [r3, #8]
- 146:src/mutex.c   ****     } 
- 423              		.loc 1 146 9 is_stmt 1 view .LVU109
- 146:src/mutex.c   ****     } 
- 424              		.loc 1 146 10 is_stmt 0 view .LVU110
- 425 003e 2368     		ldr	r3, [r4]
- 146:src/mutex.c   ****     } 
- 426              		.loc 1 146 25 view .LVU111
- 427 0040 1A60     		str	r2, [r3]
- 428              	.LVL27:
- 429              	.L23:
- 160:src/mutex.c   ****     __enable_irq(); // Exit critical section
- 430              		.loc 1 160 5 is_stmt 1 view .LVU112
- 160:src/mutex.c   ****     __enable_irq(); // Exit critical section
-ARM GAS  /tmp/ccgUGXPo.s 			page 29
+ 382              		.loc 1 100 13 view .LVU101
+ 100:src/mutex.c   ****             (*mutex)->owner = next_task;            // change the task that aquired mutex lock
+ 383              		.loc 1 100 42 is_stmt 0 view .LVU102
+ 384 0034 2368     		ldr	r3, [r4]
+ 100:src/mutex.c   ****             (*mutex)->owner = next_task;            // change the task that aquired mutex lock
+ 385              		.loc 1 100 49 view .LVU103
+ 386 0036 5A7A     		ldrb	r2, [r3, #9]	@ zero_extendqisi2
+ 100:src/mutex.c   ****             (*mutex)->owner = next_task;            // change the task that aquired mutex lock
+ 387              		.loc 1 100 21 view .LVU104
+ 388 0038 1B68     		ldr	r3, [r3]
+ 100:src/mutex.c   ****             (*mutex)->owner = next_task;            // change the task that aquired mutex lock
+ 389              		.loc 1 100 39 view .LVU105
+ 390 003a DA82     		strh	r2, [r3, #22]	@ movhi
+ 101:src/mutex.c   ****             (*mutex)->priority = next_task->priority;       // copy task priority for priority inhe
+ 391              		.loc 1 101 13 is_stmt 1 view .LVU106
+ 101:src/mutex.c   ****             (*mutex)->priority = next_task->priority;       // copy task priority for priority inhe
+ 392              		.loc 1 101 14 is_stmt 0 view .LVU107
+ 393 003c 2368     		ldr	r3, [r4]
+ 101:src/mutex.c   ****             (*mutex)->priority = next_task->priority;       // copy task priority for priority inhe
+ 394              		.loc 1 101 29 view .LVU108
+ 395 003e 019A     		ldr	r2, [sp, #4]
+ 396 0040 1A60     		str	r2, [r3]
+ 102:src/mutex.c   **** 
+ 397              		.loc 1 102 13 is_stmt 1 view .LVU109
+ 102:src/mutex.c   **** 
+ 398              		.loc 1 102 14 is_stmt 0 view .LVU110
+ 399 0042 2368     		ldr	r3, [r4]
+ 102:src/mutex.c   **** 
+ 400              		.loc 1 102 32 view .LVU111
+ 401 0044 019A     		ldr	r2, [sp, #4]
+ 402 0046 927D     		ldrb	r2, [r2, #22]	@ zero_extendqisi2
+ 403 0048 5A72     		strb	r2, [r3, #9]
+ 104:src/mutex.c   ****         }
+ 404              		.loc 1 104 13 is_stmt 1 view .LVU112
+ 104:src/mutex.c   ****         }
+ 405              		.loc 1 104 23 is_stmt 0 view .LVU113
+ 406 004a 074A     		ldr	r2, .L23
+ 407 004c 5368     		ldr	r3, [r2, #4]
+ 408 004e 43F08053 		orr	r3, r3, #268435456
+ 409 0052 5360     		str	r3, [r2, #4]
+ 410 0054 06E0     		b	.L19
+ 411              	.LVL26:
+ 412              	.L22:
+ 104:src/mutex.c   ****         }
+ 413              		.loc 1 104 23 view .LVU114
+ 414              	.LBE22:
+  87:src/mutex.c   ****         (*mutex)->owner->priority = (*mutex)->priority;     // return the old priority of the task
+ 415              		.loc 1 87 9 is_stmt 1 view .LVU115
+  87:src/mutex.c   ****         (*mutex)->owner->priority = (*mutex)->priority;     // return the old priority of the task
+ 416              		.loc 1 87 24 is_stmt 0 view .LVU116
+ 417 0056 1A72     		strb	r2, [r3, #8]
+  88:src/mutex.c   ****         (*mutex)->owner = NULL;
+ 418              		.loc 1 88 9 is_stmt 1 view .LVU117
+  88:src/mutex.c   ****         (*mutex)->owner = NULL;
+ 419              		.loc 1 88 38 is_stmt 0 view .LVU118
+ 420 0058 2368     		ldr	r3, [r4]
+  88:src/mutex.c   ****         (*mutex)->owner = NULL;
+ARM GAS  /tmp/ccmIpolH.s 			page 28
 
 
- 431              		.loc 1 160 15 is_stmt 0 view .LVU113
- 432 0042 034A     		ldr	r2, .L27
- 433 0044 5368     		ldr	r3, [r2, #4]
- 434 0046 43F08053 		orr	r3, r3, #268435456
- 435 004a 5360     		str	r3, [r2, #4]
- 161:src/mutex.c   **** }
- 436              		.loc 1 161 5 is_stmt 1 view .LVU114
- 437              	.LBB31:
- 438              	.LBI31:
+ 421              		.loc 1 88 45 view .LVU119
+ 422 005a 597A     		ldrb	r1, [r3, #9]	@ zero_extendqisi2
+  88:src/mutex.c   ****         (*mutex)->owner = NULL;
+ 423              		.loc 1 88 17 view .LVU120
+ 424 005c 1B68     		ldr	r3, [r3]
+  88:src/mutex.c   ****         (*mutex)->owner = NULL;
+ 425              		.loc 1 88 35 view .LVU121
+ 426 005e D982     		strh	r1, [r3, #22]	@ movhi
+  89:src/mutex.c   ****     }
+ 427              		.loc 1 89 9 is_stmt 1 view .LVU122
+  89:src/mutex.c   ****     }
+ 428              		.loc 1 89 10 is_stmt 0 view .LVU123
+ 429 0060 2368     		ldr	r3, [r4]
+  89:src/mutex.c   ****     }
+ 430              		.loc 1 89 25 view .LVU124
+ 431 0062 1A60     		str	r2, [r3]
+ 432              	.LVL27:
+ 433              	.L19:
+ 107:src/mutex.c   **** }
+ 434              		.loc 1 107 5 is_stmt 1 view .LVU125
+ 435              	.LBB23:
+ 436              	.LBI23:
  949:driver/Core/cmsis_gcc.h **** {
- 439              		.loc 2 949 27 view .LVU115
- 440              	.LBB32:
+ 437              		.loc 2 949 27 view .LVU126
+ 438              	.LBB24:
  951:driver/Core/cmsis_gcc.h **** }
- 441              		.loc 2 951 3 view .LVU116
- 442              		.syntax unified
- 443              	@ 951 "driver/Core/cmsis_gcc.h" 1
- 444 004c 62B6     		cpsie i
- 445              	@ 0 "" 2
+ 439              		.loc 2 951 3 view .LVU127
+ 440              		.syntax unified
+ 441              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 442 0064 62B6     		cpsie i
+ 443              	@ 0 "" 2
  952:driver/Core/cmsis_gcc.h **** 
- 446              		.loc 2 952 1 is_stmt 0 view .LVU117
- 447              		.thumb
- 448              		.syntax unified
- 449 004e E2E7     		b	.L19
- 450              	.L28:
- 451              		.align	2
- 452              	.L27:
- 453 0050 00ED00E0 		.word	-536810240
- 454              	.LBE32:
- 455              	.LBE31:
- 456              		.cfi_endproc
- 457              	.LFE140:
- 459              		.section	.text.createMutex,"ax",%progbits
- 460              		.align	1
- 461              		.global	createMutex
- 462              		.syntax unified
- 463              		.thumb
- 464              		.thumb_func
- 465              		.fpu fpv4-sp-d16
- 467              	createMutex:
- 468              	.LFB141:
- 163:src/mutex.c   **** 
- 164:src/mutex.c   **** 
- 165:src/mutex.c   **** 
- 166:src/mutex.c   **** 
- 167:src/mutex.c   **** Mutex_Typedef* createMutex(void)
- 168:src/mutex.c   **** {
- 469              		.loc 1 168 1 is_stmt 1 view -0
- 470              		.cfi_startproc
- 471              		@ args = 0, pretend = 0, frame = 0
- 472              		@ frame_needed = 0, uses_anonymous_args = 0
- 473 0000 38B5     		push	{r3, r4, r5, lr}
- 474              	.LCFI9:
- 475              		.cfi_def_cfa_offset 16
- 476              		.cfi_offset 3, -16
- 477              		.cfi_offset 4, -12
- 478              		.cfi_offset 5, -8
- 479              		.cfi_offset 14, -4
-ARM GAS  /tmp/ccgUGXPo.s 			page 30
+ 444              		.loc 2 952 1 is_stmt 0 view .LVU128
+ 445              		.thumb
+ 446              		.syntax unified
+ 447 0066 D6E7     		b	.L15
+ 448              	.L24:
+ 449              		.align	2
+ 450              	.L23:
+ 451 0068 00ED00E0 		.word	-536810240
+ 452              	.LBE24:
+ 453              	.LBE23:
+ 454              		.cfi_endproc
+ 455              	.LFE140:
+ 457              		.section	.text.createMutex,"ax",%progbits
+ 458              		.align	1
+ 459              		.global	createMutex
+ 460              		.syntax unified
+ 461              		.thumb
+ 462              		.thumb_func
+ 463              		.fpu fpv4-sp-d16
+ 465              	createMutex:
+ 466              	.LFB141:
+ 109:src/mutex.c   **** 
+ 110:src/mutex.c   **** /**************************************** Function to create mutex ********************************
+ 111:src/mutex.c   **** Mutex_Typedef* createMutex(void)
+ 112:src/mutex.c   **** {
+ARM GAS  /tmp/ccmIpolH.s 			page 29
 
 
- 169:src/mutex.c   ****     Mutex_Typedef* newMutex = (Mutex_Typedef*)malloc(sizeof(Mutex_Typedef));
- 480              		.loc 1 169 5 view .LVU119
- 481              		.loc 1 169 47 is_stmt 0 view .LVU120
- 482 0002 0C20     		movs	r0, #12
- 483 0004 FFF7FEFF 		bl	malloc
- 484              	.LVL28:
- 170:src/mutex.c   ****     if (newMutex == NULL)
- 485              		.loc 1 170 5 is_stmt 1 view .LVU121
- 486              		.loc 1 170 8 is_stmt 0 view .LVU122
- 487 0008 0446     		mov	r4, r0
- 488 000a 40B1     		cbz	r0, .L29
- 171:src/mutex.c   ****     {
- 172:src/mutex.c   ****         return NULL;
- 173:src/mutex.c   ****     }
- 174:src/mutex.c   **** 
- 175:src/mutex.c   ****     memset(newMutex, 0, sizeof(Mutex_Typedef));
- 489              		.loc 1 175 5 is_stmt 1 view .LVU123
- 490 000c 0025     		movs	r5, #0
- 491 000e 0560     		str	r5, [r0]	@ unaligned
- 492 0010 4560     		str	r5, [r0, #4]	@ unaligned
- 493 0012 8560     		str	r5, [r0, #8]	@ unaligned
- 176:src/mutex.c   **** 
- 177:src/mutex.c   ****     mutexList* dummy = (mutexList*)malloc(sizeof(mutexList));
- 494              		.loc 1 177 5 view .LVU124
- 495              		.loc 1 177 36 is_stmt 0 view .LVU125
- 496 0014 0420     		movs	r0, #4
- 497              	.LVL29:
- 498              		.loc 1 177 36 view .LVU126
- 499 0016 FFF7FEFF 		bl	malloc
- 500              	.LVL30:
- 178:src/mutex.c   ****     newMutex->waiting_task = dummy;
- 501              		.loc 1 178 5 is_stmt 1 view .LVU127
- 502              		.loc 1 178 28 is_stmt 0 view .LVU128
- 503 001a 6060     		str	r0, [r4, #4]
- 179:src/mutex.c   ****     newMutex->waiting_task->head = NULL;
- 504              		.loc 1 179 5 is_stmt 1 view .LVU129
- 505              		.loc 1 179 34 is_stmt 0 view .LVU130
- 506 001c 0560     		str	r5, [r0]
- 180:src/mutex.c   **** 
- 181:src/mutex.c   ****     return newMutex;
- 507              		.loc 1 181 5 is_stmt 1 view .LVU131
- 508              	.LVL31:
- 509              	.L29:
- 182:src/mutex.c   **** }...
- 510              		.loc 1 182 1 is_stmt 0 view .LVU132
- 511 001e 2046     		mov	r0, r4
- 512 0020 38BD     		pop	{r3, r4, r5, pc}
- 513              		.loc 1 182 1 view .LVU133
- 514              		.cfi_endproc
- 515              	.LFE141:
- 517              		.text
- 518              	.Letext0:
- 519              		.file 3 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
- 520              		.file 4 "driver/Core/core_cm4.h"
- 521              		.file 5 "inc/task.h"
- 522              		.file 6 "inc/mutex.h"
- 523              		.file 7 "/usr/include/newlib/stdlib.h"
-ARM GAS  /tmp/ccgUGXPo.s 			page 31
+ 467              		.loc 1 112 1 is_stmt 1 view -0
+ 468              		.cfi_startproc
+ 469              		@ args = 0, pretend = 0, frame = 0
+ 470              		@ frame_needed = 0, uses_anonymous_args = 0
+ 471 0000 38B5     		push	{r3, r4, r5, lr}
+ 472              	.LCFI9:
+ 473              		.cfi_def_cfa_offset 16
+ 474              		.cfi_offset 3, -16
+ 475              		.cfi_offset 4, -12
+ 476              		.cfi_offset 5, -8
+ 477              		.cfi_offset 14, -4
+ 113:src/mutex.c   ****     Mutex_Typedef* newMutex = (Mutex_Typedef*)malloc(sizeof(Mutex_Typedef));        // allocate mem
+ 478              		.loc 1 113 5 view .LVU130
+ 479              		.loc 1 113 47 is_stmt 0 view .LVU131
+ 480 0002 0C20     		movs	r0, #12
+ 481 0004 FFF7FEFF 		bl	malloc
+ 482              	.LVL28:
+ 114:src/mutex.c   ****     if (newMutex == NULL)
+ 483              		.loc 1 114 5 is_stmt 1 view .LVU132
+ 484              		.loc 1 114 8 is_stmt 0 view .LVU133
+ 485 0008 0446     		mov	r4, r0
+ 486 000a 40B1     		cbz	r0, .L25
+ 115:src/mutex.c   ****     {
+ 116:src/mutex.c   ****         return NULL;        // return if failed to allocate memory for mutex
+ 117:src/mutex.c   ****     }
+ 118:src/mutex.c   **** 
+ 119:src/mutex.c   ****     memset(newMutex, 0, sizeof(Mutex_Typedef));
+ 487              		.loc 1 119 5 is_stmt 1 view .LVU134
+ 488 000c 0025     		movs	r5, #0
+ 489 000e 0560     		str	r5, [r0]	@ unaligned
+ 490 0010 4560     		str	r5, [r0, #4]	@ unaligned
+ 491 0012 8560     		str	r5, [r0, #8]	@ unaligned
+ 120:src/mutex.c   **** 
+ 121:src/mutex.c   ****     mutexList* dummy = (mutexList*)malloc(sizeof(mutexList));       // allocate memory for mutex li
+ 492              		.loc 1 121 5 view .LVU135
+ 493              		.loc 1 121 36 is_stmt 0 view .LVU136
+ 494 0014 0420     		movs	r0, #4
+ 495              	.LVL29:
+ 496              		.loc 1 121 36 view .LVU137
+ 497 0016 FFF7FEFF 		bl	malloc
+ 498              	.LVL30:
+ 122:src/mutex.c   ****     newMutex->waiting_task = dummy;
+ 499              		.loc 1 122 5 is_stmt 1 view .LVU138
+ 500              		.loc 1 122 28 is_stmt 0 view .LVU139
+ 501 001a 6060     		str	r0, [r4, #4]
+ 123:src/mutex.c   ****     newMutex->waiting_task->head = NULL;
+ 502              		.loc 1 123 5 is_stmt 1 view .LVU140
+ 503              		.loc 1 123 34 is_stmt 0 view .LVU141
+ 504 001c 0560     		str	r5, [r0]
+ 124:src/mutex.c   **** 
+ 125:src/mutex.c   ****     return newMutex;        // return newly created mutex
+ 505              		.loc 1 125 5 is_stmt 1 view .LVU142
+ 506              	.LVL31:
+ 507              	.L25:
+ 126:src/mutex.c   **** }...
+ 508              		.loc 1 126 1 is_stmt 0 view .LVU143
+ 509 001e 2046     		mov	r0, r4
+ARM GAS  /tmp/ccmIpolH.s 			page 30
 
 
-ARM GAS  /tmp/ccgUGXPo.s 			page 32
+ 510 0020 38BD     		pop	{r3, r4, r5, pc}
+ 511              		.loc 1 126 1 view .LVU144
+ 512              		.cfi_endproc
+ 513              	.LFE141:
+ 515              		.text
+ 516              	.Letext0:
+ 517              		.file 3 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 518              		.file 4 "driver/Core/core_cm4.h"
+ 519              		.file 5 "inc/task.h"
+ 520              		.file 6 "inc/mutex.h"
+ 521              		.file 7 "/usr/include/newlib/stdlib.h"
+ARM GAS  /tmp/ccmIpolH.s 			page 31
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 mutex.c
-     /tmp/ccgUGXPo.s:18     .text.pushWaitingQueue:0000000000000000 $t
-     /tmp/ccgUGXPo.s:26     .text.pushWaitingQueue:0000000000000000 pushWaitingQueue
-     /tmp/ccgUGXPo.s:97     .text.popWaitingQueue:0000000000000000 $t
-     /tmp/ccgUGXPo.s:104    .text.popWaitingQueue:0000000000000000 popWaitingQueue
-     /tmp/ccgUGXPo.s:136    .text.MutexTake:0000000000000000 $t
-     /tmp/ccgUGXPo.s:143    .text.MutexTake:0000000000000000 MutexTake
-     /tmp/ccgUGXPo.s:298    .text.MutexTake:0000000000000050 $d
-     /tmp/ccgUGXPo.s:303    .text.MutexGive:0000000000000000 $t
-     /tmp/ccgUGXPo.s:310    .text.MutexGive:0000000000000000 MutexGive
-     /tmp/ccgUGXPo.s:453    .text.MutexGive:0000000000000050 $d
-     /tmp/ccgUGXPo.s:460    .text.createMutex:0000000000000000 $t
-     /tmp/ccgUGXPo.s:467    .text.createMutex:0000000000000000 createMutex
+     /tmp/ccmIpolH.s:18     .text.pushWaitingQueue:0000000000000000 $t
+     /tmp/ccmIpolH.s:26     .text.pushWaitingQueue:0000000000000000 pushWaitingQueue
+     /tmp/ccmIpolH.s:97     .text.popWaitingQueue:0000000000000000 $t
+     /tmp/ccmIpolH.s:104    .text.popWaitingQueue:0000000000000000 popWaitingQueue
+     /tmp/ccmIpolH.s:143    .text.MutexTake:0000000000000000 $t
+     /tmp/ccmIpolH.s:150    .text.MutexTake:0000000000000000 MutexTake
+     /tmp/ccmIpolH.s:269    .text.MutexTake:000000000000004c $d
+     /tmp/ccmIpolH.s:276    .text.MutexGive:0000000000000000 $t
+     /tmp/ccmIpolH.s:283    .text.MutexGive:0000000000000000 MutexGive
+     /tmp/ccmIpolH.s:451    .text.MutexGive:0000000000000068 $d
+     /tmp/ccmIpolH.s:458    .text.createMutex:0000000000000000 $t
+     /tmp/ccmIpolH.s:465    .text.createMutex:0000000000000000 createMutex
 
 UNDEFINED SYMBOLS
 removeFromReadyList

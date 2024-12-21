@@ -42,7 +42,7 @@ typedef struct ready
 typedef struct blocked
 {
     TCB_Typedef* head;
-}blocked_task_list;
+}waiting_task_list;
 
 /*
     Task state.
@@ -61,10 +61,30 @@ enum state
     func addr and task name is passed as argument
 */
 uint8_t createTask(void (*fn)(void), char* name, uint8_t task_priority);
+
+/*
+    idle task
+*/
 uint8_t create_idle_task(void);
+
+/*
+    adds the task which are ready to be used by cpu in Ready list
+*/
 void addToReadyList(TCB_Typedef** tcb);
-void addToBlockedList(TCB_Typedef** tcb);
+
+/*
+    task which are in waiting state added in waiting list
+*/
+void addToWaitingList(TCB_Typedef** tcb);
+
+/*
+    function to remove task from ready list
+*/
 void removeFromReadyList(TCB_Typedef** tcb);
-void removeFromBlockedList(TCB_Typedef** tcb);
+
+/*
+    function to remove task from waiting list
+*/
+void removeFromWaitingList(TCB_Typedef** tcb);
 
 #endif

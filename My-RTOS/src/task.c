@@ -3,8 +3,8 @@
 ready_task_list ready_task_head = {NULL};
 ready_task_list* ReadyHead = &ready_task_head;              // pointer to point head in ready linked list
 
-blocked_task_list blocked_task_head = {NULL};
-blocked_task_list* BlockedHead = &blocked_task_head;        // pointer to point head in blocked linked list
+waiting_task_list waiting_task_head = {NULL};
+waiting_task_list* WaitingHead = &waiting_task_head;        // pointer to point head in blocked linked list
 
 TCB_Typedef* idle_task = NULL;                              // pointer to point idle task in linked list
 
@@ -13,6 +13,8 @@ uint16_t current_stack_size = STACK_SIZE;                   // available task st
 
 extern void idleTask(void);                                 // defined in scheduler.c
 
+
+/********************************* Function to remove ready task from List ********************************/
 void removeFromReadyList(TCB_Typedef** tcb)
 {
     TCB_Typedef *current = ReadyHead->head;
@@ -38,9 +40,10 @@ void removeFromReadyList(TCB_Typedef** tcb)
     }
 }
 
-void removeFromBlockedList(TCB_Typedef** tcb)
+/******************************* Function to remove blocked task from List ********************************/
+void removeFromWaitingList(TCB_Typedef** tcb)
 {
-    TCB_Typedef *current = BlockedHead->head;
+    TCB_Typedef *current = WaitingHead->head;
     TCB_Typedef *prev = NULL;
 
     while (current != NULL)
@@ -49,7 +52,7 @@ void removeFromBlockedList(TCB_Typedef** tcb)
         {
             if (prev == NULL)
             {
-                BlockedHead->head = current->next;
+                WaitingHead->head = current->next;
             }
             else
             {
@@ -63,11 +66,11 @@ void removeFromBlockedList(TCB_Typedef** tcb)
     }
 }
 
-/******************************* Function to add blocked task in linked List *******************************/
-void addToBlockedList(TCB_Typedef** tcb)
+/******************************* Function to add waiting task in linked List *******************************/
+void addToWaitingList(TCB_Typedef** tcb)
 {
-    (*tcb)->next = BlockedHead->head;
-    BlockedHead->head = *tcb;
+    (*tcb)->next = WaitingHead->head;
+    WaitingHead->head = *tcb;
 }
 
 /*********************************** Function to Allocate task stack ***************************************/
@@ -113,6 +116,7 @@ void addToReadyList(TCB_Typedef** tcb)
         return;
     }
 
+/*
     if ((*tcb)->priority <= ReadyHead->head->priority)
     {
         (*tcb)->next = ReadyHead->head;
@@ -127,10 +131,9 @@ void addToReadyList(TCB_Typedef** tcb)
     }
     (*tcb)->next = temp->next;
     temp->next = *tcb;
-    /*
+*/
    (*tcb)->next = ReadyHead->head;
    ReadyHead->head = *tcb;
-    */
 }
 
 /*************************************** Function to create task *******************************************/

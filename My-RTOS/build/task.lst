@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccadLJBu.s 			page 1
+ARM GAS  /tmp/ccSjikuJ.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -33,8 +33,8 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
    3:src/task.c    **** ready_task_list ready_task_head = {NULL};
    4:src/task.c    **** ready_task_list* ReadyHead = &ready_task_head;              // pointer to point head in ready linke
    5:src/task.c    **** 
-   6:src/task.c    **** blocked_task_list blocked_task_head = {NULL};
-   7:src/task.c    **** blocked_task_list* BlockedHead = &blocked_task_head;        // pointer to point head in blocked lin
+   6:src/task.c    **** waiting_task_list waiting_task_head = {NULL};
+   7:src/task.c    **** waiting_task_list* WaitingHead = &waiting_task_head;        // pointer to point head in blocked lin
    8:src/task.c    **** 
    9:src/task.c    **** TCB_Typedef* idle_task = NULL;                              // pointer to point idle task in linked
   10:src/task.c    **** 
@@ -58,7 +58,7 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
   28:src/task.c    ****             }
   29:src/task.c    ****             else
   30:src/task.c    ****             {
-ARM GAS  /tmp/ccadLJBu.s 			page 2
+ARM GAS  /tmp/ccSjikuJ.s 			page 2
 
 
   31:src/task.c    ****                 prev->next = current->next;
@@ -71,93 +71,94 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
   38:src/task.c    ****     }
   39:src/task.c    **** }
   40:src/task.c    **** 
-  41:src/task.c    **** void removeFromBlockedList(TCB_Typedef** tcb)
-  42:src/task.c    **** {
-  43:src/task.c    ****     TCB_Typedef *current = BlockedHead->head;
-  44:src/task.c    ****     TCB_Typedef *prev = NULL;
-  45:src/task.c    **** 
-  46:src/task.c    ****     while (current != NULL)
-  47:src/task.c    ****     {
-  48:src/task.c    ****         if (current == *tcb)
-  49:src/task.c    ****         {
-  50:src/task.c    ****             if (prev == NULL)
-  51:src/task.c    ****             {
-  52:src/task.c    ****                 BlockedHead->head = current->next;
-  53:src/task.c    ****             }
-  54:src/task.c    ****             else
-  55:src/task.c    ****             {
-  56:src/task.c    ****                 prev->next = current->next;
-  57:src/task.c    ****             }
-  58:src/task.c    ****             current->next = NULL;
-  59:src/task.c    ****             return;
-  60:src/task.c    ****         }
-  61:src/task.c    ****         prev = current;
-  62:src/task.c    ****         current = current->next;
-  63:src/task.c    ****     }
-  64:src/task.c    **** }
-  65:src/task.c    **** 
-  66:src/task.c    **** /******************************* Function to add blocked task in linked List **********************
-  67:src/task.c    **** void addToBlockedList(TCB_Typedef** tcb)
-  68:src/task.c    **** {
-  69:src/task.c    ****     (*tcb)->next = BlockedHead->head;
-  70:src/task.c    ****     BlockedHead->head = *tcb;
-  71:src/task.c    **** }
-  72:src/task.c    **** 
-  73:src/task.c    **** /*********************************** Function to Allocate task stack ******************************
-  74:src/task.c    **** static int allocate_task_stack(TCB_Typedef** tcb)
-  75:src/task.c    **** {
-  29              		.loc 1 75 1 view -0
+  41:src/task.c    **** /******************************* Function to add blocked task in linked List **********************
+  42:src/task.c    **** void removeFromWaitingList(TCB_Typedef** tcb)
+  43:src/task.c    **** {
+  44:src/task.c    ****     TCB_Typedef *current = WaitingHead->head;
+  45:src/task.c    ****     TCB_Typedef *prev = NULL;
+  46:src/task.c    **** 
+  47:src/task.c    ****     while (current != NULL)
+  48:src/task.c    ****     {
+  49:src/task.c    ****         if (current == *tcb)
+  50:src/task.c    ****         {
+  51:src/task.c    ****             if (prev == NULL)
+  52:src/task.c    ****             {
+  53:src/task.c    ****                 WaitingHead->head = current->next;
+  54:src/task.c    ****             }
+  55:src/task.c    ****             else
+  56:src/task.c    ****             {
+  57:src/task.c    ****                 prev->next = current->next;
+  58:src/task.c    ****             }
+  59:src/task.c    ****             current->next = NULL;
+  60:src/task.c    ****             return;
+  61:src/task.c    ****         }
+  62:src/task.c    ****         prev = current;
+  63:src/task.c    ****         current = current->next;
+  64:src/task.c    ****     }
+  65:src/task.c    **** }
+  66:src/task.c    **** 
+  67:src/task.c    **** /******************************* Function to add blocked task in linked List **********************
+  68:src/task.c    **** void addToWaitingList(TCB_Typedef** tcb)
+  69:src/task.c    **** {
+  70:src/task.c    ****     (*tcb)->next = WaitingHead->head;
+  71:src/task.c    ****     WaitingHead->head = *tcb;
+  72:src/task.c    **** }
+  73:src/task.c    **** 
+  74:src/task.c    **** /*********************************** Function to Allocate task stack ******************************
+  75:src/task.c    **** static int allocate_task_stack(TCB_Typedef** tcb)
+  76:src/task.c    **** {
+  29              		.loc 1 76 1 view -0
   30              		.cfi_startproc
   31              		@ args = 0, pretend = 0, frame = 0
   32              		@ frame_needed = 0, uses_anonymous_args = 0
   33              		@ link register save eliminated.
-  76:src/task.c    ****     if ((current_stack_size - 128) < 0)                 // check for available space
-  34              		.loc 1 76 5 view .LVU1
-  35              		.loc 1 76 36 is_stmt 0 view .LVU2
+  77:src/task.c    ****     if ((current_stack_size - 128) < 0)                 // check for available space
+  34              		.loc 1 77 5 view .LVU1
+  35              		.loc 1 77 36 is_stmt 0 view .LVU2
   36 0000 084B     		ldr	r3, .L4
   37 0002 1B88     		ldrh	r3, [r3]
-  38              		.loc 1 76 8 view .LVU3
+  38              		.loc 1 77 8 view .LVU3
+ARM GAS  /tmp/ccSjikuJ.s 			page 3
+
+
   39 0004 7F2B     		cmp	r3, #127
-ARM GAS  /tmp/ccadLJBu.s 			page 3
-
-
   40 0006 0AD9     		bls	.L3
-  77:src/task.c    ****     {
-  78:src/task.c    ****         return -1;
-  79:src/task.c    ****     }
-  80:src/task.c    ****     current_stack_size = current_stack_size - 128;      // allocate stack space
-  41              		.loc 1 80 5 is_stmt 1 view .LVU4
-  42              		.loc 1 80 45 is_stmt 0 view .LVU5
+  78:src/task.c    ****     {
+  79:src/task.c    ****         return -1;
+  80:src/task.c    ****     }
+  81:src/task.c    ****     current_stack_size = current_stack_size - 128;      // allocate stack space
+  41              		.loc 1 81 5 is_stmt 1 view .LVU4
+  42              		.loc 1 81 45 is_stmt 0 view .LVU5
   43 0008 803B     		subs	r3, r3, #128
   44 000a 9BB2     		uxth	r3, r3
-  45              		.loc 1 80 24 view .LVU6
+  45              		.loc 1 81 24 view .LVU6
   46 000c 054A     		ldr	r2, .L4
   47 000e 1380     		strh	r3, [r2]	@ movhi
-  81:src/task.c    ****     (*tcb)->psp = &task_stack[current_stack_size];         // update task stack top address
-  48              		.loc 1 81 5 is_stmt 1 view .LVU7
-  49              		.loc 1 81 6 is_stmt 0 view .LVU8
+  82:src/task.c    ****     (*tcb)->psp = &task_stack[current_stack_size];         // update task stack top address
+  48              		.loc 1 82 5 is_stmt 1 view .LVU7
+  49              		.loc 1 82 6 is_stmt 0 view .LVU8
   50 0010 0168     		ldr	r1, [r0]
-  51              		.loc 1 81 19 view .LVU9
+  51              		.loc 1 82 19 view .LVU9
   52 0012 054A     		ldr	r2, .L4+4
   53 0014 02EB8303 		add	r3, r2, r3, lsl #2
-  54              		.loc 1 81 17 view .LVU10
+  54              		.loc 1 82 17 view .LVU10
   55 0018 CB60     		str	r3, [r1, #12]
-  82:src/task.c    **** 
-  83:src/task.c    ****     return 0;
-  56              		.loc 1 83 5 is_stmt 1 view .LVU11
-  57              		.loc 1 83 12 is_stmt 0 view .LVU12
+  83:src/task.c    **** 
+  84:src/task.c    ****     return 0;
+  56              		.loc 1 84 5 is_stmt 1 view .LVU11
+  57              		.loc 1 84 12 is_stmt 0 view .LVU12
   58 001a 0020     		movs	r0, #0
   59              	.LVL1:
-  60              		.loc 1 83 12 view .LVU13
+  60              		.loc 1 84 12 view .LVU13
   61 001c 7047     		bx	lr
   62              	.LVL2:
   63              	.L3:
-  78:src/task.c    ****     }
-  64              		.loc 1 78 16 view .LVU14
+  79:src/task.c    ****     }
+  64              		.loc 1 79 16 view .LVU14
   65 001e 4FF0FF30 		mov	r0, #-1
   66              	.LVL3:
-  84:src/task.c    **** }
-  67              		.loc 1 84 1 view .LVU15
+  85:src/task.c    **** }
+  67              		.loc 1 85 1 view .LVU15
   68 0022 7047     		bx	lr
   69              	.L5:
   70              		.align	2
@@ -175,172 +176,172 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
   84              	create_context:
   85              	.LVL4:
   86              	.LFB141:
-  85:src/task.c    **** 
-  86:src/task.c    **** /*********************************** Function to Create dummy context *****************************
-  87:src/task.c    **** static void create_context(TCB_Typedef** tcb)
-ARM GAS  /tmp/ccadLJBu.s 			page 4
+  86:src/task.c    **** 
+  87:src/task.c    **** /*********************************** Function to Create dummy context *****************************
+ARM GAS  /tmp/ccSjikuJ.s 			page 4
 
 
-  88:src/task.c    **** {
-  87              		.loc 1 88 1 is_stmt 1 view -0
+  88:src/task.c    **** static void create_context(TCB_Typedef** tcb)
+  89:src/task.c    **** {
+  87              		.loc 1 89 1 is_stmt 1 view -0
   88              		.cfi_startproc
   89              		@ args = 0, pretend = 0, frame = 0
   90              		@ frame_needed = 0, uses_anonymous_args = 0
   91              		@ link register save eliminated.
-  92              		.loc 1 88 1 is_stmt 0 view .LVU17
+  92              		.loc 1 89 1 is_stmt 0 view .LVU17
   93 0000 10B4     		push	{r4}
   94              	.LCFI0:
   95              		.cfi_def_cfa_offset 4
   96              		.cfi_offset 4, -4
-  89:src/task.c    ****     uint8_t i = 0;
-  97              		.loc 1 89 5 is_stmt 1 view .LVU18
+  90:src/task.c    ****     uint8_t i = 0;
+  97              		.loc 1 90 5 is_stmt 1 view .LVU18
   98              	.LVL5:
-  90:src/task.c    **** 
-  91:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0x01000000;            // xPSR
-  99              		.loc 1 91 5 view .LVU19
- 100              		.loc 1 91 21 is_stmt 0 view .LVU20
+  91:src/task.c    **** 
+  92:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0x01000000;            // xPSR
+  99              		.loc 1 92 5 view .LVU19
+ 100              		.loc 1 92 21 is_stmt 0 view .LVU20
  101 0002 0268     		ldr	r2, [r0]
- 102              		.loc 1 91 26 view .LVU21
+ 102              		.loc 1 92 26 view .LVU21
  103 0004 D368     		ldr	r3, [r2, #12]
- 104              		.loc 1 91 6 view .LVU22
+ 104              		.loc 1 92 6 view .LVU22
  105 0006 191F     		subs	r1, r3, #4
- 106              		.loc 1 91 33 view .LVU23
+ 106              		.loc 1 92 33 view .LVU23
  107 0008 D160     		str	r1, [r2, #12]
  108 000a 4FF08072 		mov	r2, #16777216
  109 000e 43F8042C 		str	r2, [r3, #-4]
-  92:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)(*tcb)->fn | 1;        // (pc) fn address with LSB set 
- 110              		.loc 1 92 5 is_stmt 1 view .LVU24
- 111              		.loc 1 92 46 is_stmt 0 view .LVU25
+  93:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)(*tcb)->fn | 1;        // (pc) fn address with LSB set 
+ 110              		.loc 1 93 5 is_stmt 1 view .LVU24
+ 111              		.loc 1 93 46 is_stmt 0 view .LVU25
  112 0012 0268     		ldr	r2, [r0]
- 113              		.loc 1 92 51 view .LVU26
+ 113              		.loc 1 93 51 view .LVU26
  114 0014 5368     		ldr	r3, [r2, #4]
- 115              		.loc 1 92 26 view .LVU27
+ 115              		.loc 1 93 26 view .LVU27
  116 0016 D168     		ldr	r1, [r2, #12]
- 117              		.loc 1 92 6 view .LVU28
+ 117              		.loc 1 93 6 view .LVU28
  118 0018 0C1F     		subs	r4, r1, #4
- 119              		.loc 1 92 33 view .LVU29
+ 119              		.loc 1 93 33 view .LVU29
  120 001a D460     		str	r4, [r2, #12]
- 121              		.loc 1 92 56 view .LVU30
+ 121              		.loc 1 93 56 view .LVU30
  122 001c 43F00103 		orr	r3, r3, #1
- 123              		.loc 1 92 33 view .LVU31
+ 123              		.loc 1 93 33 view .LVU31
  124 0020 41F8043C 		str	r3, [r1, #-4]
-  93:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xFFFFFFFD;            // LR exception return code for 
- 125              		.loc 1 93 5 is_stmt 1 view .LVU32
- 126              		.loc 1 93 21 is_stmt 0 view .LVU33
+  94:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xFFFFFFFD;            // LR exception return code for 
+ 125              		.loc 1 94 5 is_stmt 1 view .LVU32
+ 126              		.loc 1 94 21 is_stmt 0 view .LVU33
  127 0024 0268     		ldr	r2, [r0]
- 128              		.loc 1 93 26 view .LVU34
+ 128              		.loc 1 94 26 view .LVU34
  129 0026 D368     		ldr	r3, [r2, #12]
- 130              		.loc 1 93 6 view .LVU35
+ 130              		.loc 1 94 6 view .LVU35
  131 0028 191F     		subs	r1, r3, #4
- 132              		.loc 1 93 33 view .LVU36
+ 132              		.loc 1 94 33 view .LVU36
  133 002a D160     		str	r1, [r2, #12]
  134 002c 6FF00202 		mvn	r2, #2
  135 0030 43F8042C 		str	r2, [r3, #-4]
-  94:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)(*tcb);                // (r12) TCB address
- 136              		.loc 1 94 5 is_stmt 1 view .LVU37
-ARM GAS  /tmp/ccadLJBu.s 			page 5
+  95:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)(*tcb);                // (r12) TCB address
+ARM GAS  /tmp/ccSjikuJ.s 			page 5
 
 
- 137              		.loc 1 94 46 is_stmt 0 view .LVU38
+ 136              		.loc 1 95 5 is_stmt 1 view .LVU37
+ 137              		.loc 1 95 46 is_stmt 0 view .LVU38
  138 0034 0368     		ldr	r3, [r0]
- 139              		.loc 1 94 26 view .LVU39
+ 139              		.loc 1 95 26 view .LVU39
  140 0036 DA68     		ldr	r2, [r3, #12]
- 141              		.loc 1 94 6 view .LVU40
+ 141              		.loc 1 95 6 view .LVU40
  142 0038 111F     		subs	r1, r2, #4
- 143              		.loc 1 94 33 view .LVU41
+ 143              		.loc 1 95 33 view .LVU41
  144 003a D960     		str	r1, [r3, #12]
  145 003c 42F8043C 		str	r3, [r2, #-4]
-  95:src/task.c    ****  
-  96:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;            // dummy reg value r0
- 146              		.loc 1 96 5 is_stmt 1 view .LVU42
- 147              		.loc 1 96 21 is_stmt 0 view .LVU43
+  96:src/task.c    ****  
+  97:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;            // dummy reg value r0
+ 146              		.loc 1 97 5 is_stmt 1 view .LVU42
+ 147              		.loc 1 97 21 is_stmt 0 view .LVU43
  148 0040 0368     		ldr	r3, [r0]
- 149              		.loc 1 96 26 view .LVU44
+ 149              		.loc 1 97 26 view .LVU44
  150 0042 DA68     		ldr	r2, [r3, #12]
- 151              		.loc 1 96 6 view .LVU45
+ 151              		.loc 1 97 6 view .LVU45
  152 0044 111F     		subs	r1, r2, #4
- 153              		.loc 1 96 33 view .LVU46
+ 153              		.loc 1 97 33 view .LVU46
  154 0046 D960     		str	r1, [r3, #12]
  155 0048 124B     		ldr	r3, .L10
  156 004a 42F8043C 		str	r3, [r2, #-4]
-  97:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;            // dummy reg value r1
- 157              		.loc 1 97 5 is_stmt 1 view .LVU47
- 158              		.loc 1 97 21 is_stmt 0 view .LVU48
+  98:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;            // dummy reg value r1
+ 157              		.loc 1 98 5 is_stmt 1 view .LVU47
+ 158              		.loc 1 98 21 is_stmt 0 view .LVU48
  159 004e 0168     		ldr	r1, [r0]
- 160              		.loc 1 97 26 view .LVU49
+ 160              		.loc 1 98 26 view .LVU49
  161 0050 CA68     		ldr	r2, [r1, #12]
- 162              		.loc 1 97 6 view .LVU50
+ 162              		.loc 1 98 6 view .LVU50
  163 0052 141F     		subs	r4, r2, #4
- 164              		.loc 1 97 33 view .LVU51
+ 164              		.loc 1 98 33 view .LVU51
  165 0054 CC60     		str	r4, [r1, #12]
  166 0056 42F8043C 		str	r3, [r2, #-4]
-  98:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;            // dummy reg value r2
- 167              		.loc 1 98 5 is_stmt 1 view .LVU52
- 168              		.loc 1 98 21 is_stmt 0 view .LVU53
+  99:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;            // dummy reg value r2
+ 167              		.loc 1 99 5 is_stmt 1 view .LVU52
+ 168              		.loc 1 99 21 is_stmt 0 view .LVU53
  169 005a 0168     		ldr	r1, [r0]
- 170              		.loc 1 98 26 view .LVU54
+ 170              		.loc 1 99 26 view .LVU54
  171 005c CA68     		ldr	r2, [r1, #12]
- 172              		.loc 1 98 6 view .LVU55
+ 172              		.loc 1 99 6 view .LVU55
  173 005e 141F     		subs	r4, r2, #4
- 174              		.loc 1 98 33 view .LVU56
+ 174              		.loc 1 99 33 view .LVU56
  175 0060 CC60     		str	r4, [r1, #12]
  176 0062 42F8043C 		str	r3, [r2, #-4]
-  99:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;            // dummy reg value r3
- 177              		.loc 1 99 5 is_stmt 1 view .LVU57
- 178              		.loc 1 99 21 is_stmt 0 view .LVU58
+ 100:src/task.c    ****     *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;            // dummy reg value r3
+ 177              		.loc 1 100 5 is_stmt 1 view .LVU57
+ 178              		.loc 1 100 21 is_stmt 0 view .LVU58
  179 0066 0168     		ldr	r1, [r0]
- 180              		.loc 1 99 26 view .LVU59
+ 180              		.loc 1 100 26 view .LVU59
  181 0068 CA68     		ldr	r2, [r1, #12]
- 182              		.loc 1 99 6 view .LVU60
+ 182              		.loc 1 100 6 view .LVU60
  183 006a 141F     		subs	r4, r2, #4
- 184              		.loc 1 99 33 view .LVU61
+ 184              		.loc 1 100 33 view .LVU61
  185 006c CC60     		str	r4, [r1, #12]
  186 006e 42F8043C 		str	r3, [r2, #-4]
- 100:src/task.c    ****     
- 101:src/task.c    ****     for (i=0; i<8; i++)
-ARM GAS  /tmp/ccadLJBu.s 			page 6
+ 101:src/task.c    ****     
+ARM GAS  /tmp/ccSjikuJ.s 			page 6
 
 
- 187              		.loc 1 101 5 is_stmt 1 view .LVU62
- 188              		.loc 1 101 11 is_stmt 0 view .LVU63
+ 102:src/task.c    ****     for (i=0; i<8; i++)
+ 187              		.loc 1 102 5 is_stmt 1 view .LVU62
+ 188              		.loc 1 102 11 is_stmt 0 view .LVU63
  189 0072 0023     		movs	r3, #0
- 190              		.loc 1 101 5 view .LVU64
+ 190              		.loc 1 102 5 view .LVU64
  191 0074 08E0     		b	.L7
  192              	.LVL6:
  193              	.L8:
- 102:src/task.c    ****     {
- 103:src/task.c    ****         *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;        // dummy reg value r4- r11
- 194              		.loc 1 103 9 is_stmt 1 discriminator 3 view .LVU65
- 195              		.loc 1 103 25 is_stmt 0 discriminator 3 view .LVU66
+ 103:src/task.c    ****     {
+ 104:src/task.c    ****         *(uint32_t*)(--(*tcb)->psp) = (uint32_t)0xDEADBABE;        // dummy reg value r4- r11
+ 194              		.loc 1 104 9 is_stmt 1 discriminator 3 view .LVU65
+ 195              		.loc 1 104 25 is_stmt 0 discriminator 3 view .LVU66
  196 0076 0168     		ldr	r1, [r0]
- 197              		.loc 1 103 30 discriminator 3 view .LVU67
+ 197              		.loc 1 104 30 discriminator 3 view .LVU67
  198 0078 CA68     		ldr	r2, [r1, #12]
- 199              		.loc 1 103 10 discriminator 3 view .LVU68
+ 199              		.loc 1 104 10 discriminator 3 view .LVU68
  200 007a 141F     		subs	r4, r2, #4
- 201              		.loc 1 103 37 discriminator 3 view .LVU69
+ 201              		.loc 1 104 37 discriminator 3 view .LVU69
  202 007c CC60     		str	r4, [r1, #12]
  203 007e 0549     		ldr	r1, .L10
  204 0080 42F8041C 		str	r1, [r2, #-4]
- 101:src/task.c    ****     {
- 205              		.loc 1 101 20 is_stmt 1 discriminator 3 view .LVU70
- 101:src/task.c    ****     {
- 206              		.loc 1 101 21 is_stmt 0 discriminator 3 view .LVU71
+ 102:src/task.c    ****     {
+ 205              		.loc 1 102 20 is_stmt 1 discriminator 3 view .LVU70
+ 102:src/task.c    ****     {
+ 206              		.loc 1 102 21 is_stmt 0 discriminator 3 view .LVU71
  207 0084 0133     		adds	r3, r3, #1
  208              	.LVL7:
- 101:src/task.c    ****     {
- 209              		.loc 1 101 21 discriminator 3 view .LVU72
+ 102:src/task.c    ****     {
+ 209              		.loc 1 102 21 discriminator 3 view .LVU72
  210 0086 DBB2     		uxtb	r3, r3
  211              	.LVL8:
  212              	.L7:
- 101:src/task.c    ****     {
- 213              		.loc 1 101 15 is_stmt 1 discriminator 1 view .LVU73
- 101:src/task.c    ****     {
- 214              		.loc 1 101 5 is_stmt 0 discriminator 1 view .LVU74
+ 102:src/task.c    ****     {
+ 213              		.loc 1 102 15 is_stmt 1 discriminator 1 view .LVU73
+ 102:src/task.c    ****     {
+ 214              		.loc 1 102 5 is_stmt 0 discriminator 1 view .LVU74
  215 0088 072B     		cmp	r3, #7
  216 008a F4D9     		bls	.L8
- 104:src/task.c    ****     }
- 105:src/task.c    **** }
- 217              		.loc 1 105 1 view .LVU75
+ 105:src/task.c    ****     }
+ 106:src/task.c    **** }
+ 217              		.loc 1 106 1 view .LVU75
  218 008c 5DF8044B 		ldr	r4, [sp], #4
  219              	.LCFI1:
  220              		.cfi_restore 4
@@ -357,10 +358,10 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
  232              		.global	removeFromReadyList
  233              		.syntax unified
  234              		.thumb
+ARM GAS  /tmp/ccSjikuJ.s 			page 7
+
+
  235              		.thumb_func
-ARM GAS  /tmp/ccadLJBu.s 			page 7
-
-
  236              		.fpu fpv4-sp-d16
  238              	removeFromReadyList:
  239              	.LVL9:
@@ -417,10 +418,10 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
   36:src/task.c    ****         current = current->next;
  276              		.loc 1 36 14 is_stmt 0 view .LVU90
  277 0012 1946     		mov	r1, r3
+ARM GAS  /tmp/ccSjikuJ.s 			page 8
+
+
   37:src/task.c    ****     }
-ARM GAS  /tmp/ccadLJBu.s 			page 8
-
-
  278              		.loc 1 37 17 view .LVU91
  279 0014 1B68     		ldr	r3, [r3]
  280              	.LVL13:
@@ -474,117 +475,117 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
  315 0030 00000000 		.word	.LANCHOR1
  316              		.cfi_endproc
  317              	.LFE137:
- 319              		.section	.text.removeFromBlockedList,"ax",%progbits
+ 319              		.section	.text.removeFromWaitingList,"ax",%progbits
  320              		.align	1
- 321              		.global	removeFromBlockedList
+ 321              		.global	removeFromWaitingList
+ARM GAS  /tmp/ccSjikuJ.s 			page 9
+
+
  322              		.syntax unified
-ARM GAS  /tmp/ccadLJBu.s 			page 9
-
-
  323              		.thumb
  324              		.thumb_func
  325              		.fpu fpv4-sp-d16
- 327              	removeFromBlockedList:
+ 327              	removeFromWaitingList:
  328              	.LVL14:
  329              	.LFB138:
-  42:src/task.c    ****     TCB_Typedef *current = BlockedHead->head;
- 330              		.loc 1 42 1 is_stmt 1 view -0
+  43:src/task.c    ****     TCB_Typedef *current = WaitingHead->head;
+ 330              		.loc 1 43 1 is_stmt 1 view -0
  331              		.cfi_startproc
  332              		@ args = 0, pretend = 0, frame = 0
  333              		@ frame_needed = 0, uses_anonymous_args = 0
  334              		@ link register save eliminated.
-  42:src/task.c    ****     TCB_Typedef *current = BlockedHead->head;
- 335              		.loc 1 42 1 is_stmt 0 view .LVU106
+  43:src/task.c    ****     TCB_Typedef *current = WaitingHead->head;
+ 335              		.loc 1 43 1 is_stmt 0 view .LVU106
  336 0000 10B4     		push	{r4}
  337              	.LCFI4:
  338              		.cfi_def_cfa_offset 4
  339              		.cfi_offset 4, -4
-  43:src/task.c    ****     TCB_Typedef *prev = NULL;
- 340              		.loc 1 43 5 is_stmt 1 view .LVU107
-  43:src/task.c    ****     TCB_Typedef *prev = NULL;
- 341              		.loc 1 43 39 is_stmt 0 view .LVU108
+  44:src/task.c    ****     TCB_Typedef *prev = NULL;
+ 340              		.loc 1 44 5 is_stmt 1 view .LVU107
+  44:src/task.c    ****     TCB_Typedef *prev = NULL;
+ 341              		.loc 1 44 39 is_stmt 0 view .LVU108
  342 0002 0B4B     		ldr	r3, .L32
  343 0004 1C68     		ldr	r4, [r3]
-  43:src/task.c    ****     TCB_Typedef *prev = NULL;
- 344              		.loc 1 43 18 view .LVU109
+  44:src/task.c    ****     TCB_Typedef *prev = NULL;
+ 344              		.loc 1 44 18 view .LVU109
  345 0006 2368     		ldr	r3, [r4]
  346              	.LVL15:
-  44:src/task.c    **** 
- 347              		.loc 1 44 5 is_stmt 1 view .LVU110
-  46:src/task.c    ****     {
- 348              		.loc 1 46 5 view .LVU111
-  44:src/task.c    **** 
- 349              		.loc 1 44 18 is_stmt 0 view .LVU112
+  45:src/task.c    **** 
+ 347              		.loc 1 45 5 is_stmt 1 view .LVU110
+  47:src/task.c    ****     {
+ 348              		.loc 1 47 5 view .LVU111
+  45:src/task.c    **** 
+ 349              		.loc 1 45 18 is_stmt 0 view .LVU112
  350 0008 0021     		movs	r1, #0
-  46:src/task.c    ****     {
- 351              		.loc 1 46 11 view .LVU113
+  47:src/task.c    ****     {
+ 351              		.loc 1 47 11 view .LVU113
  352 000a 04E0     		b	.L24
  353              	.LVL16:
  354              	.L31:
-  52:src/task.c    ****             }
- 355              		.loc 1 52 17 is_stmt 1 view .LVU114
-  52:src/task.c    ****             }
- 356              		.loc 1 52 44 is_stmt 0 view .LVU115
+  53:src/task.c    ****             }
+ 355              		.loc 1 53 17 is_stmt 1 view .LVU114
+  53:src/task.c    ****             }
+ 356              		.loc 1 53 44 is_stmt 0 view .LVU115
  357 000c 1A68     		ldr	r2, [r3]
-  52:src/task.c    ****             }
- 358              		.loc 1 52 35 view .LVU116
+  53:src/task.c    ****             }
+ 358              		.loc 1 53 35 view .LVU116
  359 000e 2260     		str	r2, [r4]
  360 0010 09E0     		b	.L27
  361              	.L25:
-  61:src/task.c    ****         current = current->next;
- 362              		.loc 1 61 9 is_stmt 1 view .LVU117
+  62:src/task.c    ****         current = current->next;
+ 362              		.loc 1 62 9 is_stmt 1 view .LVU117
  363              	.LVL17:
-  62:src/task.c    ****     }
- 364              		.loc 1 62 9 view .LVU118
-  61:src/task.c    ****         current = current->next;
- 365              		.loc 1 61 14 is_stmt 0 view .LVU119
-ARM GAS  /tmp/ccadLJBu.s 			page 10
+  63:src/task.c    ****     }
+ 364              		.loc 1 63 9 view .LVU118
+  62:src/task.c    ****         current = current->next;
+ARM GAS  /tmp/ccSjikuJ.s 			page 10
 
 
+ 365              		.loc 1 62 14 is_stmt 0 view .LVU119
  366 0012 1946     		mov	r1, r3
-  62:src/task.c    ****     }
- 367              		.loc 1 62 17 view .LVU120
+  63:src/task.c    ****     }
+ 367              		.loc 1 63 17 view .LVU120
  368 0014 1B68     		ldr	r3, [r3]
  369              	.LVL18:
  370              	.L24:
-  46:src/task.c    ****     {
- 371              		.loc 1 46 11 is_stmt 1 view .LVU121
+  47:src/task.c    ****     {
+ 371              		.loc 1 47 11 is_stmt 1 view .LVU121
  372 0016 43B1     		cbz	r3, .L23
-  48:src/task.c    ****         {
- 373              		.loc 1 48 9 view .LVU122
-  48:src/task.c    ****         {
- 374              		.loc 1 48 24 is_stmt 0 view .LVU123
+  49:src/task.c    ****         {
+ 373              		.loc 1 49 9 view .LVU122
+  49:src/task.c    ****         {
+ 374              		.loc 1 49 24 is_stmt 0 view .LVU123
  375 0018 0268     		ldr	r2, [r0]
-  48:src/task.c    ****         {
- 376              		.loc 1 48 12 view .LVU124
+  49:src/task.c    ****         {
+ 376              		.loc 1 49 12 view .LVU124
  377 001a 9A42     		cmp	r2, r3
  378 001c F9D1     		bne	.L25
-  50:src/task.c    ****             {
- 379              		.loc 1 50 13 is_stmt 1 view .LVU125
-  50:src/task.c    ****             {
- 380              		.loc 1 50 16 is_stmt 0 view .LVU126
+  51:src/task.c    ****             {
+ 379              		.loc 1 51 13 is_stmt 1 view .LVU125
+  51:src/task.c    ****             {
+ 380              		.loc 1 51 16 is_stmt 0 view .LVU126
  381 001e 0029     		cmp	r1, #0
  382 0020 F4D0     		beq	.L31
-  56:src/task.c    ****             }
- 383              		.loc 1 56 17 is_stmt 1 view .LVU127
-  56:src/task.c    ****             }
- 384              		.loc 1 56 37 is_stmt 0 view .LVU128
+  57:src/task.c    ****             }
+ 383              		.loc 1 57 17 is_stmt 1 view .LVU127
+  57:src/task.c    ****             }
+ 384              		.loc 1 57 37 is_stmt 0 view .LVU128
  385 0022 1A68     		ldr	r2, [r3]
-  56:src/task.c    ****             }
- 386              		.loc 1 56 28 view .LVU129
+  57:src/task.c    ****             }
+ 386              		.loc 1 57 28 view .LVU129
  387 0024 0A60     		str	r2, [r1]
  388              	.L27:
-  58:src/task.c    ****             return;
- 389              		.loc 1 58 13 is_stmt 1 view .LVU130
-  58:src/task.c    ****             return;
- 390              		.loc 1 58 27 is_stmt 0 view .LVU131
+  59:src/task.c    ****             return;
+ 389              		.loc 1 59 13 is_stmt 1 view .LVU130
+  59:src/task.c    ****             return;
+ 390              		.loc 1 59 27 is_stmt 0 view .LVU131
  391 0026 0022     		movs	r2, #0
  392 0028 1A60     		str	r2, [r3]
-  59:src/task.c    ****         }
- 393              		.loc 1 59 13 is_stmt 1 view .LVU132
+  60:src/task.c    ****         }
+ 393              		.loc 1 60 13 is_stmt 1 view .LVU132
  394              	.L23:
-  64:src/task.c    **** 
- 395              		.loc 1 64 1 is_stmt 0 view .LVU133
+  65:src/task.c    **** 
+ 395              		.loc 1 65 1 is_stmt 0 view .LVU133
  396 002a 5DF8044B 		ldr	r4, [sp], #4
  397              	.LCFI5:
  398              		.cfi_restore 4
@@ -596,51 +597,51 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
  404 0030 00000000 		.word	.LANCHOR2
  405              		.cfi_endproc
  406              	.LFE138:
- 408              		.section	.text.addToBlockedList,"ax",%progbits
+ 408              		.section	.text.addToWaitingList,"ax",%progbits
+ARM GAS  /tmp/ccSjikuJ.s 			page 11
+
+
  409              		.align	1
-ARM GAS  /tmp/ccadLJBu.s 			page 11
-
-
- 410              		.global	addToBlockedList
+ 410              		.global	addToWaitingList
  411              		.syntax unified
  412              		.thumb
  413              		.thumb_func
  414              		.fpu fpv4-sp-d16
- 416              	addToBlockedList:
+ 416              	addToWaitingList:
  417              	.LVL19:
  418              	.LFB139:
-  68:src/task.c    ****     (*tcb)->next = BlockedHead->head;
- 419              		.loc 1 68 1 is_stmt 1 view -0
+  69:src/task.c    ****     (*tcb)->next = WaitingHead->head;
+ 419              		.loc 1 69 1 is_stmt 1 view -0
  420              		.cfi_startproc
  421              		@ args = 0, pretend = 0, frame = 0
  422              		@ frame_needed = 0, uses_anonymous_args = 0
  423              		@ link register save eliminated.
-  69:src/task.c    ****     BlockedHead->head = *tcb;
- 424              		.loc 1 69 5 view .LVU135
-  69:src/task.c    ****     BlockedHead->head = *tcb;
- 425              		.loc 1 69 6 is_stmt 0 view .LVU136
+  70:src/task.c    ****     WaitingHead->head = *tcb;
+ 424              		.loc 1 70 5 view .LVU135
+  70:src/task.c    ****     WaitingHead->head = *tcb;
+ 425              		.loc 1 70 6 is_stmt 0 view .LVU136
  426 0000 0268     		ldr	r2, [r0]
-  69:src/task.c    ****     BlockedHead->head = *tcb;
- 427              		.loc 1 69 31 view .LVU137
+  70:src/task.c    ****     WaitingHead->head = *tcb;
+ 427              		.loc 1 70 31 view .LVU137
  428 0002 044B     		ldr	r3, .L35
  429 0004 1968     		ldr	r1, [r3]
  430 0006 0968     		ldr	r1, [r1]
-  69:src/task.c    ****     BlockedHead->head = *tcb;
- 431              		.loc 1 69 18 view .LVU138
+  70:src/task.c    ****     WaitingHead->head = *tcb;
+ 431              		.loc 1 70 18 view .LVU138
  432 0008 1160     		str	r1, [r2]
-  70:src/task.c    **** }
- 433              		.loc 1 70 5 is_stmt 1 view .LVU139
-  70:src/task.c    **** }
- 434              		.loc 1 70 16 is_stmt 0 view .LVU140
+  71:src/task.c    **** }
+ 433              		.loc 1 71 5 is_stmt 1 view .LVU139
+  71:src/task.c    **** }
+ 434              		.loc 1 71 16 is_stmt 0 view .LVU140
  435 000a 1B68     		ldr	r3, [r3]
-  70:src/task.c    **** }
- 436              		.loc 1 70 25 view .LVU141
+  71:src/task.c    **** }
+ 436              		.loc 1 71 25 view .LVU141
  437 000c 0268     		ldr	r2, [r0]
-  70:src/task.c    **** }
- 438              		.loc 1 70 23 view .LVU142
+  71:src/task.c    **** }
+ 438              		.loc 1 71 23 view .LVU142
  439 000e 1A60     		str	r2, [r3]
-  71:src/task.c    **** 
- 440              		.loc 1 71 1 view .LVU143
+  72:src/task.c    **** 
+ 440              		.loc 1 72 1 view .LVU143
  441 0010 7047     		bx	lr
  442              	.L36:
  443 0012 00BF     		.align	2
@@ -657,516 +658,457 @@ ARM GAS  /tmp/ccadLJBu.s 			page 1
  455              		.fpu fpv4-sp-d16
  457              	addToReadyList:
  458              	.LVL20:
+ARM GAS  /tmp/ccSjikuJ.s 			page 12
+
+
  459              	.LFB142:
-ARM GAS  /tmp/ccadLJBu.s 			page 12
-
-
- 106:src/task.c    **** 
- 107:src/task.c    **** /********************************* Function to add ready task in linked List **********************
- 108:src/task.c    **** void addToReadyList(TCB_Typedef** tcb)
- 109:src/task.c    **** {
- 460              		.loc 1 109 1 is_stmt 1 view -0
+ 107:src/task.c    **** 
+ 108:src/task.c    **** /********************************* Function to add ready task in linked List **********************
+ 109:src/task.c    **** void addToReadyList(TCB_Typedef** tcb)
+ 110:src/task.c    **** {
+ 460              		.loc 1 110 1 is_stmt 1 view -0
  461              		.cfi_startproc
  462              		@ args = 0, pretend = 0, frame = 0
  463              		@ frame_needed = 0, uses_anonymous_args = 0
  464              		@ link register save eliminated.
- 110:src/task.c    ****     if (ReadyHead->head == NULL)
- 465              		.loc 1 110 5 view .LVU145
- 466              		.loc 1 110 18 is_stmt 0 view .LVU146
- 467 0000 0F4B     		ldr	r3, .L47
+ 111:src/task.c    ****     if (ReadyHead->head == NULL)
+ 465              		.loc 1 111 5 view .LVU145
+ 466              		.loc 1 111 18 is_stmt 0 view .LVU146
+ 467 0000 064B     		ldr	r3, .L41
  468 0002 1A68     		ldr	r2, [r3]
  469 0004 1368     		ldr	r3, [r2]
- 470              		.loc 1 110 8 view .LVU147
- 471 0006 93B1     		cbz	r3, .L45
- 109:src/task.c    ****     if (ReadyHead->head == NULL)
- 472              		.loc 1 109 1 view .LVU148
- 473 0008 10B4     		push	{r4}
- 474              	.LCFI6:
- 475              		.cfi_def_cfa_offset 4
- 476              		.cfi_offset 4, -4
- 111:src/task.c    ****     {
- 112:src/task.c    ****         ReadyHead->head = *tcb;
- 113:src/task.c    ****         return;
- 114:src/task.c    ****     }
- 115:src/task.c    **** 
- 116:src/task.c    ****     if ((*tcb)->priority <= ReadyHead->head->priority)
- 477              		.loc 1 116 5 is_stmt 1 view .LVU149
- 478              		.loc 1 116 10 is_stmt 0 view .LVU150
- 479 000a 0468     		ldr	r4, [r0]
- 480              		.loc 1 116 15 view .LVU151
- 481 000c E18A     		ldrh	r1, [r4, #22]
- 482              		.loc 1 116 44 view .LVU152
- 483 000e DA8A     		ldrh	r2, [r3, #22]
- 484              		.loc 1 116 8 view .LVU153
- 485 0010 9142     		cmp	r1, r2
- 486 0012 0FD9     		bls	.L46
+ 470              		.loc 1 111 8 view .LVU147
+ 471 0006 33B1     		cbz	r3, .L40
+ 112:src/task.c    ****     {
+ 113:src/task.c    ****         ReadyHead->head = *tcb;
+ 114:src/task.c    ****         return;
+ 115:src/task.c    ****     }
+ 116:src/task.c    **** 
+ 117:src/task.c    **** /*
+ 118:src/task.c    ****     if ((*tcb)->priority <= ReadyHead->head->priority)
+ 119:src/task.c    ****     {
+ 120:src/task.c    ****         (*tcb)->next = ReadyHead->head;
+ 121:src/task.c    ****         ReadyHead->head = *tcb;
+ 122:src/task.c    ****         return;
+ 123:src/task.c    ****     }
+ 124:src/task.c    ****     
+ 125:src/task.c    ****     TCB_Typedef* temp = ReadyHead->head;
+ 126:src/task.c    ****     while (temp->next != NULL && temp->next->priority < (*tcb)->priority)
+ 127:src/task.c    ****     {
+ 128:src/task.c    ****         temp = temp->next;
+ 129:src/task.c    ****     }
+ 130:src/task.c    ****     (*tcb)->next = temp->next;
+ 131:src/task.c    ****     temp->next = *tcb;
+ 132:src/task.c    **** */
+ 133:src/task.c    ****    (*tcb)->next = ReadyHead->head;
+ 472              		.loc 1 133 4 is_stmt 1 view .LVU148
+ 473              		.loc 1 133 5 is_stmt 0 view .LVU149
+ 474 0008 0268     		ldr	r2, [r0]
+ 475              		.loc 1 133 17 view .LVU150
+ 476 000a 1360     		str	r3, [r2]
+ 134:src/task.c    ****    ReadyHead->head = *tcb;
+ 477              		.loc 1 134 4 is_stmt 1 view .LVU151
+ 478              		.loc 1 134 13 is_stmt 0 view .LVU152
+ 479 000c 034B     		ldr	r3, .L41
+ 480 000e 1B68     		ldr	r3, [r3]
+ 481              		.loc 1 134 22 view .LVU153
+ 482 0010 0268     		ldr	r2, [r0]
+ 483              		.loc 1 134 20 view .LVU154
+ 484 0012 1A60     		str	r2, [r3]
+ 135:src/task.c    **** }
+ 485              		.loc 1 135 1 view .LVU155
+ 486 0014 7047     		bx	lr
+ARM GAS  /tmp/ccSjikuJ.s 			page 13
+
+
  487              	.L40:
- 488              	.LVL21:
- 117:src/task.c    ****     {
- 118:src/task.c    ****         (*tcb)->next = ReadyHead->head;
- 119:src/task.c    ****         ReadyHead->head = *tcb;
- 120:src/task.c    ****         return;
- 121:src/task.c    ****     }
- 122:src/task.c    ****     
- 123:src/task.c    ****     TCB_Typedef* temp = ReadyHead->head;
- 124:src/task.c    ****     while (temp->next != NULL && temp->next->priority < (*tcb)->priority)
- 489              		.loc 1 124 11 is_stmt 1 view .LVU154
- 490 0014 9C46     		mov	ip, r3
- 491              		.loc 1 124 16 is_stmt 0 view .LVU155
- 492 0016 1B68     		ldr	r3, [r3]
- 493              	.LVL22:
- 494              		.loc 1 124 11 view .LVU156
- 495 0018 13B1     		cbz	r3, .L41
- 496              		.loc 1 124 44 discriminator 1 view .LVU157
-ARM GAS  /tmp/ccadLJBu.s 			page 13
+ 113:src/task.c    ****         return;
+ 488              		.loc 1 113 9 is_stmt 1 view .LVU156
+ 113:src/task.c    ****         return;
+ 489              		.loc 1 113 27 is_stmt 0 view .LVU157
+ 490 0016 0368     		ldr	r3, [r0]
+ 113:src/task.c    ****         return;
+ 491              		.loc 1 113 25 view .LVU158
+ 492 0018 1360     		str	r3, [r2]
+ 114:src/task.c    ****     }
+ 493              		.loc 1 114 9 is_stmt 1 view .LVU159
+ 494 001a 7047     		bx	lr
+ 495              	.L42:
+ 496              		.align	2
+ 497              	.L41:
+ 498 001c 00000000 		.word	.LANCHOR1
+ 499              		.cfi_endproc
+ 500              	.LFE142:
+ 502              		.section	.text.createTask,"ax",%progbits
+ 503              		.align	1
+ 504              		.global	createTask
+ 505              		.syntax unified
+ 506              		.thumb
+ 507              		.thumb_func
+ 508              		.fpu fpv4-sp-d16
+ 510              	createTask:
+ 511              	.LVL21:
+ 512              	.LFB143:
+ 136:src/task.c    **** 
+ 137:src/task.c    **** /*************************************** Function to create task **********************************
+ 138:src/task.c    **** uint8_t createTask(void (*fn)(void), char* name, uint8_t task_priority)
+ 139:src/task.c    **** {
+ 513              		.loc 1 139 1 view -0
+ 514              		.cfi_startproc
+ 515              		@ args = 0, pretend = 0, frame = 8
+ 516              		@ frame_needed = 0, uses_anonymous_args = 0
+ 517              		.loc 1 139 1 is_stmt 0 view .LVU161
+ 518 0000 70B5     		push	{r4, r5, r6, lr}
+ 519              	.LCFI6:
+ 520              		.cfi_def_cfa_offset 16
+ 521              		.cfi_offset 4, -16
+ 522              		.cfi_offset 5, -12
+ 523              		.cfi_offset 6, -8
+ 524              		.cfi_offset 14, -4
+ 525 0002 82B0     		sub	sp, sp, #8
+ 526              	.LCFI7:
+ 527              		.cfi_def_cfa_offset 24
+ 528 0004 0646     		mov	r6, r0
+ 529 0006 0D46     		mov	r5, r1
+ 530 0008 1446     		mov	r4, r2
+ 140:src/task.c    ****     TCB_Typedef* newTask = (TCB_Typedef*)malloc(sizeof(TCB_Typedef));     // allocate memory
+ 531              		.loc 1 140 5 is_stmt 1 view .LVU162
+ 532              		.loc 1 140 42 is_stmt 0 view .LVU163
+ 533 000a 1820     		movs	r0, #24
+ 534              	.LVL22:
+ 535              		.loc 1 140 42 view .LVU164
+ 536 000c FFF7FEFF 		bl	malloc
+ARM GAS  /tmp/ccSjikuJ.s 			page 14
 
 
- 497 001a DA8A     		ldrh	r2, [r3, #22]
- 498              		.loc 1 124 31 discriminator 1 view .LVU158
- 499 001c 9142     		cmp	r1, r2
- 500 001e F9D8     		bhi	.L40
- 501              	.L41:
- 125:src/task.c    ****     {
- 126:src/task.c    ****         temp = temp->next;
- 127:src/task.c    ****     }
- 128:src/task.c    ****     (*tcb)->next = temp->next;
- 502              		.loc 1 128 5 is_stmt 1 view .LVU159
- 503              		.loc 1 128 18 is_stmt 0 view .LVU160
- 504 0020 2360     		str	r3, [r4]
- 129:src/task.c    ****     temp->next = *tcb;
- 505              		.loc 1 129 5 is_stmt 1 view .LVU161
- 506              		.loc 1 129 18 is_stmt 0 view .LVU162
- 507 0022 0368     		ldr	r3, [r0]
- 508              		.loc 1 129 16 view .LVU163
- 509 0024 CCF80030 		str	r3, [ip]
- 510              	.LVL23:
- 511              	.L37:
- 130:src/task.c    ****     /*
- 131:src/task.c    ****    (*tcb)->next = ReadyHead->head;
- 132:src/task.c    ****    ReadyHead->head = *tcb;
- 133:src/task.c    ****     */
- 134:src/task.c    **** }
- 512              		.loc 1 134 1 view .LVU164
- 513 0028 5DF8044B 		ldr	r4, [sp], #4
- 514              	.LCFI7:
- 515              		.cfi_restore 4
- 516              		.cfi_def_cfa_offset 0
- 517 002c 7047     		bx	lr
- 518              	.L45:
- 112:src/task.c    ****         return;
- 519              		.loc 1 112 9 is_stmt 1 view .LVU165
- 112:src/task.c    ****         return;
- 520              		.loc 1 112 27 is_stmt 0 view .LVU166
- 521 002e 0368     		ldr	r3, [r0]
- 112:src/task.c    ****         return;
- 522              		.loc 1 112 25 view .LVU167
- 523 0030 1360     		str	r3, [r2]
- 113:src/task.c    ****     }
- 524              		.loc 1 113 9 is_stmt 1 view .LVU168
- 525 0032 7047     		bx	lr
- 526              	.L46:
- 527              	.LCFI8:
- 528              		.cfi_def_cfa_offset 4
- 529              		.cfi_offset 4, -4
- 118:src/task.c    ****         ReadyHead->head = *tcb;
- 530              		.loc 1 118 9 view .LVU169
- 118:src/task.c    ****         ReadyHead->head = *tcb;
- 531              		.loc 1 118 22 is_stmt 0 view .LVU170
- 532 0034 2360     		str	r3, [r4]
- 119:src/task.c    ****         return;
- 533              		.loc 1 119 9 is_stmt 1 view .LVU171
- 119:src/task.c    ****         return;
- 534              		.loc 1 119 18 is_stmt 0 view .LVU172
- 535 0036 024B     		ldr	r3, .L47
-ARM GAS  /tmp/ccadLJBu.s 			page 14
+ 537              	.LVL23:
+ 538              		.loc 1 140 18 view .LVU165
+ 539 0010 0190     		str	r0, [sp, #4]
+ 141:src/task.c    **** 
+ 142:src/task.c    ****     if (newTask == NULL)
+ 540              		.loc 1 142 5 is_stmt 1 view .LVU166
+ 541              		.loc 1 142 8 is_stmt 0 view .LVU167
+ 542 0012 A8B1     		cbz	r0, .L45
+ 143:src/task.c    ****     {
+ 144:src/task.c    ****         return -1;      // Failed to allocate memory
+ 145:src/task.c    ****     }
+ 146:src/task.c    **** 
+ 147:src/task.c    ****     newTask->fn = fn;                       // add function address in tcb
+ 543              		.loc 1 147 5 is_stmt 1 view .LVU168
+ 544              		.loc 1 147 17 is_stmt 0 view .LVU169
+ 545 0014 4660     		str	r6, [r0, #4]
+ 148:src/task.c    ****     newTask->taskName = name;               // add name in tcb
+ 546              		.loc 1 148 5 is_stmt 1 view .LVU170
+ 547              		.loc 1 148 23 is_stmt 0 view .LVU171
+ 548 0016 8560     		str	r5, [r0, #8]
+ 149:src/task.c    ****     newTask->state = READY;                 // set task state
+ 549              		.loc 1 149 5 is_stmt 1 view .LVU172
+ 550              		.loc 1 149 20 is_stmt 0 view .LVU173
+ 551 0018 0123     		movs	r3, #1
+ 552 001a 8382     		strh	r3, [r0, #20]	@ movhi
+ 150:src/task.c    ****     newTask->priority = task_priority;      // add task priority
+ 553              		.loc 1 150 5 is_stmt 1 view .LVU174
+ 554              		.loc 1 150 23 is_stmt 0 view .LVU175
+ 555 001c C482     		strh	r4, [r0, #22]	@ movhi
+ 151:src/task.c    ****     newTask->delay = 0;                     // set delay as 0
+ 556              		.loc 1 151 5 is_stmt 1 view .LVU176
+ 557              		.loc 1 151 20 is_stmt 0 view .LVU177
+ 558 001e 0023     		movs	r3, #0
+ 559 0020 0361     		str	r3, [r0, #16]
+ 152:src/task.c    ****     newTask->next = NULL;
+ 560              		.loc 1 152 5 is_stmt 1 view .LVU178
+ 561              		.loc 1 152 19 is_stmt 0 view .LVU179
+ 562 0022 0360     		str	r3, [r0]
+ 153:src/task.c    **** 
+ 154:src/task.c    ****     if (allocate_task_stack(&newTask) < 0)  // allocate stack for task
+ 563              		.loc 1 154 5 is_stmt 1 view .LVU180
+ 564              		.loc 1 154 9 is_stmt 0 view .LVU181
+ 565 0024 01A8     		add	r0, sp, #4
+ 566 0026 FFF7FEFF 		bl	allocate_task_stack
+ 567              	.LVL24:
+ 568              		.loc 1 154 8 view .LVU182
+ 569 002a 0028     		cmp	r0, #0
+ 570 002c 0ADB     		blt	.L46
+ 155:src/task.c    ****     {
+ 156:src/task.c    ****         return -2;      // failed to allocate stack / stack full
+ 157:src/task.c    ****     }
+ 158:src/task.c    **** 
+ 159:src/task.c    ****     create_context(&newTask);       // create dummy context
+ 571              		.loc 1 159 5 is_stmt 1 view .LVU183
+ 572 002e 01A8     		add	r0, sp, #4
+ 573 0030 FFF7FEFF 		bl	create_context
+ 574              	.LVL25:
+ARM GAS  /tmp/ccSjikuJ.s 			page 15
 
 
- 536 0038 1B68     		ldr	r3, [r3]
- 119:src/task.c    ****         return;
- 537              		.loc 1 119 27 view .LVU173
- 538 003a 0268     		ldr	r2, [r0]
- 119:src/task.c    ****         return;
- 539              		.loc 1 119 25 view .LVU174
- 540 003c 1A60     		str	r2, [r3]
- 120:src/task.c    ****     }
- 541              		.loc 1 120 9 is_stmt 1 view .LVU175
- 542 003e F3E7     		b	.L37
- 543              	.L48:
- 544              		.align	2
- 545              	.L47:
- 546 0040 00000000 		.word	.LANCHOR1
- 547              		.cfi_endproc
- 548              	.LFE142:
- 550              		.section	.text.createTask,"ax",%progbits
- 551              		.align	1
- 552              		.global	createTask
- 553              		.syntax unified
- 554              		.thumb
- 555              		.thumb_func
- 556              		.fpu fpv4-sp-d16
- 558              	createTask:
- 559              	.LVL24:
- 560              	.LFB143:
- 135:src/task.c    **** 
- 136:src/task.c    **** /*************************************** Function to create task **********************************
- 137:src/task.c    **** uint8_t createTask(void (*fn)(void), char* name, uint8_t task_priority)
- 138:src/task.c    **** {
- 561              		.loc 1 138 1 view -0
- 562              		.cfi_startproc
- 563              		@ args = 0, pretend = 0, frame = 8
- 564              		@ frame_needed = 0, uses_anonymous_args = 0
- 565              		.loc 1 138 1 is_stmt 0 view .LVU177
- 566 0000 70B5     		push	{r4, r5, r6, lr}
- 567              	.LCFI9:
- 568              		.cfi_def_cfa_offset 16
- 569              		.cfi_offset 4, -16
- 570              		.cfi_offset 5, -12
- 571              		.cfi_offset 6, -8
- 572              		.cfi_offset 14, -4
- 573 0002 82B0     		sub	sp, sp, #8
- 574              	.LCFI10:
- 575              		.cfi_def_cfa_offset 24
- 576 0004 0646     		mov	r6, r0
- 577 0006 0D46     		mov	r5, r1
- 578 0008 1446     		mov	r4, r2
- 139:src/task.c    ****     TCB_Typedef* newTask = (TCB_Typedef*)malloc(sizeof(TCB_Typedef));     // allocate memory
- 579              		.loc 1 139 5 is_stmt 1 view .LVU178
- 580              		.loc 1 139 42 is_stmt 0 view .LVU179
- 581 000a 1820     		movs	r0, #24
- 582              	.LVL25:
- 583              		.loc 1 139 42 view .LVU180
- 584 000c FFF7FEFF 		bl	malloc
- 585              	.LVL26:
- 586              		.loc 1 139 18 view .LVU181
-ARM GAS  /tmp/ccadLJBu.s 			page 15
-
-
- 587 0010 0190     		str	r0, [sp, #4]
- 140:src/task.c    **** 
- 141:src/task.c    ****     if (newTask == NULL)
- 588              		.loc 1 141 5 is_stmt 1 view .LVU182
- 589              		.loc 1 141 8 is_stmt 0 view .LVU183
- 590 0012 A8B1     		cbz	r0, .L51
- 142:src/task.c    ****     {
- 143:src/task.c    ****         return -1;      // Failed to allocate memory
+ 160:src/task.c    **** 
+ 161:src/task.c    ****     addToReadyList(&newTask);        // add created task in linked list
+ 575              		.loc 1 161 5 view .LVU184
+ 576 0034 01A8     		add	r0, sp, #4
+ 577 0036 FFF7FEFF 		bl	addToReadyList
+ 578              	.LVL26:
+ 162:src/task.c    ****     return 0;
+ 579              		.loc 1 162 5 view .LVU185
+ 580              		.loc 1 162 12 is_stmt 0 view .LVU186
+ 581 003a 0020     		movs	r0, #0
+ 582              	.L44:
+ 163:src/task.c    **** }
+ 583              		.loc 1 163 1 view .LVU187
+ 584 003c 02B0     		add	sp, sp, #8
+ 585              	.LCFI8:
+ 586              		.cfi_remember_state
+ 587              		.cfi_def_cfa_offset 16
+ 588              		@ sp needed
+ 589 003e 70BD     		pop	{r4, r5, r6, pc}
+ 590              	.LVL27:
+ 591              	.L45:
+ 592              	.LCFI9:
+ 593              		.cfi_restore_state
  144:src/task.c    ****     }
- 145:src/task.c    **** 
- 146:src/task.c    ****     newTask->fn = fn;                       // add function address in tcb
- 591              		.loc 1 146 5 is_stmt 1 view .LVU184
- 592              		.loc 1 146 17 is_stmt 0 view .LVU185
- 593 0014 4660     		str	r6, [r0, #4]
- 147:src/task.c    ****     newTask->taskName = name;               // add name in tcb
- 594              		.loc 1 147 5 is_stmt 1 view .LVU186
- 595              		.loc 1 147 23 is_stmt 0 view .LVU187
- 596 0016 8560     		str	r5, [r0, #8]
- 148:src/task.c    ****     newTask->state = READY;                 // set task state
- 597              		.loc 1 148 5 is_stmt 1 view .LVU188
- 598              		.loc 1 148 20 is_stmt 0 view .LVU189
- 599 0018 0123     		movs	r3, #1
- 600 001a 8382     		strh	r3, [r0, #20]	@ movhi
- 149:src/task.c    ****     newTask->priority = task_priority;      // add task priority
- 601              		.loc 1 149 5 is_stmt 1 view .LVU190
- 602              		.loc 1 149 23 is_stmt 0 view .LVU191
- 603 001c C482     		strh	r4, [r0, #22]	@ movhi
- 150:src/task.c    ****     newTask->delay = 0;                     // set delay as 0
- 604              		.loc 1 150 5 is_stmt 1 view .LVU192
- 605              		.loc 1 150 20 is_stmt 0 view .LVU193
- 606 001e 0023     		movs	r3, #0
- 607 0020 0361     		str	r3, [r0, #16]
- 151:src/task.c    ****     newTask->next = NULL;
- 608              		.loc 1 151 5 is_stmt 1 view .LVU194
- 609              		.loc 1 151 19 is_stmt 0 view .LVU195
- 610 0022 0360     		str	r3, [r0]
- 152:src/task.c    **** 
- 153:src/task.c    ****     if (allocate_task_stack(&newTask) < 0)  // allocate stack for task
- 611              		.loc 1 153 5 is_stmt 1 view .LVU196
- 612              		.loc 1 153 9 is_stmt 0 view .LVU197
- 613 0024 01A8     		add	r0, sp, #4
- 614 0026 FFF7FEFF 		bl	allocate_task_stack
- 615              	.LVL27:
- 616              		.loc 1 153 8 view .LVU198
- 617 002a 0028     		cmp	r0, #0
- 618 002c 0ADB     		blt	.L52
- 154:src/task.c    ****     {
- 155:src/task.c    ****         return -2;      // failed to allocate stack / stack full
+ 594              		.loc 1 144 16 view .LVU188
+ 595 0040 FF20     		movs	r0, #255
+ 596 0042 FBE7     		b	.L44
+ 597              	.L46:
  156:src/task.c    ****     }
- 157:src/task.c    **** 
- 158:src/task.c    ****     create_context(&newTask);       // create dummy context
- 619              		.loc 1 158 5 is_stmt 1 view .LVU199
- 620 002e 01A8     		add	r0, sp, #4
- 621 0030 FFF7FEFF 		bl	create_context
- 622              	.LVL28:
- 159:src/task.c    **** 
- 160:src/task.c    ****     addToReadyList(&newTask);        // add created task in linked list
-ARM GAS  /tmp/ccadLJBu.s 			page 16
+ 598              		.loc 1 156 16 view .LVU189
+ 599 0044 FE20     		movs	r0, #254
+ 600 0046 F9E7     		b	.L44
+ 601              		.cfi_endproc
+ 602              	.LFE143:
+ 604              		.section	.rodata.create_idle_task.str1.4,"aMS",%progbits,1
+ 605              		.align	2
+ 606              	.LC0:
+ 607 0000 49646C65 		.ascii	"Idle Task\000"
+ 607      20546173 
+ 607      6B00
+ 608              		.section	.text.create_idle_task,"ax",%progbits
+ 609              		.align	1
+ 610              		.global	create_idle_task
+ 611              		.syntax unified
+ 612              		.thumb
+ 613              		.thumb_func
+ 614              		.fpu fpv4-sp-d16
+ 616              	create_idle_task:
+ 617              	.LFB144:
+ 164:src/task.c    **** 
+ 165:src/task.c    **** uint8_t create_idle_task()
+ 166:src/task.c    **** {
+ 618              		.loc 1 166 1 is_stmt 1 view -0
+ 619              		.cfi_startproc
+ 620              		@ args = 0, pretend = 0, frame = 8
+ 621              		@ frame_needed = 0, uses_anonymous_args = 0
+ 622 0000 00B5     		push	{lr}
+ARM GAS  /tmp/ccSjikuJ.s 			page 16
 
 
- 623              		.loc 1 160 5 view .LVU200
- 624 0034 01A8     		add	r0, sp, #4
- 625 0036 FFF7FEFF 		bl	addToReadyList
- 626              	.LVL29:
- 161:src/task.c    ****     return 0;
- 627              		.loc 1 161 5 view .LVU201
- 628              		.loc 1 161 12 is_stmt 0 view .LVU202
- 629 003a 0020     		movs	r0, #0
- 630              	.L50:
- 162:src/task.c    **** }
- 631              		.loc 1 162 1 view .LVU203
- 632 003c 02B0     		add	sp, sp, #8
- 633              	.LCFI11:
- 634              		.cfi_remember_state
- 635              		.cfi_def_cfa_offset 16
- 636              		@ sp needed
- 637 003e 70BD     		pop	{r4, r5, r6, pc}
- 638              	.LVL30:
- 639              	.L51:
- 640              	.LCFI12:
- 641              		.cfi_restore_state
- 143:src/task.c    ****     }
- 642              		.loc 1 143 16 view .LVU204
- 643 0040 FF20     		movs	r0, #255
- 644 0042 FBE7     		b	.L50
- 645              	.L52:
- 155:src/task.c    ****     }
- 646              		.loc 1 155 16 view .LVU205
- 647 0044 FE20     		movs	r0, #254
- 648 0046 F9E7     		b	.L50
- 649              		.cfi_endproc
- 650              	.LFE143:
- 652              		.section	.rodata.create_idle_task.str1.4,"aMS",%progbits,1
- 653              		.align	2
- 654              	.LC0:
- 655 0000 49646C65 		.ascii	"Idle Task\000"
- 655      20546173 
- 655      6B00
- 656              		.section	.text.create_idle_task,"ax",%progbits
- 657              		.align	1
- 658              		.global	create_idle_task
- 659              		.syntax unified
- 660              		.thumb
- 661              		.thumb_func
- 662              		.fpu fpv4-sp-d16
- 664              	create_idle_task:
- 665              	.LFB144:
- 163:src/task.c    **** 
- 164:src/task.c    **** uint8_t create_idle_task()
- 165:src/task.c    **** {
- 666              		.loc 1 165 1 is_stmt 1 view -0
- 667              		.cfi_startproc
- 668              		@ args = 0, pretend = 0, frame = 8
- 669              		@ frame_needed = 0, uses_anonymous_args = 0
- 670 0000 00B5     		push	{lr}
- 671              	.LCFI13:
- 672              		.cfi_def_cfa_offset 4
-ARM GAS  /tmp/ccadLJBu.s 			page 17
+ 623              	.LCFI10:
+ 624              		.cfi_def_cfa_offset 4
+ 625              		.cfi_offset 14, -4
+ 626 0002 83B0     		sub	sp, sp, #12
+ 627              	.LCFI11:
+ 628              		.cfi_def_cfa_offset 16
+ 167:src/task.c    ****     TCB_Typedef* newTask = (TCB_Typedef*)malloc(sizeof(TCB_Typedef));       // allocate memory
+ 629              		.loc 1 167 5 view .LVU191
+ 630              		.loc 1 167 42 is_stmt 0 view .LVU192
+ 631 0004 1820     		movs	r0, #24
+ 632 0006 FFF7FEFF 		bl	malloc
+ 633              	.LVL28:
+ 634              		.loc 1 167 18 view .LVU193
+ 635 000a 0190     		str	r0, [sp, #4]
+ 168:src/task.c    **** 
+ 169:src/task.c    ****     if (newTask == NULL)
+ 636              		.loc 1 169 5 is_stmt 1 view .LVU194
+ 637              		.loc 1 169 8 is_stmt 0 view .LVU195
+ 638 000c C0B1     		cbz	r0, .L50
+ 170:src/task.c    ****     {
+ 171:src/task.c    ****         return -1;      // Failed to allocate memory
+ 172:src/task.c    ****     }
+ 173:src/task.c    **** 
+ 174:src/task.c    ****     newTask->fn = idleTask;                 // add function address in tcb
+ 639              		.loc 1 174 5 is_stmt 1 view .LVU196
+ 640              		.loc 1 174 17 is_stmt 0 view .LVU197
+ 641 000e 0E4B     		ldr	r3, .L53
+ 642 0010 4360     		str	r3, [r0, #4]
+ 175:src/task.c    ****     newTask->taskName = "Idle Task";        // add name in tcb
+ 643              		.loc 1 175 5 is_stmt 1 view .LVU198
+ 644              		.loc 1 175 23 is_stmt 0 view .LVU199
+ 645 0012 0E4B     		ldr	r3, .L53+4
+ 646 0014 8360     		str	r3, [r0, #8]
+ 176:src/task.c    ****     newTask->state = READY;                 // set task state
+ 647              		.loc 1 176 5 is_stmt 1 view .LVU200
+ 648              		.loc 1 176 20 is_stmt 0 view .LVU201
+ 649 0016 0123     		movs	r3, #1
+ 650 0018 8382     		strh	r3, [r0, #20]	@ movhi
+ 177:src/task.c    ****     newTask->priority = 0;                  // add task priority
+ 651              		.loc 1 177 5 is_stmt 1 view .LVU202
+ 652              		.loc 1 177 23 is_stmt 0 view .LVU203
+ 653 001a 0023     		movs	r3, #0
+ 654 001c C382     		strh	r3, [r0, #22]	@ movhi
+ 178:src/task.c    ****     newTask->delay = 0;                     // set delay as 0
+ 655              		.loc 1 178 5 is_stmt 1 view .LVU204
+ 656              		.loc 1 178 20 is_stmt 0 view .LVU205
+ 657 001e 0361     		str	r3, [r0, #16]
+ 179:src/task.c    ****     newTask->next = NULL;
+ 658              		.loc 1 179 5 is_stmt 1 view .LVU206
+ 659              		.loc 1 179 19 is_stmt 0 view .LVU207
+ 660 0020 0360     		str	r3, [r0]
+ 180:src/task.c    **** 
+ 181:src/task.c    ****     if (allocate_task_stack(&newTask) < 0)      // allocate stack for task
+ 661              		.loc 1 181 5 is_stmt 1 view .LVU208
+ 662              		.loc 1 181 9 is_stmt 0 view .LVU209
+ 663 0022 01A8     		add	r0, sp, #4
+ 664 0024 FFF7FEFF 		bl	allocate_task_stack
+ARM GAS  /tmp/ccSjikuJ.s 			page 17
 
 
- 673              		.cfi_offset 14, -4
- 674 0002 83B0     		sub	sp, sp, #12
- 675              	.LCFI14:
- 676              		.cfi_def_cfa_offset 16
- 166:src/task.c    ****     TCB_Typedef* newTask = (TCB_Typedef*)malloc(sizeof(TCB_Typedef));       // allocate memory
- 677              		.loc 1 166 5 view .LVU207
- 678              		.loc 1 166 42 is_stmt 0 view .LVU208
- 679 0004 1820     		movs	r0, #24
- 680 0006 FFF7FEFF 		bl	malloc
- 681              	.LVL31:
- 682              		.loc 1 166 18 view .LVU209
- 683 000a 0190     		str	r0, [sp, #4]
- 167:src/task.c    **** 
- 168:src/task.c    ****     if (newTask == NULL)
- 684              		.loc 1 168 5 is_stmt 1 view .LVU210
- 685              		.loc 1 168 8 is_stmt 0 view .LVU211
- 686 000c C0B1     		cbz	r0, .L56
- 169:src/task.c    ****     {
- 170:src/task.c    ****         return -1;      // Failed to allocate memory
- 171:src/task.c    ****     }
- 172:src/task.c    **** 
- 173:src/task.c    ****     newTask->fn = idleTask;                 // add function address in tcb
- 687              		.loc 1 173 5 is_stmt 1 view .LVU212
- 688              		.loc 1 173 17 is_stmt 0 view .LVU213
- 689 000e 0E4B     		ldr	r3, .L59
- 690 0010 4360     		str	r3, [r0, #4]
- 174:src/task.c    ****     newTask->taskName = "Idle Task";        // add name in tcb
- 691              		.loc 1 174 5 is_stmt 1 view .LVU214
- 692              		.loc 1 174 23 is_stmt 0 view .LVU215
- 693 0012 0E4B     		ldr	r3, .L59+4
- 694 0014 8360     		str	r3, [r0, #8]
- 175:src/task.c    ****     newTask->state = READY;                 // set task state
- 695              		.loc 1 175 5 is_stmt 1 view .LVU216
- 696              		.loc 1 175 20 is_stmt 0 view .LVU217
- 697 0016 0123     		movs	r3, #1
- 698 0018 8382     		strh	r3, [r0, #20]	@ movhi
- 176:src/task.c    ****     newTask->priority = 0;                  // add task priority
- 699              		.loc 1 176 5 is_stmt 1 view .LVU218
- 700              		.loc 1 176 23 is_stmt 0 view .LVU219
- 701 001a 0023     		movs	r3, #0
- 702 001c C382     		strh	r3, [r0, #22]	@ movhi
- 177:src/task.c    ****     newTask->delay = 0;                     // set delay as 0
- 703              		.loc 1 177 5 is_stmt 1 view .LVU220
- 704              		.loc 1 177 20 is_stmt 0 view .LVU221
- 705 001e 0361     		str	r3, [r0, #16]
- 178:src/task.c    ****     newTask->next = NULL;
- 706              		.loc 1 178 5 is_stmt 1 view .LVU222
- 707              		.loc 1 178 19 is_stmt 0 view .LVU223
- 708 0020 0360     		str	r3, [r0]
- 179:src/task.c    **** 
- 180:src/task.c    ****     if (allocate_task_stack(&newTask) < 0)      // allocate stack for task
- 709              		.loc 1 180 5 is_stmt 1 view .LVU224
- 710              		.loc 1 180 9 is_stmt 0 view .LVU225
- 711 0022 01A8     		add	r0, sp, #4
- 712 0024 FFF7FEFF 		bl	allocate_task_stack
- 713              	.LVL32:
- 714              		.loc 1 180 8 view .LVU226
-ARM GAS  /tmp/ccadLJBu.s 			page 18
+ 665              	.LVL29:
+ 666              		.loc 1 181 8 view .LVU210
+ 667 0028 0028     		cmp	r0, #0
+ 668 002a 0BDB     		blt	.L51
+ 182:src/task.c    ****     {
+ 183:src/task.c    ****         return -2;      // failed to allocate stack / stack full
+ 184:src/task.c    ****     }
+ 185:src/task.c    **** 
+ 186:src/task.c    ****     create_context(&newTask);       // create dummy context
+ 669              		.loc 1 186 5 is_stmt 1 view .LVU211
+ 670 002c 01A8     		add	r0, sp, #4
+ 671 002e FFF7FEFF 		bl	create_context
+ 672              	.LVL30:
+ 187:src/task.c    **** 
+ 188:src/task.c    ****     idle_task = newTask;            // add idle task before task head
+ 673              		.loc 1 188 5 view .LVU212
+ 674              		.loc 1 188 15 is_stmt 0 view .LVU213
+ 675 0032 074B     		ldr	r3, .L53+8
+ 676 0034 019A     		ldr	r2, [sp, #4]
+ 677 0036 1A60     		str	r2, [r3]
+ 189:src/task.c    **** 
+ 190:src/task.c    ****     return 0;
+ 678              		.loc 1 190 5 is_stmt 1 view .LVU214
+ 679              		.loc 1 190 12 is_stmt 0 view .LVU215
+ 680 0038 0020     		movs	r0, #0
+ 681              	.L49:
+ 191:src/task.c    **** }...
+ 682              		.loc 1 191 1 view .LVU216
+ 683 003a 03B0     		add	sp, sp, #12
+ 684              	.LCFI12:
+ 685              		.cfi_remember_state
+ 686              		.cfi_def_cfa_offset 4
+ 687              		@ sp needed
+ 688 003c 5DF804FB 		ldr	pc, [sp], #4
+ 689              	.L50:
+ 690              	.LCFI13:
+ 691              		.cfi_restore_state
+ 171:src/task.c    ****         return -1;      // Failed to allocate memory
+ 692              		.loc 1 171 16 view .LVU217
+ 693 0040 FF20     		movs	r0, #255
+ 694 0042 FAE7     		b	.L49
+ 695              	.L51:
+ 183:src/task.c    ****         return -2;      // failed to allocate stack / stack full
+ 696              		.loc 1 183 16 view .LVU218
+ 697 0044 FE20     		movs	r0, #254
+ 698 0046 F8E7     		b	.L49
+ 699              	.L54:
+ 700              		.align	2
+ 701              	.L53:
+ 702 0048 00000000 		.word	idleTask
+ 703 004c 00000000 		.word	.LC0
+ 704 0050 00000000 		.word	.LANCHOR3
+ 705              		.cfi_endproc
+ 706              	.LFE144:
+ 708              		.global	current_stack_size
+ 709              		.global	task_stack
+ 710              		.global	idle_task
+ARM GAS  /tmp/ccSjikuJ.s 			page 18
 
 
- 715 0028 0028     		cmp	r0, #0
- 716 002a 0BDB     		blt	.L57
- 181:src/task.c    ****     {
- 182:src/task.c    ****         return -2;      // failed to allocate stack / stack full
- 183:src/task.c    ****     }
- 184:src/task.c    **** 
- 185:src/task.c    ****     create_context(&newTask);       // create dummy context
- 717              		.loc 1 185 5 is_stmt 1 view .LVU227
- 718 002c 01A8     		add	r0, sp, #4
- 719 002e FFF7FEFF 		bl	create_context
- 720              	.LVL33:
- 186:src/task.c    **** 
- 187:src/task.c    ****     idle_task = newTask;            // add idle task before task head
- 721              		.loc 1 187 5 view .LVU228
- 722              		.loc 1 187 15 is_stmt 0 view .LVU229
- 723 0032 074B     		ldr	r3, .L59+8
- 724 0034 019A     		ldr	r2, [sp, #4]
- 725 0036 1A60     		str	r2, [r3]
- 188:src/task.c    **** 
- 189:src/task.c    ****     return 0;
- 726              		.loc 1 189 5 is_stmt 1 view .LVU230
- 727              		.loc 1 189 12 is_stmt 0 view .LVU231
- 728 0038 0020     		movs	r0, #0
- 729              	.L55:
- 190:src/task.c    **** }...
- 730              		.loc 1 190 1 view .LVU232
- 731 003a 03B0     		add	sp, sp, #12
- 732              	.LCFI15:
- 733              		.cfi_remember_state
- 734              		.cfi_def_cfa_offset 4
- 735              		@ sp needed
- 736 003c 5DF804FB 		ldr	pc, [sp], #4
- 737              	.L56:
- 738              	.LCFI16:
- 739              		.cfi_restore_state
- 170:src/task.c    ****         return -1;      // Failed to allocate memory
- 740              		.loc 1 170 16 view .LVU233
- 741 0040 FF20     		movs	r0, #255
- 742 0042 FAE7     		b	.L55
- 743              	.L57:
- 182:src/task.c    ****         return -2;      // failed to allocate stack / stack full
- 744              		.loc 1 182 16 view .LVU234
- 745 0044 FE20     		movs	r0, #254
- 746 0046 F8E7     		b	.L55
- 747              	.L60:
+ 711              		.global	WaitingHead
+ 712              		.global	waiting_task_head
+ 713              		.global	ReadyHead
+ 714              		.global	ready_task_head
+ 715              		.section	.bss.idle_task,"aw",%nobits
+ 716              		.align	2
+ 717              		.set	.LANCHOR3,. + 0
+ 720              	idle_task:
+ 721 0000 00000000 		.space	4
+ 722              		.section	.bss.ready_task_head,"aw",%nobits
+ 723              		.align	2
+ 726              	ready_task_head:
+ 727 0000 00000000 		.space	4
+ 728              		.section	.bss.task_stack,"aw",%nobits
+ 729              		.align	2
+ 732              	task_stack:
+ 733 0000 00000000 		.space	4096
+ 733      00000000 
+ 733      00000000 
+ 733      00000000 
+ 733      00000000 
+ 734              		.section	.bss.waiting_task_head,"aw",%nobits
+ 735              		.align	2
+ 738              	waiting_task_head:
+ 739 0000 00000000 		.space	4
+ 740              		.section	.data.ReadyHead,"aw"
+ 741              		.align	2
+ 742              		.set	.LANCHOR1,. + 0
+ 745              	ReadyHead:
+ 746 0000 00000000 		.word	ready_task_head
+ 747              		.section	.data.WaitingHead,"aw"
  748              		.align	2
- 749              	.L59:
- 750 0048 00000000 		.word	idleTask
- 751 004c 00000000 		.word	.LC0
- 752 0050 00000000 		.word	.LANCHOR3
- 753              		.cfi_endproc
- 754              	.LFE144:
- 756              		.global	current_stack_size
- 757              		.global	task_stack
- 758              		.global	idle_task
- 759              		.global	BlockedHead
- 760              		.global	blocked_task_head
-ARM GAS  /tmp/ccadLJBu.s 			page 19
-
-
- 761              		.global	ReadyHead
- 762              		.global	ready_task_head
- 763              		.section	.bss.blocked_task_head,"aw",%nobits
- 764              		.align	2
- 767              	blocked_task_head:
- 768 0000 00000000 		.space	4
- 769              		.section	.bss.idle_task,"aw",%nobits
- 770              		.align	2
- 771              		.set	.LANCHOR3,. + 0
- 774              	idle_task:
- 775 0000 00000000 		.space	4
- 776              		.section	.bss.ready_task_head,"aw",%nobits
- 777              		.align	2
- 780              	ready_task_head:
- 781 0000 00000000 		.space	4
- 782              		.section	.bss.task_stack,"aw",%nobits
- 783              		.align	2
- 786              	task_stack:
- 787 0000 00000000 		.space	4096
- 787      00000000 
- 787      00000000 
- 787      00000000 
- 787      00000000 
- 788              		.section	.data.BlockedHead,"aw"
- 789              		.align	2
- 790              		.set	.LANCHOR2,. + 0
- 793              	BlockedHead:
- 794 0000 00000000 		.word	blocked_task_head
- 795              		.section	.data.ReadyHead,"aw"
- 796              		.align	2
- 797              		.set	.LANCHOR1,. + 0
- 800              	ReadyHead:
- 801 0000 00000000 		.word	ready_task_head
- 802              		.section	.data.current_stack_size,"aw"
- 803              		.align	1
- 804              		.set	.LANCHOR0,. + 0
- 807              	current_stack_size:
- 808 0000 0004     		.short	1024
- 809              		.text
- 810              	.Letext0:
- 811              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
- 812              		.file 3 "inc/task.h"
- 813              		.file 4 "/usr/include/newlib/stdlib.h"
-ARM GAS  /tmp/ccadLJBu.s 			page 20
+ 749              		.set	.LANCHOR2,. + 0
+ 752              	WaitingHead:
+ 753 0000 00000000 		.word	waiting_task_head
+ 754              		.section	.data.current_stack_size,"aw"
+ 755              		.align	1
+ 756              		.set	.LANCHOR0,. + 0
+ 759              	current_stack_size:
+ 760 0000 0004     		.short	1024
+ 761              		.text
+ 762              	.Letext0:
+ 763              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 764              		.file 3 "inc/task.h"
+ 765              		.file 4 "/usr/include/newlib/stdlib.h"
+ARM GAS  /tmp/ccSjikuJ.s 			page 19
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 task.c
-     /tmp/ccadLJBu.s:18     .text.allocate_task_stack:0000000000000000 $t
-     /tmp/ccadLJBu.s:25     .text.allocate_task_stack:0000000000000000 allocate_task_stack
-     /tmp/ccadLJBu.s:72     .text.allocate_task_stack:0000000000000024 $d
-     /tmp/ccadLJBu.s:786    .bss.task_stack:0000000000000000 task_stack
-     /tmp/ccadLJBu.s:78     .text.create_context:0000000000000000 $t
-     /tmp/ccadLJBu.s:84     .text.create_context:0000000000000000 create_context
-     /tmp/ccadLJBu.s:226    .text.create_context:0000000000000094 $d
-     /tmp/ccadLJBu.s:231    .text.removeFromReadyList:0000000000000000 $t
-     /tmp/ccadLJBu.s:238    .text.removeFromReadyList:0000000000000000 removeFromReadyList
-     /tmp/ccadLJBu.s:315    .text.removeFromReadyList:0000000000000030 $d
-     /tmp/ccadLJBu.s:320    .text.removeFromBlockedList:0000000000000000 $t
-     /tmp/ccadLJBu.s:327    .text.removeFromBlockedList:0000000000000000 removeFromBlockedList
-     /tmp/ccadLJBu.s:404    .text.removeFromBlockedList:0000000000000030 $d
-     /tmp/ccadLJBu.s:409    .text.addToBlockedList:0000000000000000 $t
-     /tmp/ccadLJBu.s:416    .text.addToBlockedList:0000000000000000 addToBlockedList
-     /tmp/ccadLJBu.s:445    .text.addToBlockedList:0000000000000014 $d
-     /tmp/ccadLJBu.s:450    .text.addToReadyList:0000000000000000 $t
-     /tmp/ccadLJBu.s:457    .text.addToReadyList:0000000000000000 addToReadyList
-     /tmp/ccadLJBu.s:546    .text.addToReadyList:0000000000000040 $d
-     /tmp/ccadLJBu.s:551    .text.createTask:0000000000000000 $t
-     /tmp/ccadLJBu.s:558    .text.createTask:0000000000000000 createTask
-     /tmp/ccadLJBu.s:653    .rodata.create_idle_task.str1.4:0000000000000000 $d
-     /tmp/ccadLJBu.s:657    .text.create_idle_task:0000000000000000 $t
-     /tmp/ccadLJBu.s:664    .text.create_idle_task:0000000000000000 create_idle_task
-     /tmp/ccadLJBu.s:750    .text.create_idle_task:0000000000000048 $d
-     /tmp/ccadLJBu.s:807    .data.current_stack_size:0000000000000000 current_stack_size
-     /tmp/ccadLJBu.s:774    .bss.idle_task:0000000000000000 idle_task
-     /tmp/ccadLJBu.s:793    .data.BlockedHead:0000000000000000 BlockedHead
-     /tmp/ccadLJBu.s:767    .bss.blocked_task_head:0000000000000000 blocked_task_head
-     /tmp/ccadLJBu.s:800    .data.ReadyHead:0000000000000000 ReadyHead
-     /tmp/ccadLJBu.s:780    .bss.ready_task_head:0000000000000000 ready_task_head
-     /tmp/ccadLJBu.s:764    .bss.blocked_task_head:0000000000000000 $d
-     /tmp/ccadLJBu.s:770    .bss.idle_task:0000000000000000 $d
-     /tmp/ccadLJBu.s:777    .bss.ready_task_head:0000000000000000 $d
-     /tmp/ccadLJBu.s:783    .bss.task_stack:0000000000000000 $d
-     /tmp/ccadLJBu.s:789    .data.BlockedHead:0000000000000000 $d
-     /tmp/ccadLJBu.s:796    .data.ReadyHead:0000000000000000 $d
-     /tmp/ccadLJBu.s:803    .data.current_stack_size:0000000000000000 $d
+     /tmp/ccSjikuJ.s:18     .text.allocate_task_stack:0000000000000000 $t
+     /tmp/ccSjikuJ.s:25     .text.allocate_task_stack:0000000000000000 allocate_task_stack
+     /tmp/ccSjikuJ.s:72     .text.allocate_task_stack:0000000000000024 $d
+     /tmp/ccSjikuJ.s:732    .bss.task_stack:0000000000000000 task_stack
+     /tmp/ccSjikuJ.s:78     .text.create_context:0000000000000000 $t
+     /tmp/ccSjikuJ.s:84     .text.create_context:0000000000000000 create_context
+     /tmp/ccSjikuJ.s:226    .text.create_context:0000000000000094 $d
+     /tmp/ccSjikuJ.s:231    .text.removeFromReadyList:0000000000000000 $t
+     /tmp/ccSjikuJ.s:238    .text.removeFromReadyList:0000000000000000 removeFromReadyList
+     /tmp/ccSjikuJ.s:315    .text.removeFromReadyList:0000000000000030 $d
+     /tmp/ccSjikuJ.s:320    .text.removeFromWaitingList:0000000000000000 $t
+     /tmp/ccSjikuJ.s:327    .text.removeFromWaitingList:0000000000000000 removeFromWaitingList
+     /tmp/ccSjikuJ.s:404    .text.removeFromWaitingList:0000000000000030 $d
+     /tmp/ccSjikuJ.s:409    .text.addToWaitingList:0000000000000000 $t
+     /tmp/ccSjikuJ.s:416    .text.addToWaitingList:0000000000000000 addToWaitingList
+     /tmp/ccSjikuJ.s:445    .text.addToWaitingList:0000000000000014 $d
+     /tmp/ccSjikuJ.s:450    .text.addToReadyList:0000000000000000 $t
+     /tmp/ccSjikuJ.s:457    .text.addToReadyList:0000000000000000 addToReadyList
+     /tmp/ccSjikuJ.s:498    .text.addToReadyList:000000000000001c $d
+     /tmp/ccSjikuJ.s:503    .text.createTask:0000000000000000 $t
+     /tmp/ccSjikuJ.s:510    .text.createTask:0000000000000000 createTask
+     /tmp/ccSjikuJ.s:605    .rodata.create_idle_task.str1.4:0000000000000000 $d
+     /tmp/ccSjikuJ.s:609    .text.create_idle_task:0000000000000000 $t
+     /tmp/ccSjikuJ.s:616    .text.create_idle_task:0000000000000000 create_idle_task
+     /tmp/ccSjikuJ.s:702    .text.create_idle_task:0000000000000048 $d
+     /tmp/ccSjikuJ.s:759    .data.current_stack_size:0000000000000000 current_stack_size
+     /tmp/ccSjikuJ.s:720    .bss.idle_task:0000000000000000 idle_task
+     /tmp/ccSjikuJ.s:752    .data.WaitingHead:0000000000000000 WaitingHead
+     /tmp/ccSjikuJ.s:738    .bss.waiting_task_head:0000000000000000 waiting_task_head
+     /tmp/ccSjikuJ.s:745    .data.ReadyHead:0000000000000000 ReadyHead
+     /tmp/ccSjikuJ.s:726    .bss.ready_task_head:0000000000000000 ready_task_head
+     /tmp/ccSjikuJ.s:716    .bss.idle_task:0000000000000000 $d
+     /tmp/ccSjikuJ.s:723    .bss.ready_task_head:0000000000000000 $d
+     /tmp/ccSjikuJ.s:729    .bss.task_stack:0000000000000000 $d
+     /tmp/ccSjikuJ.s:735    .bss.waiting_task_head:0000000000000000 $d
+     /tmp/ccSjikuJ.s:741    .data.ReadyHead:0000000000000000 $d
+     /tmp/ccSjikuJ.s:748    .data.WaitingHead:0000000000000000 $d
+     /tmp/ccSjikuJ.s:755    .data.current_stack_size:0000000000000000 $d
 
 UNDEFINED SYMBOLS
 malloc

@@ -3,7 +3,7 @@
 extern TCB_Typedef* idle_task;			// defined in task.c
 
 extern ready_task_list* ReadyHead;
-extern blocked_task_list* BlockedHead;
+extern waiting_task_list* WaitingHead;
 
 TCB_Typedef* next_task = NULL;		// used to iterate through circulat linked list
 
@@ -21,14 +21,16 @@ TCB_Typedef* getCurrentTask()
 void switch_task()
 {	
 	TCB_Typedef* executing_task = getCurrentTask();
-	executing_task->psp = (uint32_t*)stack_ptr;	// update executing task stack address for saving context
-	//TCB_Typedef* temp = ReadyHead->head;
-	//uint32_t prio = 255;
+	executing_task->psp = (uint32_t*)stack_ptr;			// update executing task stack address for saving context
+
+	TCB_Typedef* temp = ReadyHead->head;
+	uint32_t prio = 255;
 	
 	if (ReadyHead->head == NULL)
 	{
 		executing_task = idle_task;
 	}
+	/*
 	else
 	{
 		if (executing_task->next == NULL || next_task == NULL)
@@ -42,7 +44,7 @@ void switch_task()
 			next_task = executing_task->next;
 		}
 	}
-	/*
+	*/
 	else
 	{
 		while (temp != NULL)
@@ -64,7 +66,6 @@ void switch_task()
 			executing_task = next_task;
 		}
 	}
-	*/
 
 	stack_ptr = (uint32_t)executing_task->psp;			// update next task stack address for restoring context
 }
@@ -88,12 +89,12 @@ void PendSV_Handler(void)
 /************************************ Function to update task ticks ******************************************/
 static void update_task_delay()
 {
-	if (BlockedHead->head == NULL)
+	if (WaitingHead->head == NULL)
 	{
 		return;
 	}
 	
-	TCB_Typedef* current_task = BlockedHead->head;
+	TCB_Typedef* current_task = WaitingHead->head;
 	TCB_Typedef* nexttask = NULL;
 	
 	while (current_task != NULL)
@@ -103,7 +104,7 @@ static void update_task_delay()
 		if (current_task->delay == 0)
 	    {
 	        current_task->state = READY;				// if condition satisfies change task state to ready
-			removeFromBlockedList(&current_task);
+			removeFromWaitingList(&current_task);
 			addToReadyList(&current_task);
 	    }
 		else
@@ -131,7 +132,7 @@ void task_delay(uint32_t ms)
 	current_task->state = BLOCKED;				// change task state to blocked
 
 	removeFromReadyList(&current_task);
-	addToBlockedList(&current_task);
+	addToWaitingList(&current_task);
 
 	set_PendSV();								// set PendSV interrupt
 

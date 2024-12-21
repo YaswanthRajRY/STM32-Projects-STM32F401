@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccOmIOdq.s 			page 1
+ARM GAS  /tmp/cchXHjty.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -32,7 +32,7 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
    3:src/scheduler.c **** extern TCB_Typedef* idle_task;			// defined in task.c
    4:src/scheduler.c **** 
    5:src/scheduler.c **** extern ready_task_list* ReadyHead;
-   6:src/scheduler.c **** extern blocked_task_list* BlockedHead;
+   6:src/scheduler.c **** extern waiting_task_list* WaitingHead;
    7:src/scheduler.c **** 
    8:src/scheduler.c **** TCB_Typedef* next_task = NULL;		// used to iterate through circulat linked list
    9:src/scheduler.c **** 
@@ -50,122 +50,123 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   21:src/scheduler.c **** void switch_task()
   22:src/scheduler.c **** {	
   23:src/scheduler.c **** 	TCB_Typedef* executing_task = getCurrentTask();
-  24:src/scheduler.c **** 	executing_task->psp = (uint32_t*)stack_ptr;	// update executing task stack address for saving cont
-  25:src/scheduler.c **** 	//TCB_Typedef* temp = ReadyHead->head;
-  26:src/scheduler.c **** 	//uint32_t prio = 255;
-  27:src/scheduler.c **** 	
-  28:src/scheduler.c **** 	if (ReadyHead->head == NULL)
-  29:src/scheduler.c **** 	{
-  30:src/scheduler.c **** 		executing_task = idle_task;
-  31:src/scheduler.c **** 	}
-ARM GAS  /tmp/ccOmIOdq.s 			page 2
+  24:src/scheduler.c **** 	executing_task->psp = (uint32_t*)stack_ptr;			// update executing task stack address for saving co
+  25:src/scheduler.c **** 
+  26:src/scheduler.c **** 	TCB_Typedef* temp = ReadyHead->head;
+  27:src/scheduler.c **** 	uint32_t prio = 255;
+  28:src/scheduler.c **** 	
+  29:src/scheduler.c **** 	if (ReadyHead->head == NULL)
+  30:src/scheduler.c **** 	{
+  31:src/scheduler.c **** 		executing_task = idle_task;
+ARM GAS  /tmp/cchXHjty.s 			page 2
 
 
-  32:src/scheduler.c **** 	else
-  33:src/scheduler.c **** 	{
-  34:src/scheduler.c **** 		if (executing_task->next == NULL || next_task == NULL)
-  35:src/scheduler.c **** 		{
-  36:src/scheduler.c **** 			executing_task = ReadyHead->head;
-  37:src/scheduler.c **** 			next_task = executing_task->next;
-  38:src/scheduler.c **** 		}
-  39:src/scheduler.c **** 		else
-  40:src/scheduler.c **** 		{
-  41:src/scheduler.c **** 			executing_task = next_task;
-  42:src/scheduler.c **** 			next_task = executing_task->next;
-  43:src/scheduler.c **** 		}
-  44:src/scheduler.c **** 	}
-  45:src/scheduler.c **** 	/*
-  46:src/scheduler.c **** 	else
-  47:src/scheduler.c **** 	{
-  48:src/scheduler.c **** 		while (temp != NULL)
-  49:src/scheduler.c **** 		{
-  50:src/scheduler.c **** 			if (temp->priority < prio)
-  51:src/scheduler.c **** 			{
-  52:src/scheduler.c **** 				next_task = temp;
-  53:src/scheduler.c **** 				prio = next_task->priority;
-  54:src/scheduler.c **** 			}
-  55:src/scheduler.c **** 			temp = temp->next;
-  56:src/scheduler.c **** 		}
-  57:src/scheduler.c **** 
-  58:src/scheduler.c **** 		if (next_task == NULL)
-  59:src/scheduler.c **** 		{
-  60:src/scheduler.c **** 			executing_task = idle_task;
-  61:src/scheduler.c **** 		}
-  62:src/scheduler.c **** 		else
-  63:src/scheduler.c **** 		{
-  64:src/scheduler.c **** 			executing_task = next_task;
-  65:src/scheduler.c **** 		}
-  66:src/scheduler.c **** 	}
-  67:src/scheduler.c **** 	*/
-  68:src/scheduler.c **** 
-  69:src/scheduler.c **** 	stack_ptr = (uint32_t)executing_task->psp;			// update next task stack address for restoring conte
-  70:src/scheduler.c **** }
-  71:src/scheduler.c **** 
-  72:src/scheduler.c **** /************************************ Function to do context switching ****************************
-  73:src/scheduler.c **** void PendSV_Handler(void)
-  74:src/scheduler.c **** {
-  75:src/scheduler.c **** 	__ASM volatile("MRS r0, psp");						// move current psp to r0
-  76:src/scheduler.c **** 	__ASM volatile("STMDB r0!, {r4-r11}");					// push r4-r11 in program stack
-  77:src/scheduler.c **** 	__ASM volatile("MSR psp, r0");						// update psp
-  78:src/scheduler.c **** 	__ASM volatile("PUSH {lr}");						// push lr in main stack
-  79:src/scheduler.c **** 	__ASM volatile("MOV %0, r0" : "=r" (stack_ptr)::);			// copy updated psp to current tasl tcb
-  80:src/scheduler.c **** 	__ASM volatile("BL switch_task");					// branch to switch function
-  81:src/scheduler.c **** 	__ASM volatile("MOV r0, %0" :: "r" (stack_ptr):);			// copy next task stack address to r0
-  82:src/scheduler.c **** 	__ASM volatile("LDMIA r0!, {r4-r11}");					// pop saved context from task stack to r4-r11
-  83:src/scheduler.c **** 	__ASM volatile("MSR psp, r0");						// update psp
-  84:src/scheduler.c **** 	__ASM volatile("POP {lr}");						// pop lr from main stack
-  85:src/scheduler.c **** 	__ASM volatile("BX lr");						// return from exception
-  86:src/scheduler.c **** }
-  87:src/scheduler.c **** 
-  88:src/scheduler.c **** /************************************ Function to update task ticks *******************************
-ARM GAS  /tmp/ccOmIOdq.s 			page 3
+  32:src/scheduler.c **** 	}
+  33:src/scheduler.c **** 	/*
+  34:src/scheduler.c **** 	else
+  35:src/scheduler.c **** 	{
+  36:src/scheduler.c **** 		if (executing_task->next == NULL || next_task == NULL)
+  37:src/scheduler.c **** 		{
+  38:src/scheduler.c **** 			executing_task = ReadyHead->head;
+  39:src/scheduler.c **** 			next_task = executing_task->next;
+  40:src/scheduler.c **** 		}
+  41:src/scheduler.c **** 		else
+  42:src/scheduler.c **** 		{
+  43:src/scheduler.c **** 			executing_task = next_task;
+  44:src/scheduler.c **** 			next_task = executing_task->next;
+  45:src/scheduler.c **** 		}
+  46:src/scheduler.c **** 	}
+  47:src/scheduler.c **** 	*/
+  48:src/scheduler.c **** 	else
+  49:src/scheduler.c **** 	{
+  50:src/scheduler.c **** 		while (temp != NULL)
+  51:src/scheduler.c **** 		{
+  52:src/scheduler.c **** 			if (temp->priority < prio)
+  53:src/scheduler.c **** 			{
+  54:src/scheduler.c **** 				next_task = temp;
+  55:src/scheduler.c **** 				prio = next_task->priority;
+  56:src/scheduler.c **** 			}
+  57:src/scheduler.c **** 			temp = temp->next;
+  58:src/scheduler.c **** 		}
+  59:src/scheduler.c **** 
+  60:src/scheduler.c **** 		if (next_task == NULL)
+  61:src/scheduler.c **** 		{
+  62:src/scheduler.c **** 			executing_task = idle_task;
+  63:src/scheduler.c **** 		}
+  64:src/scheduler.c **** 		else
+  65:src/scheduler.c **** 		{
+  66:src/scheduler.c **** 			executing_task = next_task;
+  67:src/scheduler.c **** 		}
+  68:src/scheduler.c **** 	}
+  69:src/scheduler.c **** 
+  70:src/scheduler.c **** 	stack_ptr = (uint32_t)executing_task->psp;			// update next task stack address for restoring conte
+  71:src/scheduler.c **** }
+  72:src/scheduler.c **** 
+  73:src/scheduler.c **** /************************************ Function to do context switching ****************************
+  74:src/scheduler.c **** void PendSV_Handler(void)
+  75:src/scheduler.c **** {
+  76:src/scheduler.c **** 	__ASM volatile("MRS r0, psp");						// move current psp to r0
+  77:src/scheduler.c **** 	__ASM volatile("STMDB r0!, {r4-r11}");					// push r4-r11 in program stack
+  78:src/scheduler.c **** 	__ASM volatile("MSR psp, r0");						// update psp
+  79:src/scheduler.c **** 	__ASM volatile("PUSH {lr}");						// push lr in main stack
+  80:src/scheduler.c **** 	__ASM volatile("MOV %0, r0" : "=r" (stack_ptr)::);			// copy updated psp to current tasl tcb
+  81:src/scheduler.c **** 	__ASM volatile("BL switch_task");					// branch to switch function
+  82:src/scheduler.c **** 	__ASM volatile("MOV r0, %0" :: "r" (stack_ptr):);			// copy next task stack address to r0
+  83:src/scheduler.c **** 	__ASM volatile("LDMIA r0!, {r4-r11}");					// pop saved context from task stack to r4-r11
+  84:src/scheduler.c **** 	__ASM volatile("MSR psp, r0");						// update psp
+  85:src/scheduler.c **** 	__ASM volatile("POP {lr}");						// pop lr from main stack
+  86:src/scheduler.c **** 	__ASM volatile("BX lr");						// return from exception
+  87:src/scheduler.c **** }
+  88:src/scheduler.c **** 
+ARM GAS  /tmp/cchXHjty.s 			page 3
 
 
-  89:src/scheduler.c **** static void update_task_delay()
-  90:src/scheduler.c **** {
-  91:src/scheduler.c **** 	if (BlockedHead->head == NULL)
-  92:src/scheduler.c **** 	{
-  93:src/scheduler.c **** 		return;
-  94:src/scheduler.c **** 	}
-  95:src/scheduler.c **** 	
-  96:src/scheduler.c **** 	TCB_Typedef* current_task = BlockedHead->head;
-  97:src/scheduler.c **** 	TCB_Typedef* nexttask = NULL;
-  98:src/scheduler.c **** 	
-  99:src/scheduler.c **** 	while (current_task != NULL)
- 100:src/scheduler.c **** 	{
- 101:src/scheduler.c **** 		nexttask = current_task->next;
- 102:src/scheduler.c **** 
- 103:src/scheduler.c **** 		if (current_task->delay == 0)
- 104:src/scheduler.c **** 	    {
- 105:src/scheduler.c **** 	        current_task->state = READY;				// if condition satisfies change task state to ready
- 106:src/scheduler.c **** 			removeFromBlockedList(&current_task);
- 107:src/scheduler.c **** 			addToReadyList(&current_task);
- 108:src/scheduler.c **** 	    }
- 109:src/scheduler.c **** 		else
- 110:src/scheduler.c **** 		{
- 111:src/scheduler.c **** 			current_task->delay--;
- 112:src/scheduler.c **** 		}
- 113:src/scheduler.c **** 	    current_task = nexttask;				// iterate to next task if condition not satisfies
- 114:src/scheduler.c **** 	}
- 115:src/scheduler.c **** }
- 116:src/scheduler.c **** 
- 117:src/scheduler.c **** /********************************** Function to trigger PendSV interrupt **************************
- 118:src/scheduler.c **** static void set_PendSV()
- 119:src/scheduler.c **** {
-  28              		.loc 1 119 1 view -0
+  89:src/scheduler.c **** /************************************ Function to update task ticks *******************************
+  90:src/scheduler.c **** static void update_task_delay()
+  91:src/scheduler.c **** {
+  92:src/scheduler.c **** 	if (WaitingHead->head == NULL)
+  93:src/scheduler.c **** 	{
+  94:src/scheduler.c **** 		return;
+  95:src/scheduler.c **** 	}
+  96:src/scheduler.c **** 	
+  97:src/scheduler.c **** 	TCB_Typedef* current_task = WaitingHead->head;
+  98:src/scheduler.c **** 	TCB_Typedef* nexttask = NULL;
+  99:src/scheduler.c **** 	
+ 100:src/scheduler.c **** 	while (current_task != NULL)
+ 101:src/scheduler.c **** 	{
+ 102:src/scheduler.c **** 		nexttask = current_task->next;
+ 103:src/scheduler.c **** 
+ 104:src/scheduler.c **** 		if (current_task->delay == 0)
+ 105:src/scheduler.c **** 	    {
+ 106:src/scheduler.c **** 	        current_task->state = READY;				// if condition satisfies change task state to ready
+ 107:src/scheduler.c **** 			removeFromWaitingList(&current_task);
+ 108:src/scheduler.c **** 			addToReadyList(&current_task);
+ 109:src/scheduler.c **** 	    }
+ 110:src/scheduler.c **** 		else
+ 111:src/scheduler.c **** 		{
+ 112:src/scheduler.c **** 			current_task->delay--;
+ 113:src/scheduler.c **** 		}
+ 114:src/scheduler.c **** 	    current_task = nexttask;				// iterate to next task if condition not satisfies
+ 115:src/scheduler.c **** 	}
+ 116:src/scheduler.c **** }
+ 117:src/scheduler.c **** 
+ 118:src/scheduler.c **** /********************************** Function to trigger PendSV interrupt **************************
+ 119:src/scheduler.c **** static void set_PendSV()
+ 120:src/scheduler.c **** {
+  28              		.loc 1 120 1 view -0
   29              		.cfi_startproc
   30              		@ args = 0, pretend = 0, frame = 0
   31              		@ frame_needed = 0, uses_anonymous_args = 0
   32              		@ link register save eliminated.
- 120:src/scheduler.c **** 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; 					// Trigger PendSV for context switch
-  33              		.loc 1 120 2 view .LVU1
-  34              		.loc 1 120 12 is_stmt 0 view .LVU2
+ 121:src/scheduler.c **** 	SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; 					// Trigger PendSV for context switch
+  33              		.loc 1 121 2 view .LVU1
+  34              		.loc 1 121 12 is_stmt 0 view .LVU2
   35 0000 024A     		ldr	r2, .L2
   36 0002 5368     		ldr	r3, [r2, #4]
   37 0004 43F08053 		orr	r3, r3, #268435456
   38 0008 5360     		str	r3, [r2, #4]
- 121:src/scheduler.c **** }
-  39              		.loc 1 121 1 view .LVU3
+ 122:src/scheduler.c **** }
+  39              		.loc 1 122 1 view .LVU3
   40 000a 7047     		bx	lr
   41              	.L3:
   42              		.align	2
@@ -177,30 +178,30 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   49              		.align	1
   50              		.syntax unified
   51              		.thumb
+ARM GAS  /tmp/cchXHjty.s 			page 4
+
+
   52              		.thumb_func
-ARM GAS  /tmp/ccOmIOdq.s 			page 4
-
-
   53              		.fpu fpv4-sp-d16
   55              	update_task_delay:
   56              	.LFB140:
-  90:src/scheduler.c **** 	if (BlockedHead->head == NULL)
-  57              		.loc 1 90 1 is_stmt 1 view -0
+  91:src/scheduler.c **** 	if (WaitingHead->head == NULL)
+  57              		.loc 1 91 1 is_stmt 1 view -0
   58              		.cfi_startproc
   59              		@ args = 0, pretend = 0, frame = 8
   60              		@ frame_needed = 0, uses_anonymous_args = 0
-  91:src/scheduler.c **** 	{
-  61              		.loc 1 91 2 view .LVU5
-  91:src/scheduler.c **** 	{
-  62              		.loc 1 91 17 is_stmt 0 view .LVU6
+  92:src/scheduler.c **** 	{
+  61              		.loc 1 92 2 view .LVU5
+  92:src/scheduler.c **** 	{
+  62              		.loc 1 92 17 is_stmt 0 view .LVU6
   63 0000 0E4B     		ldr	r3, .L17
   64 0002 1B68     		ldr	r3, [r3]
   65 0004 1B68     		ldr	r3, [r3]
-  91:src/scheduler.c **** 	{
-  66              		.loc 1 91 5 view .LVU7
+  92:src/scheduler.c **** 	{
+  66              		.loc 1 92 5 view .LVU7
   67 0006 BBB1     		cbz	r3, .L12
-  90:src/scheduler.c **** 	if (BlockedHead->head == NULL)
-  68              		.loc 1 90 1 view .LVU8
+  91:src/scheduler.c **** 	if (WaitingHead->head == NULL)
+  68              		.loc 1 91 1 view .LVU8
   69 0008 10B5     		push	{r4, lr}
   70              	.LCFI0:
   71              		.cfi_def_cfa_offset 8
@@ -209,82 +210,82 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   74 000a 82B0     		sub	sp, sp, #8
   75              	.LCFI1:
   76              		.cfi_def_cfa_offset 16
-  96:src/scheduler.c **** 	TCB_Typedef* nexttask = NULL;
-  77              		.loc 1 96 2 is_stmt 1 view .LVU9
-  96:src/scheduler.c **** 	TCB_Typedef* nexttask = NULL;
-  78              		.loc 1 96 15 is_stmt 0 view .LVU10
+  97:src/scheduler.c **** 	TCB_Typedef* nexttask = NULL;
+  77              		.loc 1 97 2 is_stmt 1 view .LVU9
+  97:src/scheduler.c **** 	TCB_Typedef* nexttask = NULL;
+  78              		.loc 1 97 15 is_stmt 0 view .LVU10
   79 000c 0193     		str	r3, [sp, #4]
-  97:src/scheduler.c **** 	
-  80              		.loc 1 97 2 is_stmt 1 view .LVU11
+  98:src/scheduler.c **** 	
+  80              		.loc 1 98 2 is_stmt 1 view .LVU11
   81              	.LVL0:
-  99:src/scheduler.c **** 	{
-  82              		.loc 1 99 2 view .LVU12
-  99:src/scheduler.c **** 	{
-  83              		.loc 1 99 8 is_stmt 0 view .LVU13
+ 100:src/scheduler.c **** 	{
+  82              		.loc 1 100 2 view .LVU12
+ 100:src/scheduler.c **** 	{
+  83              		.loc 1 100 8 is_stmt 0 view .LVU13
   84 000e 08E0     		b	.L7
   85              	.LVL1:
   86              	.L16:
- 105:src/scheduler.c **** 			removeFromBlockedList(&current_task);
-  87              		.loc 1 105 10 is_stmt 1 view .LVU14
- 105:src/scheduler.c **** 			removeFromBlockedList(&current_task);
-  88              		.loc 1 105 30 is_stmt 0 view .LVU15
+ 106:src/scheduler.c **** 			removeFromWaitingList(&current_task);
+  87              		.loc 1 106 10 is_stmt 1 view .LVU14
+ 106:src/scheduler.c **** 			removeFromWaitingList(&current_task);
+  88              		.loc 1 106 30 is_stmt 0 view .LVU15
   89 0010 0122     		movs	r2, #1
   90 0012 9A82     		strh	r2, [r3, #20]	@ movhi
- 106:src/scheduler.c **** 			addToReadyList(&current_task);
-  91              		.loc 1 106 4 is_stmt 1 view .LVU16
+ 107:src/scheduler.c **** 			addToReadyList(&current_task);
+  91              		.loc 1 107 4 is_stmt 1 view .LVU16
   92 0014 01A8     		add	r0, sp, #4
-  93 0016 FFF7FEFF 		bl	removeFromBlockedList
+  93 0016 FFF7FEFF 		bl	removeFromWaitingList
   94              	.LVL2:
- 107:src/scheduler.c **** 	    }
-  95              		.loc 1 107 4 view .LVU17
+ 108:src/scheduler.c **** 	    }
+  95              		.loc 1 108 4 view .LVU17
+ARM GAS  /tmp/cchXHjty.s 			page 5
+
+
   96 001a 01A8     		add	r0, sp, #4
-ARM GAS  /tmp/ccOmIOdq.s 			page 5
-
-
   97 001c FFF7FEFF 		bl	addToReadyList
   98              	.LVL3:
   99              	.L9:
- 113:src/scheduler.c **** 	}
- 100              		.loc 1 113 6 view .LVU18
- 113:src/scheduler.c **** 	}
- 101              		.loc 1 113 19 is_stmt 0 view .LVU19
+ 114:src/scheduler.c **** 	}
+ 100              		.loc 1 114 6 view .LVU18
+ 114:src/scheduler.c **** 	}
+ 101              		.loc 1 114 19 is_stmt 0 view .LVU19
  102 0020 0194     		str	r4, [sp, #4]
  103              	.LVL4:
  104              	.L7:
-  99:src/scheduler.c **** 	{
- 105              		.loc 1 99 8 is_stmt 1 view .LVU20
-  99:src/scheduler.c **** 	{
- 106              		.loc 1 99 22 is_stmt 0 view .LVU21
+ 100:src/scheduler.c **** 	{
+ 105              		.loc 1 100 8 is_stmt 1 view .LVU20
+ 100:src/scheduler.c **** 	{
+ 106              		.loc 1 100 22 is_stmt 0 view .LVU21
  107 0022 019B     		ldr	r3, [sp, #4]
-  99:src/scheduler.c **** 	{
- 108              		.loc 1 99 8 view .LVU22
+ 100:src/scheduler.c **** 	{
+ 108              		.loc 1 100 8 view .LVU22
  109 0024 33B1     		cbz	r3, .L15
- 101:src/scheduler.c **** 
- 110              		.loc 1 101 3 is_stmt 1 view .LVU23
- 101:src/scheduler.c **** 
- 111              		.loc 1 101 12 is_stmt 0 view .LVU24
+ 102:src/scheduler.c **** 
+ 110              		.loc 1 102 3 is_stmt 1 view .LVU23
+ 102:src/scheduler.c **** 
+ 111              		.loc 1 102 12 is_stmt 0 view .LVU24
  112 0026 1C68     		ldr	r4, [r3]
  113              	.LVL5:
- 103:src/scheduler.c **** 	    {
- 114              		.loc 1 103 3 is_stmt 1 view .LVU25
- 103:src/scheduler.c **** 	    {
- 115              		.loc 1 103 19 is_stmt 0 view .LVU26
+ 104:src/scheduler.c **** 	    {
+ 114              		.loc 1 104 3 is_stmt 1 view .LVU25
+ 104:src/scheduler.c **** 	    {
+ 115              		.loc 1 104 19 is_stmt 0 view .LVU26
  116 0028 1A69     		ldr	r2, [r3, #16]
- 103:src/scheduler.c **** 	    {
- 117              		.loc 1 103 6 view .LVU27
+ 104:src/scheduler.c **** 	    {
+ 117              		.loc 1 104 6 view .LVU27
  118 002a 002A     		cmp	r2, #0
  119 002c F0D0     		beq	.L16
- 111:src/scheduler.c **** 		}
- 120              		.loc 1 111 4 is_stmt 1 view .LVU28
- 111:src/scheduler.c **** 		}
- 121              		.loc 1 111 23 is_stmt 0 view .LVU29
+ 112:src/scheduler.c **** 		}
+ 120              		.loc 1 112 4 is_stmt 1 view .LVU28
+ 112:src/scheduler.c **** 		}
+ 121              		.loc 1 112 23 is_stmt 0 view .LVU29
  122 002e 013A     		subs	r2, r2, #1
  123 0030 1A61     		str	r2, [r3, #16]
  124 0032 F5E7     		b	.L9
  125              	.LVL6:
  126              	.L15:
- 115:src/scheduler.c **** 
- 127              		.loc 1 115 1 view .LVU30
+ 116:src/scheduler.c **** 
+ 127              		.loc 1 116 1 view .LVU30
  128 0034 02B0     		add	sp, sp, #8
  129              	.LCFI2:
  130              		.cfi_def_cfa_offset 8
@@ -297,12 +298,12 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  137              		.cfi_restore 14
  138 0038 7047     		bx	lr
  139              	.L18:
+ARM GAS  /tmp/cchXHjty.s 			page 6
+
+
  140 003a 00BF     		.align	2
-ARM GAS  /tmp/ccOmIOdq.s 			page 6
-
-
  141              	.L17:
- 142 003c 00000000 		.word	BlockedHead
+ 142 003c 00000000 		.word	WaitingHead
  143              		.cfi_endproc
  144              	.LFE140:
  146              		.section	.text.getCurrentTask,"ax",%progbits
@@ -357,251 +358,284 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  192              		.cfi_def_cfa_offset 8
  193              		.cfi_offset 3, -8
  194              		.cfi_offset 14, -4
-  23:src/scheduler.c **** 	executing_task->psp = (uint32_t*)stack_ptr;	// update executing task stack address for saving cont
-ARM GAS  /tmp/ccOmIOdq.s 			page 7
+ARM GAS  /tmp/cchXHjty.s 			page 7
 
 
+  23:src/scheduler.c **** 	executing_task->psp = (uint32_t*)stack_ptr;			// update executing task stack address for saving co
  195              		.loc 1 23 2 view .LVU37
-  23:src/scheduler.c **** 	executing_task->psp = (uint32_t*)stack_ptr;	// update executing task stack address for saving cont
+  23:src/scheduler.c **** 	executing_task->psp = (uint32_t*)stack_ptr;			// update executing task stack address for saving co
  196              		.loc 1 23 32 is_stmt 0 view .LVU38
  197 0002 FFF7FEFF 		bl	getCurrentTask
  198              	.LVL8:
-  24:src/scheduler.c **** 	//TCB_Typedef* temp = ReadyHead->head;
+  24:src/scheduler.c **** 
  199              		.loc 1 24 2 is_stmt 1 view .LVU39
-  24:src/scheduler.c **** 	//TCB_Typedef* temp = ReadyHead->head;
+  24:src/scheduler.c **** 
  200              		.loc 1 24 24 is_stmt 0 view .LVU40
- 201 0006 0D4B     		ldr	r3, .L27
+ 201 0006 0F4B     		ldr	r3, .L30
  202 0008 1B68     		ldr	r3, [r3]
-  24:src/scheduler.c **** 	//TCB_Typedef* temp = ReadyHead->head;
+  24:src/scheduler.c **** 
  203              		.loc 1 24 22 view .LVU41
  204 000a C360     		str	r3, [r0, #12]
-  28:src/scheduler.c **** 	{
- 205              		.loc 1 28 2 is_stmt 1 view .LVU42
-  28:src/scheduler.c **** 	{
- 206              		.loc 1 28 15 is_stmt 0 view .LVU43
- 207 000c 0C4B     		ldr	r3, .L27+4
+  26:src/scheduler.c **** 	uint32_t prio = 255;
+ 205              		.loc 1 26 2 is_stmt 1 view .LVU42
+  26:src/scheduler.c **** 	uint32_t prio = 255;
+ 206              		.loc 1 26 31 is_stmt 0 view .LVU43
+ 207 000c 0E4B     		ldr	r3, .L30+4
  208 000e 1B68     		ldr	r3, [r3]
- 209 0010 1B68     		ldr	r3, [r3]
-  28:src/scheduler.c **** 	{
- 210              		.loc 1 28 5 view .LVU44
- 211 0012 4BB1     		cbz	r3, .L26
-  34:src/scheduler.c **** 		{
- 212              		.loc 1 34 3 is_stmt 1 view .LVU45
-  34:src/scheduler.c **** 		{
- 213              		.loc 1 34 21 is_stmt 0 view .LVU46
- 214 0014 0268     		ldr	r2, [r0]
-  34:src/scheduler.c **** 		{
- 215              		.loc 1 34 6 view .LVU47
- 216 0016 52B1     		cbz	r2, .L23
-  34:src/scheduler.c **** 		{
- 217              		.loc 1 34 49 discriminator 1 view .LVU48
- 218 0018 0A4A     		ldr	r2, .L27+8
- 219 001a 1268     		ldr	r2, [r2]
-  34:src/scheduler.c **** 		{
- 220              		.loc 1 34 36 discriminator 1 view .LVU49
- 221 001c 3AB1     		cbz	r2, .L23
-  41:src/scheduler.c **** 			next_task = executing_task->next;
- 222              		.loc 1 41 4 is_stmt 1 view .LVU50
- 223              	.LVL9:
-  42:src/scheduler.c **** 		}
- 224              		.loc 1 42 4 view .LVU51
-  42:src/scheduler.c **** 		}
- 225              		.loc 1 42 30 is_stmt 0 view .LVU52
- 226 001e 1168     		ldr	r1, [r2]
-  42:src/scheduler.c **** 		}
- 227              		.loc 1 42 14 view .LVU53
- 228 0020 084B     		ldr	r3, .L27+8
- 229 0022 1960     		str	r1, [r3]
-  41:src/scheduler.c **** 			next_task = executing_task->next;
- 230              		.loc 1 41 19 view .LVU54
- 231 0024 1346     		mov	r3, r2
- 232 0026 05E0     		b	.L22
- 233              	.LVL10:
- 234              	.L26:
-ARM GAS  /tmp/ccOmIOdq.s 			page 8
+  26:src/scheduler.c **** 	uint32_t prio = 255;
+ 209              		.loc 1 26 15 view .LVU44
+ 210 0010 1B68     		ldr	r3, [r3]
+ 211              	.LVL9:
+  27:src/scheduler.c **** 	
+ 212              		.loc 1 27 2 is_stmt 1 view .LVU45
+  29:src/scheduler.c **** 	{
+ 213              		.loc 1 29 2 view .LVU46
+  29:src/scheduler.c **** 	{
+ 214              		.loc 1 29 5 is_stmt 0 view .LVU47
+ 215 0012 0BB1     		cbz	r3, .L27
+  27:src/scheduler.c **** 	
+ 216              		.loc 1 27 11 view .LVU48
+ 217 0014 FF21     		movs	r1, #255
+ 218 0016 03E0     		b	.L21
+ 219              	.L27:
+  31:src/scheduler.c **** 	}
+ 220              		.loc 1 31 3 is_stmt 1 view .LVU49
+  31:src/scheduler.c **** 	}
+ 221              		.loc 1 31 18 is_stmt 0 view .LVU50
+ 222 0018 0C4B     		ldr	r3, .L30+8
+ 223              	.LVL10:
+  31:src/scheduler.c **** 	}
+ 224              		.loc 1 31 18 view .LVU51
+ 225 001a 1B68     		ldr	r3, [r3]
+ 226              	.LVL11:
+  31:src/scheduler.c **** 	}
+ 227              		.loc 1 31 18 view .LVU52
+ 228 001c 0BE0     		b	.L22
+ 229              	.LVL12:
+ 230              	.L23:
+  57:src/scheduler.c **** 		}
+ 231              		.loc 1 57 4 is_stmt 1 view .LVU53
+  57:src/scheduler.c **** 		}
+ 232              		.loc 1 57 9 is_stmt 0 view .LVU54
+ 233 001e 1B68     		ldr	r3, [r3]
+ARM GAS  /tmp/cchXHjty.s 			page 8
 
 
-  30:src/scheduler.c **** 	}
- 235              		.loc 1 30 3 is_stmt 1 view .LVU55
-  30:src/scheduler.c **** 	}
- 236              		.loc 1 30 18 is_stmt 0 view .LVU56
- 237 0028 074B     		ldr	r3, .L27+12
- 238 002a 1B68     		ldr	r3, [r3]
- 239              	.LVL11:
-  30:src/scheduler.c **** 	}
- 240              		.loc 1 30 18 view .LVU57
- 241 002c 02E0     		b	.L22
- 242              	.LVL12:
- 243              	.L23:
-  36:src/scheduler.c **** 			next_task = executing_task->next;
- 244              		.loc 1 36 4 is_stmt 1 view .LVU58
-  37:src/scheduler.c **** 		}
- 245              		.loc 1 37 4 view .LVU59
-  37:src/scheduler.c **** 		}
- 246              		.loc 1 37 30 is_stmt 0 view .LVU60
- 247 002e 1968     		ldr	r1, [r3]
-  37:src/scheduler.c **** 		}
- 248              		.loc 1 37 14 view .LVU61
- 249 0030 044A     		ldr	r2, .L27+8
- 250 0032 1160     		str	r1, [r2]
- 251              	.L22:
-  69:src/scheduler.c **** }
- 252              		.loc 1 69 2 is_stmt 1 view .LVU62
-  69:src/scheduler.c **** }
- 253              		.loc 1 69 38 is_stmt 0 view .LVU63
- 254 0034 DA68     		ldr	r2, [r3, #12]
-  69:src/scheduler.c **** }
- 255              		.loc 1 69 12 view .LVU64
- 256 0036 014B     		ldr	r3, .L27
- 257              	.LVL13:
-  69:src/scheduler.c **** }
- 258              		.loc 1 69 12 view .LVU65
- 259 0038 1A60     		str	r2, [r3]
-  70:src/scheduler.c **** 
- 260              		.loc 1 70 1 view .LVU66
- 261 003a 08BD     		pop	{r3, pc}
- 262              	.L28:
- 263              		.align	2
- 264              	.L27:
- 265 003c 00000000 		.word	.LANCHOR0
- 266 0040 00000000 		.word	ReadyHead
- 267 0044 00000000 		.word	.LANCHOR1
- 268 0048 00000000 		.word	idle_task
- 269              		.cfi_endproc
- 270              	.LFE138:
- 272              		.section	.text.PendSV_Handler,"ax",%progbits
- 273              		.align	1
- 274              		.global	PendSV_Handler
- 275              		.syntax unified
- 276              		.thumb
- 277              		.thumb_func
- 278              		.fpu fpv4-sp-d16
- 280              	PendSV_Handler:
- 281              	.LFB139:
-ARM GAS  /tmp/ccOmIOdq.s 			page 9
+ 234              	.LVL13:
+ 235              	.L21:
+  50:src/scheduler.c **** 		{
+ 236              		.loc 1 50 9 is_stmt 1 view .LVU55
+ 237 0020 33B1     		cbz	r3, .L28
+  52:src/scheduler.c **** 			{
+ 238              		.loc 1 52 4 view .LVU56
+  52:src/scheduler.c **** 			{
+ 239              		.loc 1 52 12 is_stmt 0 view .LVU57
+ 240 0022 DA8A     		ldrh	r2, [r3, #22]
+  52:src/scheduler.c **** 			{
+ 241              		.loc 1 52 7 view .LVU58
+ 242 0024 8A42     		cmp	r2, r1
+ 243 0026 FAD2     		bcs	.L23
+  54:src/scheduler.c **** 				prio = next_task->priority;
+ 244              		.loc 1 54 5 is_stmt 1 view .LVU59
+  54:src/scheduler.c **** 				prio = next_task->priority;
+ 245              		.loc 1 54 15 is_stmt 0 view .LVU60
+ 246 0028 0949     		ldr	r1, .L30+12
+ 247              	.LVL14:
+  54:src/scheduler.c **** 				prio = next_task->priority;
+ 248              		.loc 1 54 15 view .LVU61
+ 249 002a 0B60     		str	r3, [r1]
+  55:src/scheduler.c **** 			}
+ 250              		.loc 1 55 5 is_stmt 1 view .LVU62
+ 251              	.LVL15:
+  55:src/scheduler.c **** 			}
+ 252              		.loc 1 55 10 is_stmt 0 view .LVU63
+ 253 002c 1146     		mov	r1, r2
+ 254 002e F6E7     		b	.L23
+ 255              	.LVL16:
+ 256              	.L28:
+  60:src/scheduler.c **** 		{
+ 257              		.loc 1 60 3 is_stmt 1 view .LVU64
+  60:src/scheduler.c **** 		{
+ 258              		.loc 1 60 17 is_stmt 0 view .LVU65
+ 259 0030 074B     		ldr	r3, .L30+12
+ 260              	.LVL17:
+  60:src/scheduler.c **** 		{
+ 261              		.loc 1 60 17 view .LVU66
+ 262 0032 1B68     		ldr	r3, [r3]
+  60:src/scheduler.c **** 		{
+ 263              		.loc 1 60 6 view .LVU67
+ 264 0034 1BB1     		cbz	r3, .L29
+ 265              	.LVL18:
+ 266              	.L22:
+  70:src/scheduler.c **** }
+ 267              		.loc 1 70 2 is_stmt 1 view .LVU68
+  70:src/scheduler.c **** }
+ 268              		.loc 1 70 38 is_stmt 0 view .LVU69
+ 269 0036 DA68     		ldr	r2, [r3, #12]
+  70:src/scheduler.c **** }
+ 270              		.loc 1 70 12 view .LVU70
+ 271 0038 024B     		ldr	r3, .L30
+ 272              	.LVL19:
+  70:src/scheduler.c **** }
+ 273              		.loc 1 70 12 view .LVU71
+ARM GAS  /tmp/cchXHjty.s 			page 9
 
 
-  74:src/scheduler.c **** 	__ASM volatile("MRS r0, psp");						// move current psp to r0
- 282              		.loc 1 74 1 is_stmt 1 view -0
- 283              		.cfi_startproc
- 284              		@ args = 0, pretend = 0, frame = 0
- 285              		@ frame_needed = 0, uses_anonymous_args = 0
- 286              		@ link register save eliminated.
-  75:src/scheduler.c **** 	__ASM volatile("STMDB r0!, {r4-r11}");					// push r4-r11 in program stack
- 287              		.loc 1 75 2 view .LVU68
- 288              		.syntax unified
- 289              	@ 75 "src/scheduler.c" 1
- 290 0000 EFF30980 		MRS r0, psp
- 291              	@ 0 "" 2
-  76:src/scheduler.c **** 	__ASM volatile("MSR psp, r0");						// update psp
- 292              		.loc 1 76 2 view .LVU69
- 293              	@ 76 "src/scheduler.c" 1
- 294 0004 20E9F00F 		STMDB r0!, {r4-r11}
- 295              	@ 0 "" 2
-  77:src/scheduler.c **** 	__ASM volatile("PUSH {lr}");						// push lr in main stack
- 296              		.loc 1 77 2 view .LVU70
- 297              	@ 77 "src/scheduler.c" 1
- 298 0008 80F30988 		MSR psp, r0
- 299              	@ 0 "" 2
-  78:src/scheduler.c **** 	__ASM volatile("MOV %0, r0" : "=r" (stack_ptr)::);			// copy updated psp to current tasl tcb
- 300              		.loc 1 78 2 view .LVU71
- 301              	@ 78 "src/scheduler.c" 1
- 302 000c 00B5     		PUSH {lr}
- 303              	@ 0 "" 2
-  79:src/scheduler.c **** 	__ASM volatile("BL switch_task");					// branch to switch function
- 304              		.loc 1 79 2 view .LVU72
- 305              	@ 79 "src/scheduler.c" 1
- 306 000e 0246     		MOV r2, r0
- 307              	@ 0 "" 2
- 308              		.thumb
- 309              		.syntax unified
- 310 0010 064B     		ldr	r3, .L30
- 311 0012 1A60     		str	r2, [r3]
-  80:src/scheduler.c **** 	__ASM volatile("MOV r0, %0" :: "r" (stack_ptr):);			// copy next task stack address to r0
- 312              		.loc 1 80 2 view .LVU73
- 313              		.syntax unified
- 314              	@ 80 "src/scheduler.c" 1
- 315 0014 FFF7FEFF 		BL switch_task
- 316              	@ 0 "" 2
-  81:src/scheduler.c **** 	__ASM volatile("LDMIA r0!, {r4-r11}");					// pop saved context from task stack to r4-r11
- 317              		.loc 1 81 2 view .LVU74
- 318              		.thumb
- 319              		.syntax unified
- 320 0018 1B68     		ldr	r3, [r3]
- 321              		.syntax unified
- 322              	@ 81 "src/scheduler.c" 1
- 323 001a 1846     		MOV r0, r3
- 324              	@ 0 "" 2
-  82:src/scheduler.c **** 	__ASM volatile("MSR psp, r0");						// update psp
- 325              		.loc 1 82 2 view .LVU75
- 326              	@ 82 "src/scheduler.c" 1
- 327 001c B0E8F00F 		LDMIA r0!, {r4-r11}
- 328              	@ 0 "" 2
-  83:src/scheduler.c **** 	__ASM volatile("POP {lr}");						// pop lr from main stack
-ARM GAS  /tmp/ccOmIOdq.s 			page 10
+ 274 003a 1A60     		str	r2, [r3]
+  71:src/scheduler.c **** 
+ 275              		.loc 1 71 1 view .LVU72
+ 276 003c 08BD     		pop	{r3, pc}
+ 277              	.LVL20:
+ 278              	.L29:
+  62:src/scheduler.c **** 		}
+ 279              		.loc 1 62 4 is_stmt 1 view .LVU73
+  62:src/scheduler.c **** 		}
+ 280              		.loc 1 62 19 is_stmt 0 view .LVU74
+ 281 003e 034B     		ldr	r3, .L30+8
+ 282 0040 1B68     		ldr	r3, [r3]
+ 283              	.LVL21:
+  62:src/scheduler.c **** 		}
+ 284              		.loc 1 62 19 view .LVU75
+ 285 0042 F8E7     		b	.L22
+ 286              	.L31:
+ 287              		.align	2
+ 288              	.L30:
+ 289 0044 00000000 		.word	.LANCHOR0
+ 290 0048 00000000 		.word	ReadyHead
+ 291 004c 00000000 		.word	idle_task
+ 292 0050 00000000 		.word	.LANCHOR1
+ 293              		.cfi_endproc
+ 294              	.LFE138:
+ 296              		.section	.text.PendSV_Handler,"ax",%progbits
+ 297              		.align	1
+ 298              		.global	PendSV_Handler
+ 299              		.syntax unified
+ 300              		.thumb
+ 301              		.thumb_func
+ 302              		.fpu fpv4-sp-d16
+ 304              	PendSV_Handler:
+ 305              	.LFB139:
+  75:src/scheduler.c **** 	__ASM volatile("MRS r0, psp");						// move current psp to r0
+ 306              		.loc 1 75 1 is_stmt 1 view -0
+ 307              		.cfi_startproc
+ 308              		@ args = 0, pretend = 0, frame = 0
+ 309              		@ frame_needed = 0, uses_anonymous_args = 0
+ 310              		@ link register save eliminated.
+  76:src/scheduler.c **** 	__ASM volatile("STMDB r0!, {r4-r11}");					// push r4-r11 in program stack
+ 311              		.loc 1 76 2 view .LVU77
+ 312              		.syntax unified
+ 313              	@ 76 "src/scheduler.c" 1
+ 314 0000 EFF30980 		MRS r0, psp
+ 315              	@ 0 "" 2
+  77:src/scheduler.c **** 	__ASM volatile("MSR psp, r0");						// update psp
+ 316              		.loc 1 77 2 view .LVU78
+ 317              	@ 77 "src/scheduler.c" 1
+ 318 0004 20E9F00F 		STMDB r0!, {r4-r11}
+ 319              	@ 0 "" 2
+  78:src/scheduler.c **** 	__ASM volatile("PUSH {lr}");						// push lr in main stack
+ 320              		.loc 1 78 2 view .LVU79
+ 321              	@ 78 "src/scheduler.c" 1
+ 322 0008 80F30988 		MSR psp, r0
+ 323              	@ 0 "" 2
+  79:src/scheduler.c **** 	__ASM volatile("MOV %0, r0" : "=r" (stack_ptr)::);			// copy updated psp to current tasl tcb
+ARM GAS  /tmp/cchXHjty.s 			page 10
 
 
- 329              		.loc 1 83 2 view .LVU76
- 330              	@ 83 "src/scheduler.c" 1
- 331 0020 80F30988 		MSR psp, r0
- 332              	@ 0 "" 2
-  84:src/scheduler.c **** 	__ASM volatile("BX lr");						// return from exception
- 333              		.loc 1 84 2 view .LVU77
- 334              	@ 84 "src/scheduler.c" 1
- 335 0024 5DF804EB 		POP {lr}
- 336              	@ 0 "" 2
-  85:src/scheduler.c **** }
- 337              		.loc 1 85 2 view .LVU78
- 338              	@ 85 "src/scheduler.c" 1
- 339 0028 7047     		BX lr
+ 324              		.loc 1 79 2 view .LVU80
+ 325              	@ 79 "src/scheduler.c" 1
+ 326 000c 00B5     		PUSH {lr}
+ 327              	@ 0 "" 2
+  80:src/scheduler.c **** 	__ASM volatile("BL switch_task");					// branch to switch function
+ 328              		.loc 1 80 2 view .LVU81
+ 329              	@ 80 "src/scheduler.c" 1
+ 330 000e 0246     		MOV r2, r0
+ 331              	@ 0 "" 2
+ 332              		.thumb
+ 333              		.syntax unified
+ 334 0010 064B     		ldr	r3, .L33
+ 335 0012 1A60     		str	r2, [r3]
+  81:src/scheduler.c **** 	__ASM volatile("MOV r0, %0" :: "r" (stack_ptr):);			// copy next task stack address to r0
+ 336              		.loc 1 81 2 view .LVU82
+ 337              		.syntax unified
+ 338              	@ 81 "src/scheduler.c" 1
+ 339 0014 FFF7FEFF 		BL switch_task
  340              	@ 0 "" 2
-  86:src/scheduler.c **** 
- 341              		.loc 1 86 1 is_stmt 0 view .LVU79
+  82:src/scheduler.c **** 	__ASM volatile("LDMIA r0!, {r4-r11}");					// pop saved context from task stack to r4-r11
+ 341              		.loc 1 82 2 view .LVU83
  342              		.thumb
  343              		.syntax unified
- 344 002a 7047     		bx	lr
- 345              	.L31:
- 346              		.align	2
- 347              	.L30:
- 348 002c 00000000 		.word	.LANCHOR0
- 349              		.cfi_endproc
- 350              	.LFE139:
- 352              		.section	.text.task_delay,"ax",%progbits
- 353              		.align	1
- 354              		.global	task_delay
- 355              		.syntax unified
- 356              		.thumb
- 357              		.thumb_func
- 358              		.fpu fpv4-sp-d16
- 360              	task_delay:
- 361              	.LVL14:
- 362              	.LFB142:
- 122:src/scheduler.c **** 
- 123:src/scheduler.c **** /**************************************** Function to dalay task **********************************
- 124:src/scheduler.c **** void task_delay(uint32_t ms)
- 125:src/scheduler.c **** {
- 363              		.loc 1 125 1 is_stmt 1 view -0
- 364              		.cfi_startproc
- 365              		@ args = 0, pretend = 0, frame = 8
- 366              		@ frame_needed = 0, uses_anonymous_args = 0
- 367              		.loc 1 125 1 is_stmt 0 view .LVU81
- 368 0000 10B5     		push	{r4, lr}
- 369              	.LCFI5:
- 370              		.cfi_def_cfa_offset 8
- 371              		.cfi_offset 4, -8
- 372              		.cfi_offset 14, -4
- 373 0002 82B0     		sub	sp, sp, #8
- 374              	.LCFI6:
- 375              		.cfi_def_cfa_offset 16
- 376 0004 0446     		mov	r4, r0
- 126:src/scheduler.c **** 	__disable_irq();							// disable interrupts
- 377              		.loc 1 126 2 is_stmt 1 view .LVU82
- 378              	.LBB14:
- 379              	.LBI14:
-ARM GAS  /tmp/ccOmIOdq.s 			page 11
+ 344 0018 1B68     		ldr	r3, [r3]
+ 345              		.syntax unified
+ 346              	@ 82 "src/scheduler.c" 1
+ 347 001a 1846     		MOV r0, r3
+ 348              	@ 0 "" 2
+  83:src/scheduler.c **** 	__ASM volatile("MSR psp, r0");						// update psp
+ 349              		.loc 1 83 2 view .LVU84
+ 350              	@ 83 "src/scheduler.c" 1
+ 351 001c B0E8F00F 		LDMIA r0!, {r4-r11}
+ 352              	@ 0 "" 2
+  84:src/scheduler.c **** 	__ASM volatile("POP {lr}");						// pop lr from main stack
+ 353              		.loc 1 84 2 view .LVU85
+ 354              	@ 84 "src/scheduler.c" 1
+ 355 0020 80F30988 		MSR psp, r0
+ 356              	@ 0 "" 2
+  85:src/scheduler.c **** 	__ASM volatile("BX lr");						// return from exception
+ 357              		.loc 1 85 2 view .LVU86
+ 358              	@ 85 "src/scheduler.c" 1
+ 359 0024 5DF804EB 		POP {lr}
+ 360              	@ 0 "" 2
+  86:src/scheduler.c **** }
+ 361              		.loc 1 86 2 view .LVU87
+ 362              	@ 86 "src/scheduler.c" 1
+ 363 0028 7047     		BX lr
+ 364              	@ 0 "" 2
+  87:src/scheduler.c **** 
+ 365              		.loc 1 87 1 is_stmt 0 view .LVU88
+ 366              		.thumb
+ 367              		.syntax unified
+ 368 002a 7047     		bx	lr
+ 369              	.L34:
+ 370              		.align	2
+ 371              	.L33:
+ 372 002c 00000000 		.word	.LANCHOR0
+ARM GAS  /tmp/cchXHjty.s 			page 11
 
 
- 380              		.file 2 "driver/Core/cmsis_gcc.h"
+ 373              		.cfi_endproc
+ 374              	.LFE139:
+ 376              		.section	.text.task_delay,"ax",%progbits
+ 377              		.align	1
+ 378              		.global	task_delay
+ 379              		.syntax unified
+ 380              		.thumb
+ 381              		.thumb_func
+ 382              		.fpu fpv4-sp-d16
+ 384              	task_delay:
+ 385              	.LVL22:
+ 386              	.LFB142:
+ 123:src/scheduler.c **** 
+ 124:src/scheduler.c **** /**************************************** Function to dalay task **********************************
+ 125:src/scheduler.c **** void task_delay(uint32_t ms)
+ 126:src/scheduler.c **** {
+ 387              		.loc 1 126 1 is_stmt 1 view -0
+ 388              		.cfi_startproc
+ 389              		@ args = 0, pretend = 0, frame = 8
+ 390              		@ frame_needed = 0, uses_anonymous_args = 0
+ 391              		.loc 1 126 1 is_stmt 0 view .LVU90
+ 392 0000 10B5     		push	{r4, lr}
+ 393              	.LCFI5:
+ 394              		.cfi_def_cfa_offset 8
+ 395              		.cfi_offset 4, -8
+ 396              		.cfi_offset 14, -4
+ 397 0002 82B0     		sub	sp, sp, #8
+ 398              	.LCFI6:
+ 399              		.cfi_def_cfa_offset 16
+ 400 0004 0446     		mov	r4, r0
+ 127:src/scheduler.c **** 	__disable_irq();							// disable interrupts
+ 401              		.loc 1 127 2 is_stmt 1 view .LVU91
+ 402              	.LBB14:
+ 403              	.LBI14:
+ 404              		.file 2 "driver/Core/cmsis_gcc.h"
    1:driver/Core/cmsis_gcc.h **** /**************************************************************************//**
    2:driver/Core/cmsis_gcc.h ****  * @file     cmsis_gcc.h
    3:driver/Core/cmsis_gcc.h ****  * @brief    CMSIS compiler GCC header file
@@ -624,6 +658,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   20:driver/Core/cmsis_gcc.h ****  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   21:driver/Core/cmsis_gcc.h ****  * See the License for the specific language governing permissions and
   22:driver/Core/cmsis_gcc.h ****  * limitations under the License.
+ARM GAS  /tmp/cchXHjty.s 			page 12
+
+
   23:driver/Core/cmsis_gcc.h ****  */
   24:driver/Core/cmsis_gcc.h **** 
   25:driver/Core/cmsis_gcc.h **** #ifndef __CMSIS_GCC_H
@@ -658,9 +695,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   54:driver/Core/cmsis_gcc.h **** #endif
   55:driver/Core/cmsis_gcc.h **** #ifndef   __USED
   56:driver/Core/cmsis_gcc.h ****   #define __USED                                 __attribute__((used))
-ARM GAS  /tmp/ccOmIOdq.s 			page 12
-
-
   57:driver/Core/cmsis_gcc.h **** #endif
   58:driver/Core/cmsis_gcc.h **** #ifndef   __WEAK
   59:driver/Core/cmsis_gcc.h ****   #define __WEAK                                 __attribute__((weak))
@@ -684,6 +718,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   77:driver/Core/cmsis_gcc.h **** #endif
   78:driver/Core/cmsis_gcc.h **** #ifndef   __UNALIGNED_UINT16_WRITE
   79:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic push
+ARM GAS  /tmp/cchXHjty.s 			page 13
+
+
   80:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wpacked"
   81:driver/Core/cmsis_gcc.h ****   #pragma GCC diagnostic ignored "-Wattributes"
   82:driver/Core/cmsis_gcc.h ****   __PACKED_STRUCT T_UINT16_WRITE { uint16_t v; };
@@ -718,9 +755,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  111:driver/Core/cmsis_gcc.h ****   #define __ALIGNED(x)                           __attribute__((aligned(x)))
  112:driver/Core/cmsis_gcc.h **** #endif
  113:driver/Core/cmsis_gcc.h **** #ifndef   __RESTRICT
-ARM GAS  /tmp/ccOmIOdq.s 			page 13
-
-
  114:driver/Core/cmsis_gcc.h ****   #define __RESTRICT                             __restrict
  115:driver/Core/cmsis_gcc.h **** #endif
  116:driver/Core/cmsis_gcc.h **** #ifndef   __COMPILER_BARRIER
@@ -744,6 +778,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  134:driver/Core/cmsis_gcc.h **** 
  135:driver/Core/cmsis_gcc.h ****   typedef struct {
  136:driver/Core/cmsis_gcc.h ****     uint32_t const* src;
+ARM GAS  /tmp/cchXHjty.s 			page 14
+
+
  137:driver/Core/cmsis_gcc.h ****     uint32_t* dest;
  138:driver/Core/cmsis_gcc.h ****     uint32_t  wlen;
  139:driver/Core/cmsis_gcc.h ****   } __copy_table_t;
@@ -778,9 +815,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  168:driver/Core/cmsis_gcc.h **** 
  169:driver/Core/cmsis_gcc.h **** #ifndef __INITIAL_SP
  170:driver/Core/cmsis_gcc.h **** #define __INITIAL_SP              __StackTop
-ARM GAS  /tmp/ccOmIOdq.s 			page 14
-
-
  171:driver/Core/cmsis_gcc.h **** #endif
  172:driver/Core/cmsis_gcc.h **** 
  173:driver/Core/cmsis_gcc.h **** #ifndef __STACK_LIMIT
@@ -804,6 +838,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  191:driver/Core/cmsis_gcc.h **** #define __TZ_STACK_SEAL_SIZE      8U
  192:driver/Core/cmsis_gcc.h **** #endif
  193:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 15
+
+
  194:driver/Core/cmsis_gcc.h **** #ifndef __TZ_STACK_SEAL_VALUE
  195:driver/Core/cmsis_gcc.h **** #define __TZ_STACK_SEAL_VALUE     0xFEF5EDA5FEF5EDA5ULL
  196:driver/Core/cmsis_gcc.h **** #endif
@@ -838,9 +875,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  225:driver/Core/cmsis_gcc.h ****   \brief   No Operation
  226:driver/Core/cmsis_gcc.h ****   \details No Operation does nothing. This instruction can be used for code alignment purposes.
  227:driver/Core/cmsis_gcc.h ****  */
-ARM GAS  /tmp/ccOmIOdq.s 			page 15
-
-
  228:driver/Core/cmsis_gcc.h **** #define __NOP()                             __ASM volatile ("nop")
  229:driver/Core/cmsis_gcc.h **** 
  230:driver/Core/cmsis_gcc.h **** /**
@@ -864,6 +898,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  248:driver/Core/cmsis_gcc.h ****  */
  249:driver/Core/cmsis_gcc.h **** #define __SEV()                             __ASM volatile ("sev")
  250:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 16
+
+
  251:driver/Core/cmsis_gcc.h **** 
  252:driver/Core/cmsis_gcc.h **** /**
  253:driver/Core/cmsis_gcc.h ****   \brief   Instruction Synchronization Barrier
@@ -898,9 +935,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  282:driver/Core/cmsis_gcc.h ****   __ASM volatile ("dmb 0xF":::"memory");
  283:driver/Core/cmsis_gcc.h **** }
  284:driver/Core/cmsis_gcc.h **** 
-ARM GAS  /tmp/ccOmIOdq.s 			page 16
-
-
  285:driver/Core/cmsis_gcc.h **** 
  286:driver/Core/cmsis_gcc.h **** /**
  287:driver/Core/cmsis_gcc.h ****   \brief   Reverse byte order (32 bit)
@@ -924,6 +958,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  305:driver/Core/cmsis_gcc.h **** /**
  306:driver/Core/cmsis_gcc.h ****   \brief   Reverse byte order (16 bit)
  307:driver/Core/cmsis_gcc.h ****   \details Reverses the byte order within each halfword of a word. For example, 0x12345678 becomes 
+ARM GAS  /tmp/cchXHjty.s 			page 17
+
+
  308:driver/Core/cmsis_gcc.h ****   \param [in]    value  Value to reverse
  309:driver/Core/cmsis_gcc.h ****   \return               Reversed value
  310:driver/Core/cmsis_gcc.h ****  */
@@ -958,9 +995,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  339:driver/Core/cmsis_gcc.h **** /**
  340:driver/Core/cmsis_gcc.h ****   \brief   Rotate Right in unsigned value (32 bit)
  341:driver/Core/cmsis_gcc.h ****   \details Rotate Right (immediate) provides the value of the contents of a register rotated by a v
-ARM GAS  /tmp/ccOmIOdq.s 			page 17
-
-
  342:driver/Core/cmsis_gcc.h ****   \param [in]    op1  Value to rotate
  343:driver/Core/cmsis_gcc.h ****   \param [in]    op2  Number of Bits to rotate
  344:driver/Core/cmsis_gcc.h ****   \return               Rotated value
@@ -984,6 +1018,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  362:driver/Core/cmsis_gcc.h ****                  If required, a debugger can use it to store additional information about the break
  363:driver/Core/cmsis_gcc.h ****  */
  364:driver/Core/cmsis_gcc.h **** #define __BKPT(value)                       __ASM volatile ("bkpt "#value)
+ARM GAS  /tmp/cchXHjty.s 			page 18
+
+
  365:driver/Core/cmsis_gcc.h **** 
  366:driver/Core/cmsis_gcc.h **** 
  367:driver/Core/cmsis_gcc.h **** /**
@@ -1018,9 +1055,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  396:driver/Core/cmsis_gcc.h **** 
  397:driver/Core/cmsis_gcc.h **** /**
  398:driver/Core/cmsis_gcc.h ****   \brief   Count leading zeros
-ARM GAS  /tmp/ccOmIOdq.s 			page 18
-
-
  399:driver/Core/cmsis_gcc.h ****   \details Counts the number of leading zeros of a data value.
  400:driver/Core/cmsis_gcc.h ****   \param [in]  value  Value to count the leading zeros
  401:driver/Core/cmsis_gcc.h ****   \return             number of leading zeros in value
@@ -1044,6 +1078,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  419:driver/Core/cmsis_gcc.h **** }
  420:driver/Core/cmsis_gcc.h **** 
  421:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 19
+
+
  422:driver/Core/cmsis_gcc.h **** #if ((defined (__ARM_ARCH_7M__      ) && (__ARM_ARCH_7M__      == 1)) || \
  423:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_7EM__     ) && (__ARM_ARCH_7EM__     == 1)) || \
  424:driver/Core/cmsis_gcc.h ****      (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
@@ -1078,9 +1115,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  453:driver/Core/cmsis_gcc.h ****  */
  454:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint16_t __LDREXH(volatile uint16_t *addr)
  455:driver/Core/cmsis_gcc.h **** {
-ARM GAS  /tmp/ccOmIOdq.s 			page 19
-
-
  456:driver/Core/cmsis_gcc.h ****     uint32_t result;
  457:driver/Core/cmsis_gcc.h **** 
  458:driver/Core/cmsis_gcc.h **** #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
@@ -1104,6 +1138,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  476:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDREXW(volatile uint32_t *addr)
  477:driver/Core/cmsis_gcc.h **** {
  478:driver/Core/cmsis_gcc.h ****     uint32_t result;
+ARM GAS  /tmp/cchXHjty.s 			page 20
+
+
  479:driver/Core/cmsis_gcc.h **** 
  480:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldrex %0, %1" : "=r" (result) : "Q" (*addr) );
  481:driver/Core/cmsis_gcc.h ****    return(result);
@@ -1138,9 +1175,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  510:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __STREXH(uint16_t value, volatile uint16_t *addr)
  511:driver/Core/cmsis_gcc.h **** {
  512:driver/Core/cmsis_gcc.h ****    uint32_t result;
-ARM GAS  /tmp/ccOmIOdq.s 			page 20
-
-
  513:driver/Core/cmsis_gcc.h **** 
  514:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strexh %0, %2, %1" : "=&r" (result), "=Q" (*addr) : "r" ((uint32_t)value) );
  515:driver/Core/cmsis_gcc.h ****    return(result);
@@ -1164,6 +1198,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  533:driver/Core/cmsis_gcc.h **** }
  534:driver/Core/cmsis_gcc.h **** 
  535:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 21
+
+
  536:driver/Core/cmsis_gcc.h **** /**
  537:driver/Core/cmsis_gcc.h ****   \brief   Remove the exclusive lock
  538:driver/Core/cmsis_gcc.h ****   \details Removes the exclusive lock which is created by LDREX.
@@ -1198,9 +1235,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  567:driver/Core/cmsis_gcc.h ****  })
  568:driver/Core/cmsis_gcc.h **** 
  569:driver/Core/cmsis_gcc.h **** 
-ARM GAS  /tmp/ccOmIOdq.s 			page 21
-
-
  570:driver/Core/cmsis_gcc.h **** /**
  571:driver/Core/cmsis_gcc.h ****   \brief   Unsigned Saturate
  572:driver/Core/cmsis_gcc.h ****   \details Saturates an unsigned value.
@@ -1224,6 +1258,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  590:driver/Core/cmsis_gcc.h ****   \param [in]    value  Value to rotate
  591:driver/Core/cmsis_gcc.h ****   \return               Rotated value
  592:driver/Core/cmsis_gcc.h ****  */
+ARM GAS  /tmp/cchXHjty.s 			page 22
+
+
  593:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __RRX(uint32_t value)
  594:driver/Core/cmsis_gcc.h **** {
  595:driver/Core/cmsis_gcc.h ****   uint32_t result;
@@ -1258,9 +1295,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  624:driver/Core/cmsis_gcc.h **** /**
  625:driver/Core/cmsis_gcc.h ****   \brief   LDRT Unprivileged (16 bit)
  626:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged LDRT instruction for 16 bit values.
-ARM GAS  /tmp/ccOmIOdq.s 			page 22
-
-
  627:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  628:driver/Core/cmsis_gcc.h ****   \return        value of type uint16_t at (*ptr)
  629:driver/Core/cmsis_gcc.h ****  */
@@ -1284,6 +1318,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  647:driver/Core/cmsis_gcc.h ****   \brief   LDRT Unprivileged (32 bit)
  648:driver/Core/cmsis_gcc.h ****   \details Executes a Unprivileged LDRT instruction for 32 bit values.
  649:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
+ARM GAS  /tmp/cchXHjty.s 			page 23
+
+
  650:driver/Core/cmsis_gcc.h ****   \return        value of type uint32_t at (*ptr)
  651:driver/Core/cmsis_gcc.h ****  */
  652:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint32_t __LDRT(volatile uint32_t *ptr)
@@ -1318,9 +1355,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  681:driver/Core/cmsis_gcc.h ****    __ASM volatile ("strht %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) );
  682:driver/Core/cmsis_gcc.h **** }
  683:driver/Core/cmsis_gcc.h **** 
-ARM GAS  /tmp/ccOmIOdq.s 			page 23
-
-
  684:driver/Core/cmsis_gcc.h **** 
  685:driver/Core/cmsis_gcc.h **** /**
  686:driver/Core/cmsis_gcc.h ****   \brief   STRT Unprivileged (32 bit)
@@ -1344,6 +1378,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  704:driver/Core/cmsis_gcc.h ****   \param [in]    sat  Bit position to saturate to (1..32)
  705:driver/Core/cmsis_gcc.h ****   \return             Saturated value
  706:driver/Core/cmsis_gcc.h ****  */
+ARM GAS  /tmp/cchXHjty.s 			page 24
+
+
  707:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE int32_t __SSAT(int32_t val, uint32_t sat)
  708:driver/Core/cmsis_gcc.h **** {
  709:driver/Core/cmsis_gcc.h ****   if ((sat >= 1U) && (sat <= 32U))
@@ -1378,9 +1415,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  738:driver/Core/cmsis_gcc.h ****     {
  739:driver/Core/cmsis_gcc.h ****       return max;
  740:driver/Core/cmsis_gcc.h ****     }
-ARM GAS  /tmp/ccOmIOdq.s 			page 24
-
-
  741:driver/Core/cmsis_gcc.h ****     else if (val < 0)
  742:driver/Core/cmsis_gcc.h ****     {
  743:driver/Core/cmsis_gcc.h ****       return 0U;
@@ -1404,6 +1438,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  761:driver/Core/cmsis_gcc.h ****  */
  762:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE uint8_t __LDAB(volatile uint8_t *ptr)
  763:driver/Core/cmsis_gcc.h **** {
+ARM GAS  /tmp/cchXHjty.s 			page 25
+
+
  764:driver/Core/cmsis_gcc.h ****     uint32_t result;
  765:driver/Core/cmsis_gcc.h **** 
  766:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldab %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
@@ -1438,9 +1475,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  795:driver/Core/cmsis_gcc.h **** 
  796:driver/Core/cmsis_gcc.h ****    __ASM volatile ("lda %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
  797:driver/Core/cmsis_gcc.h ****    return(result);
-ARM GAS  /tmp/ccOmIOdq.s 			page 25
-
-
  798:driver/Core/cmsis_gcc.h **** }
  799:driver/Core/cmsis_gcc.h **** 
  800:driver/Core/cmsis_gcc.h **** 
@@ -1464,6 +1498,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  818:driver/Core/cmsis_gcc.h ****  */
  819:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __STLH(uint16_t value, volatile uint16_t *ptr)
  820:driver/Core/cmsis_gcc.h **** {
+ARM GAS  /tmp/cchXHjty.s 			page 26
+
+
  821:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stlh %1, %0" : "=Q" (*ptr) : "r" ((uint32_t)value) : "memory" );
  822:driver/Core/cmsis_gcc.h **** }
  823:driver/Core/cmsis_gcc.h **** 
@@ -1498,9 +1535,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  852:driver/Core/cmsis_gcc.h **** /**
  853:driver/Core/cmsis_gcc.h ****   \brief   Load-Acquire Exclusive (16 bit)
  854:driver/Core/cmsis_gcc.h ****   \details Executes a LDAH exclusive instruction for 16 bit values.
-ARM GAS  /tmp/ccOmIOdq.s 			page 26
-
-
  855:driver/Core/cmsis_gcc.h ****   \param [in]    ptr  Pointer to data
  856:driver/Core/cmsis_gcc.h ****   \return        value of type uint16_t at (*ptr)
  857:driver/Core/cmsis_gcc.h ****  */
@@ -1524,6 +1558,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  875:driver/Core/cmsis_gcc.h ****     uint32_t result;
  876:driver/Core/cmsis_gcc.h **** 
  877:driver/Core/cmsis_gcc.h ****    __ASM volatile ("ldaex %0, %1" : "=r" (result) : "Q" (*ptr) : "memory" );
+ARM GAS  /tmp/cchXHjty.s 			page 27
+
+
  878:driver/Core/cmsis_gcc.h ****    return(result);
  879:driver/Core/cmsis_gcc.h **** }
  880:driver/Core/cmsis_gcc.h **** 
@@ -1558,9 +1595,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  909:driver/Core/cmsis_gcc.h ****    uint32_t result;
  910:driver/Core/cmsis_gcc.h **** 
  911:driver/Core/cmsis_gcc.h ****    __ASM volatile ("stlexh %0, %2, %1" : "=&r" (result), "=Q" (*ptr) : "r" ((uint32_t)value) : "mem
-ARM GAS  /tmp/ccOmIOdq.s 			page 27
-
-
  912:driver/Core/cmsis_gcc.h ****    return(result);
  913:driver/Core/cmsis_gcc.h **** }
  914:driver/Core/cmsis_gcc.h **** 
@@ -1584,6 +1618,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  932:driver/Core/cmsis_gcc.h **** #endif /* ((defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1)) || \
  933:driver/Core/cmsis_gcc.h ****            (defined (__ARM_ARCH_8M_BASE__ ) && (__ARM_ARCH_8M_BASE__ == 1))    ) */
  934:driver/Core/cmsis_gcc.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 28
+
+
  935:driver/Core/cmsis_gcc.h **** /*@}*/ /* end of group CMSIS_Core_InstructionInterface */
  936:driver/Core/cmsis_gcc.h **** 
  937:driver/Core/cmsis_gcc.h **** 
@@ -1610,150 +1647,147 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  958:driver/Core/cmsis_gcc.h ****            Can only be executed in Privileged modes.
  959:driver/Core/cmsis_gcc.h ****  */
  960:driver/Core/cmsis_gcc.h **** __STATIC_FORCEINLINE void __disable_irq(void)
- 381              		.loc 2 960 27 view .LVU83
- 382              	.LBB15:
+ 405              		.loc 2 960 27 view .LVU92
+ 406              	.LBB15:
  961:driver/Core/cmsis_gcc.h **** {
  962:driver/Core/cmsis_gcc.h ****   __ASM volatile ("cpsid i" : : : "memory");
- 383              		.loc 2 962 3 view .LVU84
- 384              		.syntax unified
- 385              	@ 962 "driver/Core/cmsis_gcc.h" 1
- 386 0006 72B6     		cpsid i
-ARM GAS  /tmp/ccOmIOdq.s 			page 28
+ 407              		.loc 2 962 3 view .LVU93
+ 408              		.syntax unified
+ 409              	@ 962 "driver/Core/cmsis_gcc.h" 1
+ 410 0006 72B6     		cpsid i
+ 411              	@ 0 "" 2
+ 412              		.thumb
+ 413              		.syntax unified
+ 414              	.LBE15:
+ 415              	.LBE14:
+ 128:src/scheduler.c **** 
+ 129:src/scheduler.c **** 	TCB_Typedef* current_task = getCurrentTask();
+ 416              		.loc 1 129 2 view .LVU94
+ 417              		.loc 1 129 30 is_stmt 0 view .LVU95
+ 418 0008 FFF7FEFF 		bl	getCurrentTask
+ 419              	.LVL23:
+ 420              		.loc 1 129 15 view .LVU96
+ 421 000c 0190     		str	r0, [sp, #4]
+ 130:src/scheduler.c **** 
+ 131:src/scheduler.c **** 	current_task->delay = ms;				// update task delay
+ 422              		.loc 1 131 2 is_stmt 1 view .LVU97
+ 423              		.loc 1 131 22 is_stmt 0 view .LVU98
+ 424 000e 0461     		str	r4, [r0, #16]
+ 132:src/scheduler.c **** 	current_task->state = BLOCKED;				// change task state to blocked
+ 425              		.loc 1 132 2 is_stmt 1 view .LVU99
+ 426              		.loc 1 132 22 is_stmt 0 view .LVU100
+ 427 0010 0323     		movs	r3, #3
+ 428 0012 8382     		strh	r3, [r0, #20]	@ movhi
+ARM GAS  /tmp/cchXHjty.s 			page 29
 
 
- 387              	@ 0 "" 2
- 388              		.thumb
- 389              		.syntax unified
- 390              	.LBE15:
- 391              	.LBE14:
- 127:src/scheduler.c **** 
- 128:src/scheduler.c **** 	TCB_Typedef* current_task = getCurrentTask();
- 392              		.loc 1 128 2 view .LVU85
- 393              		.loc 1 128 30 is_stmt 0 view .LVU86
- 394 0008 FFF7FEFF 		bl	getCurrentTask
- 395              	.LVL15:
- 396              		.loc 1 128 15 view .LVU87
- 397 000c 0190     		str	r0, [sp, #4]
- 129:src/scheduler.c **** 
- 130:src/scheduler.c **** 	current_task->delay = ms;				// update task delay
- 398              		.loc 1 130 2 is_stmt 1 view .LVU88
- 399              		.loc 1 130 22 is_stmt 0 view .LVU89
- 400 000e 0461     		str	r4, [r0, #16]
- 131:src/scheduler.c **** 	current_task->state = BLOCKED;				// change task state to blocked
- 401              		.loc 1 131 2 is_stmt 1 view .LVU90
- 402              		.loc 1 131 22 is_stmt 0 view .LVU91
- 403 0010 0323     		movs	r3, #3
- 404 0012 8382     		strh	r3, [r0, #20]	@ movhi
- 132:src/scheduler.c **** 
- 133:src/scheduler.c **** 	removeFromReadyList(&current_task);
- 405              		.loc 1 133 2 is_stmt 1 view .LVU92
- 406 0014 01A8     		add	r0, sp, #4
- 407 0016 FFF7FEFF 		bl	removeFromReadyList
- 408              	.LVL16:
- 134:src/scheduler.c **** 	addToBlockedList(&current_task);
- 409              		.loc 1 134 2 view .LVU93
- 410 001a 01A8     		add	r0, sp, #4
- 411 001c FFF7FEFF 		bl	addToBlockedList
- 412              	.LVL17:
- 135:src/scheduler.c **** 
- 136:src/scheduler.c **** 	set_PendSV();								// set PendSV interrupt
- 413              		.loc 1 136 2 view .LVU94
- 414 0020 FFF7FEFF 		bl	set_PendSV
- 415              	.LVL18:
- 137:src/scheduler.c **** 
- 138:src/scheduler.c **** 	__enable_irq();								// enable interrupts
- 416              		.loc 1 138 2 view .LVU95
- 417              	.LBB16:
- 418              	.LBI16:
+ 133:src/scheduler.c **** 
+ 134:src/scheduler.c **** 	removeFromReadyList(&current_task);
+ 429              		.loc 1 134 2 is_stmt 1 view .LVU101
+ 430 0014 01A8     		add	r0, sp, #4
+ 431 0016 FFF7FEFF 		bl	removeFromReadyList
+ 432              	.LVL24:
+ 135:src/scheduler.c **** 	addToWaitingList(&current_task);
+ 433              		.loc 1 135 2 view .LVU102
+ 434 001a 01A8     		add	r0, sp, #4
+ 435 001c FFF7FEFF 		bl	addToWaitingList
+ 436              	.LVL25:
+ 136:src/scheduler.c **** 
+ 137:src/scheduler.c **** 	set_PendSV();								// set PendSV interrupt
+ 437              		.loc 1 137 2 view .LVU103
+ 438 0020 FFF7FEFF 		bl	set_PendSV
+ 439              	.LVL26:
+ 138:src/scheduler.c **** 
+ 139:src/scheduler.c **** 	__enable_irq();								// enable interrupts
+ 440              		.loc 1 139 2 view .LVU104
+ 441              	.LBB16:
+ 442              	.LBI16:
  949:driver/Core/cmsis_gcc.h **** {
- 419              		.loc 2 949 27 view .LVU96
- 420              	.LBB17:
+ 443              		.loc 2 949 27 view .LVU105
+ 444              	.LBB17:
  951:driver/Core/cmsis_gcc.h **** }
- 421              		.loc 2 951 3 view .LVU97
- 422              		.syntax unified
- 423              	@ 951 "driver/Core/cmsis_gcc.h" 1
- 424 0024 62B6     		cpsie i
- 425              	@ 0 "" 2
- 426              		.thumb
- 427              		.syntax unified
- 428              	.LBE17:
- 429              	.LBE16:
-ARM GAS  /tmp/ccOmIOdq.s 			page 29
+ 445              		.loc 2 951 3 view .LVU106
+ 446              		.syntax unified
+ 447              	@ 951 "driver/Core/cmsis_gcc.h" 1
+ 448 0024 62B6     		cpsie i
+ 449              	@ 0 "" 2
+ 450              		.thumb
+ 451              		.syntax unified
+ 452              	.LBE17:
+ 453              	.LBE16:
+ 140:src/scheduler.c **** }
+ 454              		.loc 1 140 1 is_stmt 0 view .LVU107
+ 455 0026 02B0     		add	sp, sp, #8
+ 456              	.LCFI7:
+ 457              		.cfi_def_cfa_offset 8
+ 458              		@ sp needed
+ 459 0028 10BD     		pop	{r4, pc}
+ 460              		.loc 1 140 1 view .LVU108
+ 461              		.cfi_endproc
+ 462              	.LFE142:
+ 464              		.section	.text.SysTick_Handler,"ax",%progbits
+ 465              		.align	1
+ 466              		.global	SysTick_Handler
+ 467              		.syntax unified
+ 468              		.thumb
+ 469              		.thumb_func
+ 470              		.fpu fpv4-sp-d16
+ 472              	SysTick_Handler:
+ 473              	.LFB143:
+ 141:src/scheduler.c **** 
+ 142:src/scheduler.c **** /************************************* Function for SysTick_Handler *******************************
+ 143:src/scheduler.c **** void SysTick_Handler(void) 
+ 144:src/scheduler.c **** {
+ARM GAS  /tmp/cchXHjty.s 			page 30
 
 
- 139:src/scheduler.c **** }
- 430              		.loc 1 139 1 is_stmt 0 view .LVU98
- 431 0026 02B0     		add	sp, sp, #8
- 432              	.LCFI7:
- 433              		.cfi_def_cfa_offset 8
- 434              		@ sp needed
- 435 0028 10BD     		pop	{r4, pc}
- 436              		.loc 1 139 1 view .LVU99
- 437              		.cfi_endproc
- 438              	.LFE142:
- 440              		.section	.text.SysTick_Handler,"ax",%progbits
- 441              		.align	1
- 442              		.global	SysTick_Handler
- 443              		.syntax unified
- 444              		.thumb
- 445              		.thumb_func
- 446              		.fpu fpv4-sp-d16
- 448              	SysTick_Handler:
- 449              	.LFB143:
- 140:src/scheduler.c **** 
- 141:src/scheduler.c **** /************************************* Function for SysTick_Handler *******************************
- 142:src/scheduler.c **** void SysTick_Handler(void) 
- 143:src/scheduler.c **** {
- 450              		.loc 1 143 1 is_stmt 1 view -0
- 451              		.cfi_startproc
- 452              		@ args = 0, pretend = 0, frame = 0
- 453              		@ frame_needed = 0, uses_anonymous_args = 0
- 454 0000 08B5     		push	{r3, lr}
- 455              	.LCFI8:
- 456              		.cfi_def_cfa_offset 8
- 457              		.cfi_offset 3, -8
- 458              		.cfi_offset 14, -4
- 144:src/scheduler.c **** 	update_task_delay();							// update task tick
- 459              		.loc 1 144 2 view .LVU101
- 460 0002 FFF7FEFF 		bl	update_task_delay
- 461              	.LVL19:
- 145:src/scheduler.c ****     	set_PendSV();								// set PendSV to trigger interrupt
- 462              		.loc 1 145 6 view .LVU102
- 463 0006 FFF7FEFF 		bl	set_PendSV
- 464              	.LVL20:
- 146:src/scheduler.c **** }
- 465              		.loc 1 146 1 is_stmt 0 view .LVU103
- 466 000a 08BD     		pop	{r3, pc}
- 467              		.cfi_endproc
- 468              	.LFE143:
- 470              		.section	.text.idleTask,"ax",%progbits
- 471              		.align	1
- 472              		.global	idleTask
- 473              		.syntax unified
- 474              		.thumb
- 475              		.thumb_func
- 476              		.fpu fpv4-sp-d16
- 478              	idleTask:
- 479              	.LFB144:
- 147:src/scheduler.c **** 
- 148:src/scheduler.c **** /****************************************** Idle task function ************************************
- 149:src/scheduler.c **** void idleTask(void)
-ARM GAS  /tmp/ccOmIOdq.s 			page 30
-
-
- 150:src/scheduler.c **** {
- 480              		.loc 1 150 1 is_stmt 1 view -0
- 481              		.cfi_startproc
- 482              		@ Volatile: function does not return.
- 483              		@ args = 0, pretend = 0, frame = 0
- 484              		@ frame_needed = 0, uses_anonymous_args = 0
- 485              		@ link register save eliminated.
- 151:src/scheduler.c **** 	SysTick_Config(42000000 / 1000);					// configure systick timer to interrupt every 1ms
- 486              		.loc 1 151 2 view .LVU105
- 487              	.LVL21:
- 488              	.LBB18:
- 489              	.LBI18:
- 490              		.file 3 "driver/Core/core_cm4.h"
+ 474              		.loc 1 144 1 is_stmt 1 view -0
+ 475              		.cfi_startproc
+ 476              		@ args = 0, pretend = 0, frame = 0
+ 477              		@ frame_needed = 0, uses_anonymous_args = 0
+ 478 0000 08B5     		push	{r3, lr}
+ 479              	.LCFI8:
+ 480              		.cfi_def_cfa_offset 8
+ 481              		.cfi_offset 3, -8
+ 482              		.cfi_offset 14, -4
+ 145:src/scheduler.c **** 	update_task_delay();							// update task tick
+ 483              		.loc 1 145 2 view .LVU110
+ 484 0002 FFF7FEFF 		bl	update_task_delay
+ 485              	.LVL27:
+ 146:src/scheduler.c ****     	set_PendSV();								// set PendSV to trigger interrupt
+ 486              		.loc 1 146 6 view .LVU111
+ 487 0006 FFF7FEFF 		bl	set_PendSV
+ 488              	.LVL28:
+ 147:src/scheduler.c **** }
+ 489              		.loc 1 147 1 is_stmt 0 view .LVU112
+ 490 000a 08BD     		pop	{r3, pc}
+ 491              		.cfi_endproc
+ 492              	.LFE143:
+ 494              		.section	.text.idleTask,"ax",%progbits
+ 495              		.align	1
+ 496              		.global	idleTask
+ 497              		.syntax unified
+ 498              		.thumb
+ 499              		.thumb_func
+ 500              		.fpu fpv4-sp-d16
+ 502              	idleTask:
+ 503              	.LFB144:
+ 148:src/scheduler.c **** 
+ 149:src/scheduler.c **** /****************************************** Idle task function ************************************
+ 150:src/scheduler.c **** void idleTask(void)
+ 151:src/scheduler.c **** {
+ 504              		.loc 1 151 1 is_stmt 1 view -0
+ 505              		.cfi_startproc
+ 506              		@ Volatile: function does not return.
+ 507              		@ args = 0, pretend = 0, frame = 0
+ 508              		@ frame_needed = 0, uses_anonymous_args = 0
+ 509              		@ link register save eliminated.
+ 152:src/scheduler.c **** 	SysTick_Config(42000000 / 1000);					// configure systick timer to interrupt every 1ms
+ 510              		.loc 1 152 2 view .LVU114
+ 511              	.LVL29:
+ 512              	.LBB18:
+ 513              	.LBI18:
+ 514              		.file 3 "driver/Core/core_cm4.h"
    1:driver/Core/core_cm4.h **** /**************************************************************************//**
    2:driver/Core/core_cm4.h ****  * @file     core_cm4.h
    3:driver/Core/core_cm4.h ****  * @brief    CMSIS Cortex-M4 Core Peripheral Access Layer Header File
@@ -1764,6 +1798,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
    8:driver/Core/core_cm4.h ****  * Copyright (c) 2009-2020 Arm Limited. All rights reserved.
    9:driver/Core/core_cm4.h ****  *
   10:driver/Core/core_cm4.h ****  * SPDX-License-Identifier: Apache-2.0
+ARM GAS  /tmp/cchXHjty.s 			page 31
+
+
   11:driver/Core/core_cm4.h ****  *
   12:driver/Core/core_cm4.h ****  * Licensed under the Apache License, Version 2.0 (the License); you may
   13:driver/Core/core_cm4.h ****  * not use this file except in compliance with the License.
@@ -1798,9 +1835,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   42:driver/Core/core_cm4.h ****   CMSIS violates the following MISRA-C:2004 rules:
   43:driver/Core/core_cm4.h **** 
   44:driver/Core/core_cm4.h ****    \li Required Rule 8.5, object/function definition in header file.<br>
-ARM GAS  /tmp/ccOmIOdq.s 			page 31
-
-
   45:driver/Core/core_cm4.h ****      Function definitions in header files are used to allow 'inlining'.
   46:driver/Core/core_cm4.h **** 
   47:driver/Core/core_cm4.h ****    \li Required Rule 18.4, declaration of union type or object of union type: '{...}'.<br>
@@ -1824,6 +1858,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   65:driver/Core/core_cm4.h **** /* CMSIS CM4 definitions */
   66:driver/Core/core_cm4.h **** #define __CM4_CMSIS_VERSION_MAIN  (__CM_CMSIS_VERSION_MAIN)              /*!< \deprecated [31:16] C
   67:driver/Core/core_cm4.h **** #define __CM4_CMSIS_VERSION_SUB   (__CM_CMSIS_VERSION_SUB)               /*!< \deprecated [15:0]  C
+ARM GAS  /tmp/cchXHjty.s 			page 32
+
+
   68:driver/Core/core_cm4.h **** #define __CM4_CMSIS_VERSION       ((__CM4_CMSIS_VERSION_MAIN << 16U) | \
   69:driver/Core/core_cm4.h ****                                     __CM4_CMSIS_VERSION_SUB           )  /*!< \deprecated CMSIS HAL
   70:driver/Core/core_cm4.h **** 
@@ -1858,9 +1895,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
   99:driver/Core/core_cm4.h **** 
  100:driver/Core/core_cm4.h **** #elif defined ( __GNUC__ )
  101:driver/Core/core_cm4.h ****   #if defined (__VFP_FP__) && !defined(__SOFTFP__)
-ARM GAS  /tmp/ccOmIOdq.s 			page 32
-
-
  102:driver/Core/core_cm4.h ****     #if defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)
  103:driver/Core/core_cm4.h ****       #define __FPU_USED       1U
  104:driver/Core/core_cm4.h ****     #else
@@ -1884,6 +1918,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  122:driver/Core/core_cm4.h ****   #endif
  123:driver/Core/core_cm4.h **** 
  124:driver/Core/core_cm4.h **** #elif defined ( __TI_ARM__ )
+ARM GAS  /tmp/cchXHjty.s 			page 33
+
+
  125:driver/Core/core_cm4.h ****   #if defined __TI_VFP_SUPPORT__
  126:driver/Core/core_cm4.h ****     #if defined (__FPU_PRESENT) && (__FPU_PRESENT == 1U)
  127:driver/Core/core_cm4.h ****       #define __FPU_USED       1U
@@ -1918,9 +1955,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  156:driver/Core/core_cm4.h ****   #else
  157:driver/Core/core_cm4.h ****     #define __FPU_USED         0U
  158:driver/Core/core_cm4.h ****   #endif
-ARM GAS  /tmp/ccOmIOdq.s 			page 33
-
-
  159:driver/Core/core_cm4.h **** 
  160:driver/Core/core_cm4.h **** #endif
  161:driver/Core/core_cm4.h **** 
@@ -1944,6 +1978,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  179:driver/Core/core_cm4.h **** 
  180:driver/Core/core_cm4.h **** /* check device defines and use defaults */
  181:driver/Core/core_cm4.h **** #if defined __CHECK_DEVICE_DEFINES
+ARM GAS  /tmp/cchXHjty.s 			page 34
+
+
  182:driver/Core/core_cm4.h ****   #ifndef __CM4_REV
  183:driver/Core/core_cm4.h ****     #define __CM4_REV               0x0000U
  184:driver/Core/core_cm4.h ****     #warning "__CM4_REV not defined in device header file; using default!"
@@ -1978,9 +2015,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  213:driver/Core/core_cm4.h **** /* IO definitions (access restrictions to peripheral registers) */
  214:driver/Core/core_cm4.h **** /**
  215:driver/Core/core_cm4.h ****     \defgroup CMSIS_glob_defs CMSIS Global Defines
-ARM GAS  /tmp/ccOmIOdq.s 			page 34
-
-
  216:driver/Core/core_cm4.h **** 
  217:driver/Core/core_cm4.h ****     <strong>IO Type Qualifiers</strong> are used
  218:driver/Core/core_cm4.h ****     \li to specify the access to peripheral variables.
@@ -2004,6 +2038,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  236:driver/Core/core_cm4.h **** 
  237:driver/Core/core_cm4.h **** 
  238:driver/Core/core_cm4.h **** /*******************************************************************************
+ARM GAS  /tmp/cchXHjty.s 			page 35
+
+
  239:driver/Core/core_cm4.h ****  *                 Register Abstraction
  240:driver/Core/core_cm4.h ****   Core Register contain:
  241:driver/Core/core_cm4.h ****   - Core Register
@@ -2038,9 +2075,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  270:driver/Core/core_cm4.h ****     uint32_t _reserved1:7;               /*!< bit: 20..26  Reserved */
  271:driver/Core/core_cm4.h ****     uint32_t Q:1;                        /*!< bit:     27  Saturation condition flag */
  272:driver/Core/core_cm4.h ****     uint32_t V:1;                        /*!< bit:     28  Overflow condition code flag */
-ARM GAS  /tmp/ccOmIOdq.s 			page 35
-
-
  273:driver/Core/core_cm4.h ****     uint32_t C:1;                        /*!< bit:     29  Carry condition code flag */
  274:driver/Core/core_cm4.h ****     uint32_t Z:1;                        /*!< bit:     30  Zero condition code flag */
  275:driver/Core/core_cm4.h ****     uint32_t N:1;                        /*!< bit:     31  Negative condition code flag */
@@ -2064,6 +2098,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  293:driver/Core/core_cm4.h **** #define APSR_Q_Pos                         27U                                            /*!< APSR
  294:driver/Core/core_cm4.h **** #define APSR_Q_Msk                         (1UL << APSR_Q_Pos)                            /*!< APSR
  295:driver/Core/core_cm4.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 36
+
+
  296:driver/Core/core_cm4.h **** #define APSR_GE_Pos                        16U                                            /*!< APSR
  297:driver/Core/core_cm4.h **** #define APSR_GE_Msk                        (0xFUL << APSR_GE_Pos)                         /*!< APSR
  298:driver/Core/core_cm4.h **** 
@@ -2098,9 +2135,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  327:driver/Core/core_cm4.h ****     uint32_t ICI_IT_1:6;                 /*!< bit: 10..15  ICI/IT part 1 */
  328:driver/Core/core_cm4.h ****     uint32_t GE:4;                       /*!< bit: 16..19  Greater than or Equal flags */
  329:driver/Core/core_cm4.h ****     uint32_t _reserved1:4;               /*!< bit: 20..23  Reserved */
-ARM GAS  /tmp/ccOmIOdq.s 			page 36
-
-
  330:driver/Core/core_cm4.h ****     uint32_t T:1;                        /*!< bit:     24  Thumb bit */
  331:driver/Core/core_cm4.h ****     uint32_t ICI_IT_2:2;                 /*!< bit: 25..26  ICI/IT part 2 */
  332:driver/Core/core_cm4.h ****     uint32_t Q:1;                        /*!< bit:     27  Saturation condition flag */
@@ -2124,6 +2158,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  350:driver/Core/core_cm4.h **** 
  351:driver/Core/core_cm4.h **** #define xPSR_V_Pos                         28U                                            /*!< xPSR
  352:driver/Core/core_cm4.h **** #define xPSR_V_Msk                         (1UL << xPSR_V_Pos)                            /*!< xPSR
+ARM GAS  /tmp/cchXHjty.s 			page 37
+
+
  353:driver/Core/core_cm4.h **** 
  354:driver/Core/core_cm4.h **** #define xPSR_Q_Pos                         27U                                            /*!< xPSR
  355:driver/Core/core_cm4.h **** #define xPSR_Q_Msk                         (1UL << xPSR_Q_Pos)                            /*!< xPSR
@@ -2158,9 +2195,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  384:driver/Core/core_cm4.h ****   } b;                                   /*!< Structure used for bit  access */
  385:driver/Core/core_cm4.h ****   uint32_t w;                            /*!< Type      used for word access */
  386:driver/Core/core_cm4.h **** } CONTROL_Type;
-ARM GAS  /tmp/ccOmIOdq.s 			page 37
-
-
  387:driver/Core/core_cm4.h **** 
  388:driver/Core/core_cm4.h **** /* CONTROL Register Definitions */
  389:driver/Core/core_cm4.h **** #define CONTROL_FPCA_Pos                    2U                                            /*!< CONT
@@ -2184,6 +2218,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  407:driver/Core/core_cm4.h **** 
  408:driver/Core/core_cm4.h **** /**
  409:driver/Core/core_cm4.h ****   \brief  Structure type to access the Nested Vectored Interrupt Controller (NVIC).
+ARM GAS  /tmp/cchXHjty.s 			page 38
+
+
  410:driver/Core/core_cm4.h ****  */
  411:driver/Core/core_cm4.h **** typedef struct
  412:driver/Core/core_cm4.h **** {
@@ -2218,9 +2255,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  441:driver/Core/core_cm4.h **** 
  442:driver/Core/core_cm4.h **** /**
  443:driver/Core/core_cm4.h ****   \brief  Structure type to access the System Control Block (SCB).
-ARM GAS  /tmp/ccOmIOdq.s 			page 38
-
-
  444:driver/Core/core_cm4.h ****  */
  445:driver/Core/core_cm4.h **** typedef struct
  446:driver/Core/core_cm4.h **** {
@@ -2244,6 +2278,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  464:driver/Core/core_cm4.h ****   __IM  uint32_t MMFR[4U];               /*!< Offset: 0x050 (R/ )  Memory Model Feature Register */
  465:driver/Core/core_cm4.h ****   __IM  uint32_t ISAR[5U];               /*!< Offset: 0x060 (R/ )  Instruction Set Attributes Regis
  466:driver/Core/core_cm4.h ****         uint32_t RESERVED0[5U];
+ARM GAS  /tmp/cchXHjty.s 			page 39
+
+
  467:driver/Core/core_cm4.h ****   __IOM uint32_t CPACR;                  /*!< Offset: 0x088 (R/W)  Coprocessor Access Control Regis
  468:driver/Core/core_cm4.h **** } SCB_Type;
  469:driver/Core/core_cm4.h **** 
@@ -2278,9 +2315,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  498:driver/Core/core_cm4.h **** 
  499:driver/Core/core_cm4.h **** #define SCB_ICSR_PENDSTCLR_Pos             25U                                            /*!< SCB 
  500:driver/Core/core_cm4.h **** #define SCB_ICSR_PENDSTCLR_Msk             (1UL << SCB_ICSR_PENDSTCLR_Pos)                /*!< SCB 
-ARM GAS  /tmp/ccOmIOdq.s 			page 39
-
-
  501:driver/Core/core_cm4.h **** 
  502:driver/Core/core_cm4.h **** #define SCB_ICSR_ISRPREEMPT_Pos            23U                                            /*!< SCB 
  503:driver/Core/core_cm4.h **** #define SCB_ICSR_ISRPREEMPT_Msk            (1UL << SCB_ICSR_ISRPREEMPT_Pos)               /*!< SCB 
@@ -2304,6 +2338,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  521:driver/Core/core_cm4.h **** /* SCB Application Interrupt and Reset Control Register Definitions */
  522:driver/Core/core_cm4.h **** #define SCB_AIRCR_VECTKEY_Pos              16U                                            /*!< SCB 
  523:driver/Core/core_cm4.h **** #define SCB_AIRCR_VECTKEY_Msk              (0xFFFFUL << SCB_AIRCR_VECTKEY_Pos)            /*!< SCB 
+ARM GAS  /tmp/cchXHjty.s 			page 40
+
+
  524:driver/Core/core_cm4.h **** 
  525:driver/Core/core_cm4.h **** #define SCB_AIRCR_VECTKEYSTAT_Pos          16U                                            /*!< SCB 
  526:driver/Core/core_cm4.h **** #define SCB_AIRCR_VECTKEYSTAT_Msk          (0xFFFFUL << SCB_AIRCR_VECTKEYSTAT_Pos)        /*!< SCB 
@@ -2338,9 +2375,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  555:driver/Core/core_cm4.h **** #define SCB_CCR_STKALIGN_Msk               (1UL << SCB_CCR_STKALIGN_Pos)                  /*!< SCB 
  556:driver/Core/core_cm4.h **** 
  557:driver/Core/core_cm4.h **** #define SCB_CCR_BFHFNMIGN_Pos               8U                                            /*!< SCB 
-ARM GAS  /tmp/ccOmIOdq.s 			page 40
-
-
  558:driver/Core/core_cm4.h **** #define SCB_CCR_BFHFNMIGN_Msk              (1UL << SCB_CCR_BFHFNMIGN_Pos)                 /*!< SCB 
  559:driver/Core/core_cm4.h **** 
  560:driver/Core/core_cm4.h **** #define SCB_CCR_DIV_0_TRP_Pos               4U                                            /*!< SCB 
@@ -2364,6 +2398,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  578:driver/Core/core_cm4.h **** 
  579:driver/Core/core_cm4.h **** #define SCB_SHCSR_MEMFAULTENA_Pos          16U                                            /*!< SCB 
  580:driver/Core/core_cm4.h **** #define SCB_SHCSR_MEMFAULTENA_Msk          (1UL << SCB_SHCSR_MEMFAULTENA_Pos)             /*!< SCB 
+ARM GAS  /tmp/cchXHjty.s 			page 41
+
+
  581:driver/Core/core_cm4.h **** 
  582:driver/Core/core_cm4.h **** #define SCB_SHCSR_SVCALLPENDED_Pos         15U                                            /*!< SCB 
  583:driver/Core/core_cm4.h **** #define SCB_SHCSR_SVCALLPENDED_Msk         (1UL << SCB_SHCSR_SVCALLPENDED_Pos)            /*!< SCB 
@@ -2398,9 +2435,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  612:driver/Core/core_cm4.h **** #define SCB_SHCSR_MEMFAULTACT_Pos           0U                                            /*!< SCB 
  613:driver/Core/core_cm4.h **** #define SCB_SHCSR_MEMFAULTACT_Msk          (1UL /*<< SCB_SHCSR_MEMFAULTACT_Pos*/)         /*!< SCB 
  614:driver/Core/core_cm4.h **** 
-ARM GAS  /tmp/ccOmIOdq.s 			page 41
-
-
  615:driver/Core/core_cm4.h **** /* SCB Configurable Fault Status Register Definitions */
  616:driver/Core/core_cm4.h **** #define SCB_CFSR_USGFAULTSR_Pos            16U                                            /*!< SCB 
  617:driver/Core/core_cm4.h **** #define SCB_CFSR_USGFAULTSR_Msk            (0xFFFFUL << SCB_CFSR_USGFAULTSR_Pos)          /*!< SCB 
@@ -2424,6 +2458,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  635:driver/Core/core_cm4.h **** #define SCB_CFSR_MUNSTKERR_Pos             (SCB_CFSR_MEMFAULTSR_Pos + 3U)                 /*!< SCB 
  636:driver/Core/core_cm4.h **** #define SCB_CFSR_MUNSTKERR_Msk             (1UL << SCB_CFSR_MUNSTKERR_Pos)                /*!< SCB 
  637:driver/Core/core_cm4.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 42
+
+
  638:driver/Core/core_cm4.h **** #define SCB_CFSR_DACCVIOL_Pos              (SCB_CFSR_MEMFAULTSR_Pos + 1U)                 /*!< SCB 
  639:driver/Core/core_cm4.h **** #define SCB_CFSR_DACCVIOL_Msk              (1UL << SCB_CFSR_DACCVIOL_Pos)                 /*!< SCB 
  640:driver/Core/core_cm4.h **** 
@@ -2458,9 +2495,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  669:driver/Core/core_cm4.h **** 
  670:driver/Core/core_cm4.h **** #define SCB_CFSR_UNALIGNED_Pos            (SCB_CFSR_USGFAULTSR_Pos + 8U)                  /*!< SCB 
  671:driver/Core/core_cm4.h **** #define SCB_CFSR_UNALIGNED_Msk            (1UL << SCB_CFSR_UNALIGNED_Pos)                 /*!< SCB 
-ARM GAS  /tmp/ccOmIOdq.s 			page 42
-
-
  672:driver/Core/core_cm4.h **** 
  673:driver/Core/core_cm4.h **** #define SCB_CFSR_NOCP_Pos                 (SCB_CFSR_USGFAULTSR_Pos + 3U)                  /*!< SCB 
  674:driver/Core/core_cm4.h **** #define SCB_CFSR_NOCP_Msk                 (1UL << SCB_CFSR_NOCP_Pos)                      /*!< SCB 
@@ -2484,6 +2518,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  692:driver/Core/core_cm4.h **** #define SCB_HFSR_VECTTBL_Pos                1U                                            /*!< SCB 
  693:driver/Core/core_cm4.h **** #define SCB_HFSR_VECTTBL_Msk               (1UL << SCB_HFSR_VECTTBL_Pos)                  /*!< SCB 
  694:driver/Core/core_cm4.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 43
+
+
  695:driver/Core/core_cm4.h **** /* SCB Debug Fault Status Register Definitions */
  696:driver/Core/core_cm4.h **** #define SCB_DFSR_EXTERNAL_Pos               4U                                            /*!< SCB 
  697:driver/Core/core_cm4.h **** #define SCB_DFSR_EXTERNAL_Msk              (1UL << SCB_DFSR_EXTERNAL_Pos)                 /*!< SCB 
@@ -2518,9 +2555,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  726:driver/Core/core_cm4.h ****         uint32_t RESERVED0[1U];
  727:driver/Core/core_cm4.h ****   __IM  uint32_t ICTR;                   /*!< Offset: 0x004 (R/ )  Interrupt Controller Type Regist
  728:driver/Core/core_cm4.h ****   __IOM uint32_t ACTLR;                  /*!< Offset: 0x008 (R/W)  Auxiliary Control Register */
-ARM GAS  /tmp/ccOmIOdq.s 			page 43
-
-
  729:driver/Core/core_cm4.h **** } SCnSCB_Type;
  730:driver/Core/core_cm4.h **** 
  731:driver/Core/core_cm4.h **** /* Interrupt Controller Type Register Definitions */
@@ -2544,6 +2578,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  749:driver/Core/core_cm4.h **** #define SCnSCB_ACTLR_DISMCYCINT_Msk        (1UL /*<< SCnSCB_ACTLR_DISMCYCINT_Pos*/)    /*!< ACTLR: 
  750:driver/Core/core_cm4.h **** 
  751:driver/Core/core_cm4.h **** /*@} end of group CMSIS_SCnotSCB */
+ARM GAS  /tmp/cchXHjty.s 			page 44
+
+
  752:driver/Core/core_cm4.h **** 
  753:driver/Core/core_cm4.h **** 
  754:driver/Core/core_cm4.h **** /**
@@ -2578,9 +2615,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  783:driver/Core/core_cm4.h **** #define SysTick_CTRL_ENABLE_Msk            (1UL /*<< SysTick_CTRL_ENABLE_Pos*/)           /*!< SysT
  784:driver/Core/core_cm4.h **** 
  785:driver/Core/core_cm4.h **** /* SysTick Reload Register Definitions */
-ARM GAS  /tmp/ccOmIOdq.s 			page 44
-
-
  786:driver/Core/core_cm4.h **** #define SysTick_LOAD_RELOAD_Pos             0U                                            /*!< SysT
  787:driver/Core/core_cm4.h **** #define SysTick_LOAD_RELOAD_Msk            (0xFFFFFFUL /*<< SysTick_LOAD_RELOAD_Pos*/)    /*!< SysT
  788:driver/Core/core_cm4.h **** 
@@ -2604,6 +2638,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  806:driver/Core/core_cm4.h **** /**
  807:driver/Core/core_cm4.h ****   \ingroup  CMSIS_core_register
  808:driver/Core/core_cm4.h ****   \defgroup CMSIS_ITM     Instrumentation Trace Macrocell (ITM)
+ARM GAS  /tmp/cchXHjty.s 			page 45
+
+
  809:driver/Core/core_cm4.h ****   \brief    Type definitions for the Instrumentation Trace Macrocell (ITM)
  810:driver/Core/core_cm4.h ****   @{
  811:driver/Core/core_cm4.h ****  */
@@ -2638,9 +2675,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  840:driver/Core/core_cm4.h ****   __IM  uint32_t PID1;                   /*!< Offset: 0xFE4 (R/ )  ITM Peripheral Identification Re
  841:driver/Core/core_cm4.h ****   __IM  uint32_t PID2;                   /*!< Offset: 0xFE8 (R/ )  ITM Peripheral Identification Re
  842:driver/Core/core_cm4.h ****   __IM  uint32_t PID3;                   /*!< Offset: 0xFEC (R/ )  ITM Peripheral Identification Re
-ARM GAS  /tmp/ccOmIOdq.s 			page 45
-
-
  843:driver/Core/core_cm4.h ****   __IM  uint32_t CID0;                   /*!< Offset: 0xFF0 (R/ )  ITM Component  Identification Re
  844:driver/Core/core_cm4.h ****   __IM  uint32_t CID1;                   /*!< Offset: 0xFF4 (R/ )  ITM Component  Identification Re
  845:driver/Core/core_cm4.h ****   __IM  uint32_t CID2;                   /*!< Offset: 0xFF8 (R/ )  ITM Component  Identification Re
@@ -2664,6 +2698,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  863:driver/Core/core_cm4.h **** #define ITM_TCR_TSPrescale_Pos              8U                                            /*!< ITM 
  864:driver/Core/core_cm4.h **** #define ITM_TCR_TSPrescale_Msk             (3UL << ITM_TCR_TSPrescale_Pos)                /*!< ITM 
  865:driver/Core/core_cm4.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 46
+
+
  866:driver/Core/core_cm4.h **** #define ITM_TCR_SWOENA_Pos                  4U                                            /*!< ITM 
  867:driver/Core/core_cm4.h **** #define ITM_TCR_SWOENA_Msk                 (1UL << ITM_TCR_SWOENA_Pos)                    /*!< ITM 
  868:driver/Core/core_cm4.h **** 
@@ -2698,9 +2735,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  897:driver/Core/core_cm4.h ****   \brief    Type definitions for the Data Watchpoint and Trace (DWT)
  898:driver/Core/core_cm4.h ****   @{
  899:driver/Core/core_cm4.h ****  */
-ARM GAS  /tmp/ccOmIOdq.s 			page 46
-
-
  900:driver/Core/core_cm4.h **** 
  901:driver/Core/core_cm4.h **** /**
  902:driver/Core/core_cm4.h ****   \brief  Structure type to access the Data Watchpoint and Trace Register (DWT).
@@ -2724,6 +2758,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  920:driver/Core/core_cm4.h ****   __IOM uint32_t FUNCTION1;              /*!< Offset: 0x038 (R/W)  Function Register 1 */
  921:driver/Core/core_cm4.h ****         uint32_t RESERVED1[1U];
  922:driver/Core/core_cm4.h ****   __IOM uint32_t COMP2;                  /*!< Offset: 0x040 (R/W)  Comparator Register 2 */
+ARM GAS  /tmp/cchXHjty.s 			page 47
+
+
  923:driver/Core/core_cm4.h ****   __IOM uint32_t MASK2;                  /*!< Offset: 0x044 (R/W)  Mask Register 2 */
  924:driver/Core/core_cm4.h ****   __IOM uint32_t FUNCTION2;              /*!< Offset: 0x048 (R/W)  Function Register 2 */
  925:driver/Core/core_cm4.h ****         uint32_t RESERVED2[1U];
@@ -2758,9 +2795,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  954:driver/Core/core_cm4.h **** #define DWT_CTRL_LSUEVTENA_Msk             (0x1UL << DWT_CTRL_LSUEVTENA_Pos)           /*!< DWT CTR
  955:driver/Core/core_cm4.h **** 
  956:driver/Core/core_cm4.h **** #define DWT_CTRL_SLEEPEVTENA_Pos           19U                                         /*!< DWT CTR
-ARM GAS  /tmp/ccOmIOdq.s 			page 47
-
-
  957:driver/Core/core_cm4.h **** #define DWT_CTRL_SLEEPEVTENA_Msk           (0x1UL << DWT_CTRL_SLEEPEVTENA_Pos)         /*!< DWT CTR
  958:driver/Core/core_cm4.h **** 
  959:driver/Core/core_cm4.h **** #define DWT_CTRL_EXCEVTENA_Pos             18U                                         /*!< DWT CTR
@@ -2784,6 +2818,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
  977:driver/Core/core_cm4.h **** #define DWT_CTRL_POSTINIT_Pos               5U                                         /*!< DWT CTR
  978:driver/Core/core_cm4.h **** #define DWT_CTRL_POSTINIT_Msk              (0xFUL << DWT_CTRL_POSTINIT_Pos)            /*!< DWT CTR
  979:driver/Core/core_cm4.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 48
+
+
  980:driver/Core/core_cm4.h **** #define DWT_CTRL_POSTPRESET_Pos             1U                                         /*!< DWT CTR
  981:driver/Core/core_cm4.h **** #define DWT_CTRL_POSTPRESET_Msk            (0xFUL << DWT_CTRL_POSTPRESET_Pos)          /*!< DWT CTR
  982:driver/Core/core_cm4.h **** 
@@ -2818,9 +2855,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1011:driver/Core/core_cm4.h **** #define DWT_FUNCTION_MATCHED_Pos           24U                                         /*!< DWT FUN
 1012:driver/Core/core_cm4.h **** #define DWT_FUNCTION_MATCHED_Msk           (0x1UL << DWT_FUNCTION_MATCHED_Pos)         /*!< DWT FUN
 1013:driver/Core/core_cm4.h **** 
-ARM GAS  /tmp/ccOmIOdq.s 			page 48
-
-
 1014:driver/Core/core_cm4.h **** #define DWT_FUNCTION_DATAVADDR1_Pos        16U                                         /*!< DWT FUN
 1015:driver/Core/core_cm4.h **** #define DWT_FUNCTION_DATAVADDR1_Msk        (0xFUL << DWT_FUNCTION_DATAVADDR1_Pos)      /*!< DWT FUN
 1016:driver/Core/core_cm4.h **** 
@@ -2844,6 +2878,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1034:driver/Core/core_cm4.h **** 
 1035:driver/Core/core_cm4.h **** #define DWT_FUNCTION_FUNCTION_Pos           0U                                         /*!< DWT FUN
 1036:driver/Core/core_cm4.h **** #define DWT_FUNCTION_FUNCTION_Msk          (0xFUL /*<< DWT_FUNCTION_FUNCTION_Pos*/)    /*!< DWT FUN
+ARM GAS  /tmp/cchXHjty.s 			page 49
+
+
 1037:driver/Core/core_cm4.h **** 
 1038:driver/Core/core_cm4.h **** /*@}*/ /* end of group CMSIS_DWT */
 1039:driver/Core/core_cm4.h **** 
@@ -2878,9 +2915,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1068:driver/Core/core_cm4.h ****   __IM  uint32_t ITATBCTR0;              /*!< Offset: 0xEF8 (R/ )  ITATBCTR0 */
 1069:driver/Core/core_cm4.h ****   __IM  uint32_t FIFO1;                  /*!< Offset: 0xEFC (R/ )  Integration ITM Data */
 1070:driver/Core/core_cm4.h ****   __IOM uint32_t ITCTRL;                 /*!< Offset: 0xF00 (R/W)  Integration Mode Control */
-ARM GAS  /tmp/ccOmIOdq.s 			page 49
-
-
 1071:driver/Core/core_cm4.h ****         uint32_t RESERVED5[39U];
 1072:driver/Core/core_cm4.h ****   __IOM uint32_t CLAIMSET;               /*!< Offset: 0xFA0 (R/W)  Claim tag set */
 1073:driver/Core/core_cm4.h ****   __IOM uint32_t CLAIMCLR;               /*!< Offset: 0xFA4 (R/W)  Claim tag clear */
@@ -2904,6 +2938,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1091:driver/Core/core_cm4.h **** #define TPI_FFSR_TCPresent_Pos              2U                                         /*!< TPI FFS
 1092:driver/Core/core_cm4.h **** #define TPI_FFSR_TCPresent_Msk             (0x1UL << TPI_FFSR_TCPresent_Pos)           /*!< TPI FFS
 1093:driver/Core/core_cm4.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 50
+
+
 1094:driver/Core/core_cm4.h **** #define TPI_FFSR_FtStopped_Pos              1U                                         /*!< TPI FFS
 1095:driver/Core/core_cm4.h **** #define TPI_FFSR_FtStopped_Msk             (0x1UL << TPI_FFSR_FtStopped_Pos)           /*!< TPI FFS
 1096:driver/Core/core_cm4.h **** 
@@ -2938,9 +2975,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1125:driver/Core/core_cm4.h **** #define TPI_FIFO0_ETM2_Msk                 (0xFFUL << TPI_FIFO0_ETM2_Pos)              /*!< TPI FIF
 1126:driver/Core/core_cm4.h **** 
 1127:driver/Core/core_cm4.h **** #define TPI_FIFO0_ETM1_Pos                  8U                                         /*!< TPI FIF
-ARM GAS  /tmp/ccOmIOdq.s 			page 50
-
-
 1128:driver/Core/core_cm4.h **** #define TPI_FIFO0_ETM1_Msk                 (0xFFUL << TPI_FIFO0_ETM1_Pos)              /*!< TPI FIF
 1129:driver/Core/core_cm4.h **** 
 1130:driver/Core/core_cm4.h **** #define TPI_FIFO0_ETM0_Pos                  0U                                         /*!< TPI FIF
@@ -2964,6 +2998,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1148:driver/Core/core_cm4.h **** #define TPI_FIFO1_ETM_ATVALID_Msk          (0x1UL << TPI_FIFO1_ETM_ATVALID_Pos)        /*!< TPI FIF
 1149:driver/Core/core_cm4.h **** 
 1150:driver/Core/core_cm4.h **** #define TPI_FIFO1_ETM_bytecount_Pos        24U                                         /*!< TPI FIF
+ARM GAS  /tmp/cchXHjty.s 			page 51
+
+
 1151:driver/Core/core_cm4.h **** #define TPI_FIFO1_ETM_bytecount_Msk        (0x3UL << TPI_FIFO1_ETM_bytecount_Pos)      /*!< TPI FIF
 1152:driver/Core/core_cm4.h **** 
 1153:driver/Core/core_cm4.h **** #define TPI_FIFO1_ITM2_Pos                 16U                                         /*!< TPI FIF
@@ -2998,9 +3035,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1182:driver/Core/core_cm4.h **** 
 1183:driver/Core/core_cm4.h **** #define TPI_DEVID_MinBufSz_Pos              6U                                         /*!< TPI DEV
 1184:driver/Core/core_cm4.h **** #define TPI_DEVID_MinBufSz_Msk             (0x7UL << TPI_DEVID_MinBufSz_Pos)           /*!< TPI DEV
-ARM GAS  /tmp/ccOmIOdq.s 			page 51
-
-
 1185:driver/Core/core_cm4.h **** 
 1186:driver/Core/core_cm4.h **** #define TPI_DEVID_AsynClkIn_Pos             5U                                         /*!< TPI DEV
 1187:driver/Core/core_cm4.h **** #define TPI_DEVID_AsynClkIn_Msk            (0x1UL << TPI_DEVID_AsynClkIn_Pos)          /*!< TPI DEV
@@ -3024,6 +3058,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1205:driver/Core/core_cm4.h ****   \defgroup CMSIS_MPU     Memory Protection Unit (MPU)
 1206:driver/Core/core_cm4.h ****   \brief    Type definitions for the Memory Protection Unit (MPU)
 1207:driver/Core/core_cm4.h ****   @{
+ARM GAS  /tmp/cchXHjty.s 			page 52
+
+
 1208:driver/Core/core_cm4.h ****  */
 1209:driver/Core/core_cm4.h **** 
 1210:driver/Core/core_cm4.h **** /**
@@ -3058,9 +3095,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1239:driver/Core/core_cm4.h **** 
 1240:driver/Core/core_cm4.h **** /* MPU Control Register Definitions */
 1241:driver/Core/core_cm4.h **** #define MPU_CTRL_PRIVDEFENA_Pos             2U                                            /*!< MPU 
-ARM GAS  /tmp/ccOmIOdq.s 			page 52
-
-
 1242:driver/Core/core_cm4.h **** #define MPU_CTRL_PRIVDEFENA_Msk            (1UL << MPU_CTRL_PRIVDEFENA_Pos)               /*!< MPU 
 1243:driver/Core/core_cm4.h **** 
 1244:driver/Core/core_cm4.h **** #define MPU_CTRL_HFNMIENA_Pos               1U                                            /*!< MPU 
@@ -3084,6 +3118,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1262:driver/Core/core_cm4.h **** #define MPU_RBAR_REGION_Msk                (0xFUL /*<< MPU_RBAR_REGION_Pos*/)             /*!< MPU 
 1263:driver/Core/core_cm4.h **** 
 1264:driver/Core/core_cm4.h **** /* MPU Region Attribute and Size Register Definitions */
+ARM GAS  /tmp/cchXHjty.s 			page 53
+
+
 1265:driver/Core/core_cm4.h **** #define MPU_RASR_ATTRS_Pos                 16U                                            /*!< MPU 
 1266:driver/Core/core_cm4.h **** #define MPU_RASR_ATTRS_Msk                 (0xFFFFUL << MPU_RASR_ATTRS_Pos)               /*!< MPU 
 1267:driver/Core/core_cm4.h **** 
@@ -3118,9 +3155,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1296:driver/Core/core_cm4.h **** #endif /* defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U) */
 1297:driver/Core/core_cm4.h **** 
 1298:driver/Core/core_cm4.h **** 
-ARM GAS  /tmp/ccOmIOdq.s 			page 53
-
-
 1299:driver/Core/core_cm4.h **** /**
 1300:driver/Core/core_cm4.h ****   \ingroup  CMSIS_core_register
 1301:driver/Core/core_cm4.h ****   \defgroup CMSIS_FPU     Floating Point Unit (FPU)
@@ -3144,6 +3178,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1319:driver/Core/core_cm4.h **** 
 1320:driver/Core/core_cm4.h **** /* Floating-Point Context Control Register Definitions */
 1321:driver/Core/core_cm4.h **** #define FPU_FPCCR_ASPEN_Pos                31U                                            /*!< FPCC
+ARM GAS  /tmp/cchXHjty.s 			page 54
+
+
 1322:driver/Core/core_cm4.h **** #define FPU_FPCCR_ASPEN_Msk                (1UL << FPU_FPCCR_ASPEN_Pos)                   /*!< FPCC
 1323:driver/Core/core_cm4.h **** 
 1324:driver/Core/core_cm4.h **** #define FPU_FPCCR_LSPEN_Pos                30U                                            /*!< FPCC
@@ -3178,9 +3215,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1353:driver/Core/core_cm4.h **** #define FPU_FPDSCR_AHP_Pos                 26U                                            /*!< FPDS
 1354:driver/Core/core_cm4.h **** #define FPU_FPDSCR_AHP_Msk                 (1UL << FPU_FPDSCR_AHP_Pos)                    /*!< FPDS
 1355:driver/Core/core_cm4.h **** 
-ARM GAS  /tmp/ccOmIOdq.s 			page 54
-
-
 1356:driver/Core/core_cm4.h **** #define FPU_FPDSCR_DN_Pos                  25U                                            /*!< FPDS
 1357:driver/Core/core_cm4.h **** #define FPU_FPDSCR_DN_Msk                  (1UL << FPU_FPDSCR_DN_Pos)                     /*!< FPDS
 1358:driver/Core/core_cm4.h **** 
@@ -3204,6 +3238,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1376:driver/Core/core_cm4.h **** #define FPU_MVFR0_Divide_Msk               (0xFUL << FPU_MVFR0_Divide_Pos)                /*!< MVFR
 1377:driver/Core/core_cm4.h **** 
 1378:driver/Core/core_cm4.h **** #define FPU_MVFR0_FP_excep_trapping_Pos    12U                                            /*!< MVFR
+ARM GAS  /tmp/cchXHjty.s 			page 55
+
+
 1379:driver/Core/core_cm4.h **** #define FPU_MVFR0_FP_excep_trapping_Msk    (0xFUL << FPU_MVFR0_FP_excep_trapping_Pos)     /*!< MVFR
 1380:driver/Core/core_cm4.h **** 
 1381:driver/Core/core_cm4.h **** #define FPU_MVFR0_Double_precision_Pos      8U                                            /*!< MVFR
@@ -3238,9 +3275,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1410:driver/Core/core_cm4.h **** 
 1411:driver/Core/core_cm4.h **** /**
 1412:driver/Core/core_cm4.h ****   \ingroup  CMSIS_core_register
-ARM GAS  /tmp/ccOmIOdq.s 			page 55
-
-
 1413:driver/Core/core_cm4.h ****   \defgroup CMSIS_CoreDebug       Core Debug Registers (CoreDebug)
 1414:driver/Core/core_cm4.h ****   \brief    Type definitions for the Core Debug Registers
 1415:driver/Core/core_cm4.h ****   @{
@@ -3264,6 +3298,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1433:driver/Core/core_cm4.h **** #define CoreDebug_DHCSR_S_RESET_ST_Pos     25U                                            /*!< Core
 1434:driver/Core/core_cm4.h **** #define CoreDebug_DHCSR_S_RESET_ST_Msk     (1UL << CoreDebug_DHCSR_S_RESET_ST_Pos)        /*!< Core
 1435:driver/Core/core_cm4.h **** 
+ARM GAS  /tmp/cchXHjty.s 			page 56
+
+
 1436:driver/Core/core_cm4.h **** #define CoreDebug_DHCSR_S_RETIRE_ST_Pos    24U                                            /*!< Core
 1437:driver/Core/core_cm4.h **** #define CoreDebug_DHCSR_S_RETIRE_ST_Msk    (1UL << CoreDebug_DHCSR_S_RETIRE_ST_Pos)       /*!< Core
 1438:driver/Core/core_cm4.h **** 
@@ -3298,9 +3335,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1467:driver/Core/core_cm4.h **** #define CoreDebug_DCRSR_REGWnR_Pos         16U                                            /*!< Core
 1468:driver/Core/core_cm4.h **** #define CoreDebug_DCRSR_REGWnR_Msk         (1UL << CoreDebug_DCRSR_REGWnR_Pos)            /*!< Core
 1469:driver/Core/core_cm4.h **** 
-ARM GAS  /tmp/ccOmIOdq.s 			page 56
-
-
 1470:driver/Core/core_cm4.h **** #define CoreDebug_DCRSR_REGSEL_Pos          0U                                            /*!< Core
 1471:driver/Core/core_cm4.h **** #define CoreDebug_DCRSR_REGSEL_Msk         (0x1FUL /*<< CoreDebug_DCRSR_REGSEL_Pos*/)     /*!< Core
 1472:driver/Core/core_cm4.h **** 
@@ -3324,6 +3358,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1490:driver/Core/core_cm4.h **** #define CoreDebug_DEMCR_VC_HARDERR_Msk     (1UL << CoreDebug_DEMCR_VC_HARDERR_Pos)        /*!< Core
 1491:driver/Core/core_cm4.h **** 
 1492:driver/Core/core_cm4.h **** #define CoreDebug_DEMCR_VC_INTERR_Pos       9U                                            /*!< Core
+ARM GAS  /tmp/cchXHjty.s 			page 57
+
+
 1493:driver/Core/core_cm4.h **** #define CoreDebug_DEMCR_VC_INTERR_Msk      (1UL << CoreDebug_DEMCR_VC_INTERR_Pos)         /*!< Core
 1494:driver/Core/core_cm4.h **** 
 1495:driver/Core/core_cm4.h **** #define CoreDebug_DEMCR_VC_BUSERR_Pos       8U                                            /*!< Core
@@ -3358,9 +3395,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1524:driver/Core/core_cm4.h ****   \brief   Mask and shift a bit field value for use in a register bit range.
 1525:driver/Core/core_cm4.h ****   \param[in] field  Name of the register bit field.
 1526:driver/Core/core_cm4.h ****   \param[in] value  Value of the bit field. This parameter is interpreted as an uint32_t type.
-ARM GAS  /tmp/ccOmIOdq.s 			page 57
-
-
 1527:driver/Core/core_cm4.h ****   \return           Masked and shifted value.
 1528:driver/Core/core_cm4.h **** */
 1529:driver/Core/core_cm4.h **** #define _VAL2FLD(field, value)    (((uint32_t)(value) << field ## _Pos) & field ## _Msk)
@@ -3384,6 +3418,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1547:driver/Core/core_cm4.h ****  */
 1548:driver/Core/core_cm4.h **** 
 1549:driver/Core/core_cm4.h **** /* Memory mapping of Core Hardware */
+ARM GAS  /tmp/cchXHjty.s 			page 58
+
+
 1550:driver/Core/core_cm4.h **** #define SCS_BASE            (0xE000E000UL)                            /*!< System Control Space Bas
 1551:driver/Core/core_cm4.h **** #define ITM_BASE            (0xE0000000UL)                            /*!< ITM Base Address */
 1552:driver/Core/core_cm4.h **** #define DWT_BASE            (0xE0001000UL)                            /*!< DWT Base Address */
@@ -3418,9 +3455,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1581:driver/Core/core_cm4.h ****  *                Hardware Abstraction Layer
 1582:driver/Core/core_cm4.h ****   Core Function Interface contains:
 1583:driver/Core/core_cm4.h ****   - Core NVIC Functions
-ARM GAS  /tmp/ccOmIOdq.s 			page 58
-
-
 1584:driver/Core/core_cm4.h ****   - Core SysTick Functions
 1585:driver/Core/core_cm4.h ****   - Core Debug Functions
 1586:driver/Core/core_cm4.h ****   - Core Register Access Functions
@@ -3444,6 +3478,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1604:driver/Core/core_cm4.h ****     #define CMSIS_NVIC_VIRTUAL_HEADER_FILE "cmsis_nvic_virtual.h"
 1605:driver/Core/core_cm4.h ****   #endif
 1606:driver/Core/core_cm4.h ****   #include CMSIS_NVIC_VIRTUAL_HEADER_FILE
+ARM GAS  /tmp/cchXHjty.s 			page 59
+
+
 1607:driver/Core/core_cm4.h **** #else
 1608:driver/Core/core_cm4.h ****   #define NVIC_SetPriorityGrouping    __NVIC_SetPriorityGrouping
 1609:driver/Core/core_cm4.h ****   #define NVIC_GetPriorityGrouping    __NVIC_GetPriorityGrouping
@@ -3478,9 +3515,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1638:driver/Core/core_cm4.h **** #define EXC_RETURN_THREAD_PSP      (0xFFFFFFFDUL)     /* return to Thread mode, uses PSP after retu
 1639:driver/Core/core_cm4.h **** #define EXC_RETURN_HANDLER_FPU     (0xFFFFFFE1UL)     /* return to Handler mode, uses MSP after ret
 1640:driver/Core/core_cm4.h **** #define EXC_RETURN_THREAD_MSP_FPU  (0xFFFFFFE9UL)     /* return to Thread mode, uses MSP after retu
-ARM GAS  /tmp/ccOmIOdq.s 			page 59
-
-
 1641:driver/Core/core_cm4.h **** #define EXC_RETURN_THREAD_PSP_FPU  (0xFFFFFFEDUL)     /* return to Thread mode, uses PSP after retu
 1642:driver/Core/core_cm4.h **** 
 1643:driver/Core/core_cm4.h **** 
@@ -3504,6 +3538,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1661:driver/Core/core_cm4.h ****                 ((uint32_t)0x5FAUL << SCB_AIRCR_VECTKEY_Pos) |
 1662:driver/Core/core_cm4.h ****                 (PriorityGroupTmp << SCB_AIRCR_PRIGROUP_Pos)  );              /* Insert write key a
 1663:driver/Core/core_cm4.h ****   SCB->AIRCR =  reg_value;
+ARM GAS  /tmp/cchXHjty.s 			page 60
+
+
 1664:driver/Core/core_cm4.h **** }
 1665:driver/Core/core_cm4.h **** 
 1666:driver/Core/core_cm4.h **** 
@@ -3538,9 +3575,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1695:driver/Core/core_cm4.h **** /**
 1696:driver/Core/core_cm4.h ****   \brief   Get Interrupt Enable status
 1697:driver/Core/core_cm4.h ****   \details Returns a device specific interrupt enable status from the NVIC interrupt controller.
-ARM GAS  /tmp/ccOmIOdq.s 			page 60
-
-
 1698:driver/Core/core_cm4.h ****   \param [in]      IRQn  Device specific interrupt number.
 1699:driver/Core/core_cm4.h ****   \return             0  Interrupt is not enabled.
 1700:driver/Core/core_cm4.h ****   \return             1  Interrupt is enabled.
@@ -3564,6 +3598,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1718:driver/Core/core_cm4.h ****   \details Disables a device specific interrupt in the NVIC interrupt controller.
 1719:driver/Core/core_cm4.h ****   \param [in]      IRQn  Device specific interrupt number.
 1720:driver/Core/core_cm4.h ****   \note    IRQn must not be negative.
+ARM GAS  /tmp/cchXHjty.s 			page 61
+
+
 1721:driver/Core/core_cm4.h ****  */
 1722:driver/Core/core_cm4.h **** __STATIC_INLINE void __NVIC_DisableIRQ(IRQn_Type IRQn)
 1723:driver/Core/core_cm4.h **** {
@@ -3598,9 +3635,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1752:driver/Core/core_cm4.h **** 
 1753:driver/Core/core_cm4.h **** 
 1754:driver/Core/core_cm4.h **** /**
-ARM GAS  /tmp/ccOmIOdq.s 			page 61
-
-
 1755:driver/Core/core_cm4.h ****   \brief   Set Pending Interrupt
 1756:driver/Core/core_cm4.h ****   \details Sets the pending bit of a device specific interrupt in the NVIC pending register.
 1757:driver/Core/core_cm4.h ****   \param [in]      IRQn  Device specific interrupt number.
@@ -3624,6 +3658,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1775:driver/Core/core_cm4.h **** __STATIC_INLINE void __NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 1776:driver/Core/core_cm4.h **** {
 1777:driver/Core/core_cm4.h ****   if ((int32_t)(IRQn) >= 0)
+ARM GAS  /tmp/cchXHjty.s 			page 62
+
+
 1778:driver/Core/core_cm4.h ****   {
 1779:driver/Core/core_cm4.h ****     NVIC->ICPR[(((uint32_t)IRQn) >> 5UL)] = (uint32_t)(1UL << (((uint32_t)IRQn) & 0x1FUL));
 1780:driver/Core/core_cm4.h ****   }
@@ -3658,9 +3695,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1809:driver/Core/core_cm4.h ****            or negative to specify a processor exception.
 1810:driver/Core/core_cm4.h ****   \param [in]      IRQn  Interrupt number.
 1811:driver/Core/core_cm4.h ****   \param [in]  priority  Priority to set.
-ARM GAS  /tmp/ccOmIOdq.s 			page 62
-
-
 1812:driver/Core/core_cm4.h ****   \note    The priority cannot be set for every processor exception.
 1813:driver/Core/core_cm4.h ****  */
 1814:driver/Core/core_cm4.h **** __STATIC_INLINE void __NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
@@ -3684,6 +3718,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1832:driver/Core/core_cm4.h ****   \param [in]   IRQn  Interrupt number.
 1833:driver/Core/core_cm4.h ****   \return             Interrupt Priority.
 1834:driver/Core/core_cm4.h ****                       Value is aligned automatically to the implemented priority bits of the microc
+ARM GAS  /tmp/cchXHjty.s 			page 63
+
+
 1835:driver/Core/core_cm4.h ****  */
 1836:driver/Core/core_cm4.h **** __STATIC_INLINE uint32_t __NVIC_GetPriority(IRQn_Type IRQn)
 1837:driver/Core/core_cm4.h **** {
@@ -3718,9 +3755,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1866:driver/Core/core_cm4.h **** 
 1867:driver/Core/core_cm4.h ****   PreemptPriorityBits = ((7UL - PriorityGroupTmp) > (uint32_t)(__NVIC_PRIO_BITS)) ? (uint32_t)(__NV
 1868:driver/Core/core_cm4.h ****   SubPriorityBits     = ((PriorityGroupTmp + (uint32_t)(__NVIC_PRIO_BITS)) < (uint32_t)7UL) ? (uint
-ARM GAS  /tmp/ccOmIOdq.s 			page 63
-
-
 1869:driver/Core/core_cm4.h **** 
 1870:driver/Core/core_cm4.h ****   return (
 1871:driver/Core/core_cm4.h ****            ((PreemptPriority & (uint32_t)((1UL << (PreemptPriorityBits)) - 1UL)) << SubPriorityBits
@@ -3744,6 +3778,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1889:driver/Core/core_cm4.h **** {
 1890:driver/Core/core_cm4.h ****   uint32_t PriorityGroupTmp = (PriorityGroup & (uint32_t)0x07UL);   /* only values 0..7 are used   
 1891:driver/Core/core_cm4.h ****   uint32_t PreemptPriorityBits;
+ARM GAS  /tmp/cchXHjty.s 			page 64
+
+
 1892:driver/Core/core_cm4.h ****   uint32_t SubPriorityBits;
 1893:driver/Core/core_cm4.h **** 
 1894:driver/Core/core_cm4.h ****   PreemptPriorityBits = ((7UL - PriorityGroupTmp) > (uint32_t)(__NVIC_PRIO_BITS)) ? (uint32_t)(__NV
@@ -3778,9 +3815,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1923:driver/Core/core_cm4.h ****            or negative to specify a processor exception.
 1924:driver/Core/core_cm4.h ****   \param [in]   IRQn      Interrupt number.
 1925:driver/Core/core_cm4.h ****   \return                 Address of interrupt handler function
-ARM GAS  /tmp/ccOmIOdq.s 			page 64
-
-
 1926:driver/Core/core_cm4.h ****  */
 1927:driver/Core/core_cm4.h **** __STATIC_INLINE uint32_t __NVIC_GetVector(IRQn_Type IRQn)
 1928:driver/Core/core_cm4.h **** {
@@ -3804,6 +3838,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1946:driver/Core/core_cm4.h **** 
 1947:driver/Core/core_cm4.h ****   for(;;)                                                           /* wait until reset */
 1948:driver/Core/core_cm4.h ****   {
+ARM GAS  /tmp/cchXHjty.s 			page 65
+
+
 1949:driver/Core/core_cm4.h ****     __NOP();
 1950:driver/Core/core_cm4.h ****   }
 1951:driver/Core/core_cm4.h **** }
@@ -3838,9 +3875,6 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 1980:driver/Core/core_cm4.h ****  */
 1981:driver/Core/core_cm4.h **** __STATIC_INLINE uint32_t SCB_GetFPUType(void)
 1982:driver/Core/core_cm4.h **** {
-ARM GAS  /tmp/ccOmIOdq.s 			page 65
-
-
 1983:driver/Core/core_cm4.h ****   uint32_t mvfr0;
 1984:driver/Core/core_cm4.h **** 
 1985:driver/Core/core_cm4.h ****   mvfr0 = FPU->MVFR0;
@@ -3864,6 +3898,9 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 2003:driver/Core/core_cm4.h ****   \ingroup  CMSIS_Core_FunctionInterface
 2004:driver/Core/core_cm4.h ****   \defgroup CMSIS_Core_SysTickFunctions SysTick Functions
 2005:driver/Core/core_cm4.h ****   \brief    Functions that configure the System.
+ARM GAS  /tmp/cchXHjty.s 			page 66
+
+
 2006:driver/Core/core_cm4.h ****   @{
 2007:driver/Core/core_cm4.h ****  */
 2008:driver/Core/core_cm4.h **** 
@@ -3881,261 +3918,258 @@ ARM GAS  /tmp/ccOmIOdq.s 			page 1
 2020:driver/Core/core_cm4.h ****            must contain a vendor-specific implementation of this function.
 2021:driver/Core/core_cm4.h ****  */
 2022:driver/Core/core_cm4.h **** __STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
- 491              		.loc 3 2022 26 view .LVU106
- 492              	.LBB19:
+ 515              		.loc 3 2022 26 view .LVU115
+ 516              	.LBB19:
 2023:driver/Core/core_cm4.h **** {
 2024:driver/Core/core_cm4.h ****   if ((ticks - 1UL) > SysTick_LOAD_RELOAD_Msk)
- 493              		.loc 3 2024 3 view .LVU107
+ 517              		.loc 3 2024 3 view .LVU116
 2025:driver/Core/core_cm4.h ****   {
 2026:driver/Core/core_cm4.h ****     return (1UL);                                                   /* Reload value impossible */
 2027:driver/Core/core_cm4.h ****   }
 2028:driver/Core/core_cm4.h **** 
 2029:driver/Core/core_cm4.h ****   SysTick->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
- 494              		.loc 3 2029 3 view .LVU108
- 495              		.loc 3 2029 18 is_stmt 0 view .LVU109
- 496 0000 4FF0E023 		mov	r3, #-536813568
- 497 0004 4AF20F42 		movw	r2, #41999
- 498 0008 5A61     		str	r2, [r3, #20]
+ 518              		.loc 3 2029 3 view .LVU117
+ 519              		.loc 3 2029 18 is_stmt 0 view .LVU118
+ 520 0000 4FF0E023 		mov	r3, #-536813568
+ 521 0004 4AF20F42 		movw	r2, #41999
+ 522 0008 5A61     		str	r2, [r3, #20]
 2030:driver/Core/core_cm4.h ****   NVIC_SetPriority (SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick Int
- 499              		.loc 3 2030 3 is_stmt 1 view .LVU110
-ARM GAS  /tmp/ccOmIOdq.s 			page 66
-
-
- 500              	.LVL22:
- 501              	.LBB20:
- 502              	.LBI20:
+ 523              		.loc 3 2030 3 is_stmt 1 view .LVU119
+ 524              	.LVL30:
+ 525              	.LBB20:
+ 526              	.LBI20:
 1814:driver/Core/core_cm4.h **** {
- 503              		.loc 3 1814 22 view .LVU111
- 504              	.LBB21:
+ 527              		.loc 3 1814 22 view .LVU120
+ 528              	.LBB21:
 1816:driver/Core/core_cm4.h ****   {
- 505              		.loc 3 1816 3 view .LVU112
+ 529              		.loc 3 1816 3 view .LVU121
 1822:driver/Core/core_cm4.h ****   }
- 506              		.loc 3 1822 5 view .LVU113
+ 530              		.loc 3 1822 5 view .LVU122
 1822:driver/Core/core_cm4.h ****   }
- 507              		.loc 3 1822 46 is_stmt 0 view .LVU114
- 508 000a 044A     		ldr	r2, .L38
- 509 000c F021     		movs	r1, #240
- 510 000e 82F82310 		strb	r1, [r2, #35]
- 511              	.LVL23:
+ 531              		.loc 3 1822 46 is_stmt 0 view .LVU123
+ 532 000a 044A     		ldr	r2, .L41
+ 533 000c F021     		movs	r1, #240
+ 534 000e 82F82310 		strb	r1, [r2, #35]
+ 535              	.LVL31:
 1822:driver/Core/core_cm4.h ****   }
- 512              		.loc 3 1822 46 view .LVU115
- 513              	.LBE21:
- 514              	.LBE20:
+ 536              		.loc 3 1822 46 view .LVU124
+ 537              	.LBE21:
+ 538              	.LBE20:
 2031:driver/Core/core_cm4.h ****   SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Val
- 515              		.loc 3 2031 3 is_stmt 1 view .LVU116
- 516              		.loc 3 2031 18 is_stmt 0 view .LVU117
- 517 0012 0022     		movs	r2, #0
- 518 0014 9A61     		str	r2, [r3, #24]
+ 539              		.loc 3 2031 3 is_stmt 1 view .LVU125
+ 540              		.loc 3 2031 18 is_stmt 0 view .LVU126
+ARM GAS  /tmp/cchXHjty.s 			page 67
+
+
+ 541 0012 0022     		movs	r2, #0
+ 542 0014 9A61     		str	r2, [r3, #24]
 2032:driver/Core/core_cm4.h ****   SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
- 519              		.loc 3 2032 3 is_stmt 1 view .LVU118
- 520              		.loc 3 2032 18 is_stmt 0 view .LVU119
- 521 0016 0722     		movs	r2, #7
- 522 0018 1A61     		str	r2, [r3, #16]
+ 543              		.loc 3 2032 3 is_stmt 1 view .LVU127
+ 544              		.loc 3 2032 18 is_stmt 0 view .LVU128
+ 545 0016 0722     		movs	r2, #7
+ 546 0018 1A61     		str	r2, [r3, #16]
 2033:driver/Core/core_cm4.h ****                    SysTick_CTRL_TICKINT_Msk   |
 2034:driver/Core/core_cm4.h ****                    SysTick_CTRL_ENABLE_Msk;                         /* Enable SysTick IRQ and SysTi
 2035:driver/Core/core_cm4.h ****   return (0UL);                                                     /* Function successful */
- 523              		.loc 3 2035 3 is_stmt 1 view .LVU120
- 524              	.LVL24:
- 525              	.L37:
- 526              		.loc 3 2035 3 is_stmt 0 view .LVU121
- 527              	.LBE19:
- 528              	.LBE18:
- 152:src/scheduler.c **** 
- 153:src/scheduler.c **** 	while (1);
- 529              		.loc 1 153 2 is_stmt 1 discriminator 1 view .LVU122
- 530              		.loc 1 153 11 discriminator 1 view .LVU123
- 531              		.loc 1 153 8 discriminator 1 view .LVU124
- 532 001a FEE7     		b	.L37
- 533              	.L39:
- 534              		.align	2
- 535              	.L38:
- 536 001c 00ED00E0 		.word	-536810240
- 537              		.cfi_endproc
- 538              	.LFE144:
- 540              		.section	.text.start_scheduler,"ax",%progbits
- 541              		.align	1
- 542              		.global	start_scheduler
- 543              		.syntax unified
- 544              		.thumb
- 545              		.thumb_func
-ARM GAS  /tmp/ccOmIOdq.s 			page 67
+ 547              		.loc 3 2035 3 is_stmt 1 view .LVU129
+ 548              	.LVL32:
+ 549              	.L40:
+ 550              		.loc 3 2035 3 is_stmt 0 view .LVU130
+ 551              	.LBE19:
+ 552              	.LBE18:
+ 153:src/scheduler.c **** 
+ 154:src/scheduler.c **** 	while (1);
+ 553              		.loc 1 154 2 is_stmt 1 discriminator 1 view .LVU131
+ 554              		.loc 1 154 11 discriminator 1 view .LVU132
+ 555              		.loc 1 154 8 discriminator 1 view .LVU133
+ 556 001a FEE7     		b	.L40
+ 557              	.L42:
+ 558              		.align	2
+ 559              	.L41:
+ 560 001c 00ED00E0 		.word	-536810240
+ 561              		.cfi_endproc
+ 562              	.LFE144:
+ 564              		.section	.text.start_scheduler,"ax",%progbits
+ 565              		.align	1
+ 566              		.global	start_scheduler
+ 567              		.syntax unified
+ 568              		.thumb
+ 569              		.thumb_func
+ 570              		.fpu fpv4-sp-d16
+ 572              	start_scheduler:
+ 573              	.LFB145:
+ 155:src/scheduler.c **** }
+ 156:src/scheduler.c **** 
+ 157:src/scheduler.c **** /*********************************** Function to start scheduling task ****************************
+ 158:src/scheduler.c **** void start_scheduler(void)
+ 159:src/scheduler.c **** {
+ 574              		.loc 1 159 1 view -0
+ 575              		.cfi_startproc
+ 576              		@ Volatile: function does not return.
+ 577              		@ args = 0, pretend = 0, frame = 0
+ 578              		@ frame_needed = 0, uses_anonymous_args = 0
+ 579 0000 08B5     		push	{r3, lr}
+ 580              	.LCFI9:
+ 581              		.cfi_def_cfa_offset 8
+ 582              		.cfi_offset 3, -8
+ 583              		.cfi_offset 14, -4
+ 160:src/scheduler.c ****     NVIC_SetPriority(PendSV_IRQn, 0xFF);					// set PendSV IRQ in low priority
+ 584              		.loc 1 160 5 view .LVU135
+ 585              	.LVL33:
+ 586              	.LBB22:
+ 587              	.LBI22:
+ARM GAS  /tmp/cchXHjty.s 			page 68
 
 
- 546              		.fpu fpv4-sp-d16
- 548              	start_scheduler:
- 549              	.LFB145:
- 154:src/scheduler.c **** }
- 155:src/scheduler.c **** 
- 156:src/scheduler.c **** /*********************************** Function to start scheduling task ****************************
- 157:src/scheduler.c **** void start_scheduler(void)
- 158:src/scheduler.c **** {
- 550              		.loc 1 158 1 view -0
- 551              		.cfi_startproc
- 552              		@ Volatile: function does not return.
- 553              		@ args = 0, pretend = 0, frame = 0
- 554              		@ frame_needed = 0, uses_anonymous_args = 0
- 555 0000 08B5     		push	{r3, lr}
- 556              	.LCFI9:
- 557              		.cfi_def_cfa_offset 8
- 558              		.cfi_offset 3, -8
- 559              		.cfi_offset 14, -4
- 159:src/scheduler.c ****     NVIC_SetPriority(PendSV_IRQn, 0xFF);					// set PendSV IRQ in low priority
- 560              		.loc 1 159 5 view .LVU126
- 561              	.LVL25:
- 562              	.LBB22:
- 563              	.LBI22:
 1814:driver/Core/core_cm4.h **** {
- 564              		.loc 3 1814 22 view .LVU127
- 565              	.LBB23:
+ 588              		.loc 3 1814 22 view .LVU136
+ 589              	.LBB23:
 1816:driver/Core/core_cm4.h ****   {
- 566              		.loc 3 1816 3 view .LVU128
+ 590              		.loc 3 1816 3 view .LVU137
 1822:driver/Core/core_cm4.h ****   }
- 567              		.loc 3 1822 5 view .LVU129
+ 591              		.loc 3 1822 5 view .LVU138
 1822:driver/Core/core_cm4.h ****   }
- 568              		.loc 3 1822 46 is_stmt 0 view .LVU130
- 569 0002 0D4B     		ldr	r3, .L42
- 570 0004 F022     		movs	r2, #240
- 571 0006 83F82220 		strb	r2, [r3, #34]
- 572              	.LVL26:
+ 592              		.loc 3 1822 46 is_stmt 0 view .LVU139
+ 593 0002 0D4B     		ldr	r3, .L45
+ 594 0004 F022     		movs	r2, #240
+ 595 0006 83F82220 		strb	r2, [r3, #34]
+ 596              	.LVL34:
 1822:driver/Core/core_cm4.h ****   }
- 573              		.loc 3 1822 46 view .LVU131
- 574              	.LBE23:
- 575              	.LBE22:
- 160:src/scheduler.c **** 
- 161:src/scheduler.c **** 	create_idle_task();							// create idle task
- 576              		.loc 1 161 2 is_stmt 1 view .LVU132
- 577 000a FFF7FEFF 		bl	create_idle_task
- 578              	.LVL27:
- 162:src/scheduler.c **** 
- 163:src/scheduler.c **** 	__ASM volatile("MOV r0, %0" :: "r" (idle_task->psp));	// move idle task stack address to r0
- 579              		.loc 1 163 2 view .LVU133
- 580              		.loc 1 163 47 is_stmt 0 view .LVU134
- 581 000e 0B4B     		ldr	r3, .L42+4
- 582 0010 1B68     		ldr	r3, [r3]
- 583 0012 DB68     		ldr	r3, [r3, #12]
- 584              		.loc 1 163 2 view .LVU135
- 585              		.syntax unified
- 586              	@ 163 "src/scheduler.c" 1
- 587 0014 1846     		MOV r0, r3
- 588              	@ 0 "" 2
-ARM GAS  /tmp/ccOmIOdq.s 			page 68
-
-
- 164:src/scheduler.c **** 	__ASM volatile("LDMIA r0!, {r4-r11}");					// pop saved dummy context from task stack to r4-r11
- 589              		.loc 1 164 2 is_stmt 1 view .LVU136
- 590              	@ 164 "src/scheduler.c" 1
- 591 0016 B0E8F00F 		LDMIA r0!, {r4-r11}
- 592              	@ 0 "" 2
- 165:src/scheduler.c **** 	__ASM volatile("MOV r4, r0");
- 593              		.loc 1 165 2 view .LVU137
- 594              	@ 165 "src/scheduler.c" 1
- 595 001a 0446     		MOV r4, r0
- 596              	@ 0 "" 2
- 166:src/scheduler.c **** 	__ASM volatile("LDMIA r4!, {r0-r3}");
- 597              		.loc 1 166 2 view .LVU138
- 598              	@ 166 "src/scheduler.c" 1
- 599 001c 0FCC     		LDMIA r4!, {r0-r3}
- 600              	@ 0 "" 2
- 167:src/scheduler.c **** 	__ASM volatile("LDMIA r4!, {r12}");
- 601              		.loc 1 167 2 view .LVU139
- 602              	@ 167 "src/scheduler.c" 1
- 603 001e 54F804CB 		LDMIA r4!, {r12}
- 604              	@ 0 "" 2
- 168:src/scheduler.c **** 	__ASM volatile("MSR psp, r4");						// update psp
- 605              		.loc 1 168 2 view .LVU140
- 606              	@ 168 "src/scheduler.c" 1
- 607 0022 84F30988 		MSR psp, r4
- 608              	@ 0 "" 2
- 169:src/scheduler.c **** 
- 170:src/scheduler.c **** 	__ASM volatile("MOV r0, #2");
- 609              		.loc 1 170 2 view .LVU141
- 610              	@ 170 "src/scheduler.c" 1
- 611 0026 4FF00200 		MOV r0, #2
+ 597              		.loc 3 1822 46 view .LVU140
+ 598              	.LBE23:
+ 599              	.LBE22:
+ 161:src/scheduler.c **** 
+ 162:src/scheduler.c **** 	create_idle_task();							// create idle task
+ 600              		.loc 1 162 2 is_stmt 1 view .LVU141
+ 601 000a FFF7FEFF 		bl	create_idle_task
+ 602              	.LVL35:
+ 163:src/scheduler.c **** 
+ 164:src/scheduler.c **** 	__ASM volatile("MOV r0, %0" :: "r" (idle_task->psp));	// move idle task stack address to r0
+ 603              		.loc 1 164 2 view .LVU142
+ 604              		.loc 1 164 47 is_stmt 0 view .LVU143
+ 605 000e 0B4B     		ldr	r3, .L45+4
+ 606 0010 1B68     		ldr	r3, [r3]
+ 607 0012 DB68     		ldr	r3, [r3, #12]
+ 608              		.loc 1 164 2 view .LVU144
+ 609              		.syntax unified
+ 610              	@ 164 "src/scheduler.c" 1
+ 611 0014 1846     		MOV r0, r3
  612              	@ 0 "" 2
- 171:src/scheduler.c **** 	__ASM volatile("MSR control, r0");				// set cpu in unprivileged mode						
- 613              		.loc 1 171 2 view .LVU142
- 614              	@ 171 "src/scheduler.c" 1
- 615 002a 80F31488 		MSR control, r0
+ 165:src/scheduler.c **** 	__ASM volatile("LDMIA r0!, {r4-r11}");					// pop saved dummy context from task stack to r4-r11
+ 613              		.loc 1 165 2 is_stmt 1 view .LVU145
+ 614              	@ 165 "src/scheduler.c" 1
+ 615 0016 B0E8F00F 		LDMIA r0!, {r4-r11}
  616              	@ 0 "" 2
- 172:src/scheduler.c **** 	__ASM volatile ("isb 0xF":::"memory");			// instruction sync block
- 617              		.loc 1 172 2 view .LVU143
- 618              	@ 172 "src/scheduler.c" 1
- 619 002e BFF36F8F 		isb 0xF
+ 166:src/scheduler.c **** 	__ASM volatile("MOV r4, r0");
+ 617              		.loc 1 166 2 view .LVU146
+ 618              	@ 166 "src/scheduler.c" 1
+ 619 001a 0446     		MOV r4, r0
  620              	@ 0 "" 2
- 173:src/scheduler.c **** 
- 174:src/scheduler.c **** 	idleTask();								// run idle task first
- 621              		.loc 1 174 2 view .LVU144
- 622              		.thumb
- 623              		.syntax unified
- 624 0032 FFF7FEFF 		bl	idleTask
- 625              	.LVL28:
- 626              	.L43:
- 627 0036 00BF     		.align	2
- 628              	.L42:
- 629 0038 00ED00E0 		.word	-536810240
- 630 003c 00000000 		.word	idle_task
- 631              		.cfi_endproc
- 632              	.LFE145:
- 634              		.global	stack_ptr
- 635              		.global	next_task
-ARM GAS  /tmp/ccOmIOdq.s 			page 69
+ 167:src/scheduler.c **** 	__ASM volatile("LDMIA r4!, {r0-r3}");
+ 621              		.loc 1 167 2 view .LVU147
+ 622              	@ 167 "src/scheduler.c" 1
+ 623 001c 0FCC     		LDMIA r4!, {r0-r3}
+ 624              	@ 0 "" 2
+ 168:src/scheduler.c **** 	__ASM volatile("LDMIA r4!, {r12}");
+ 625              		.loc 1 168 2 view .LVU148
+ 626              	@ 168 "src/scheduler.c" 1
+ 627 001e 54F804CB 		LDMIA r4!, {r12}
+ 628              	@ 0 "" 2
+ 169:src/scheduler.c **** 	__ASM volatile("MSR psp, r4");						// update psp
+ 629              		.loc 1 169 2 view .LVU149
+ 630              	@ 169 "src/scheduler.c" 1
+ARM GAS  /tmp/cchXHjty.s 			page 69
 
 
- 636              		.section	.bss.next_task,"aw",%nobits
- 637              		.align	2
- 638              		.set	.LANCHOR1,. + 0
- 641              	next_task:
- 642 0000 00000000 		.space	4
- 643              		.section	.bss.stack_ptr,"aw",%nobits
- 644              		.align	2
- 645              		.set	.LANCHOR0,. + 0
- 648              	stack_ptr:
- 649 0000 00000000 		.space	4
- 650              		.text
- 651              	.Letext0:
- 652              		.file 4 "driver/Device/stm32f401xc.h"
- 653              		.file 5 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
- 654              		.file 6 "inc/task.h"
-ARM GAS  /tmp/ccOmIOdq.s 			page 70
+ 631 0022 84F30988 		MSR psp, r4
+ 632              	@ 0 "" 2
+ 170:src/scheduler.c **** 
+ 171:src/scheduler.c **** 	__ASM volatile("MOV r0, #2");
+ 633              		.loc 1 171 2 view .LVU150
+ 634              	@ 171 "src/scheduler.c" 1
+ 635 0026 4FF00200 		MOV r0, #2
+ 636              	@ 0 "" 2
+ 172:src/scheduler.c **** 	__ASM volatile("MSR control, r0");				// set cpu in unprivileged mode						
+ 637              		.loc 1 172 2 view .LVU151
+ 638              	@ 172 "src/scheduler.c" 1
+ 639 002a 80F31488 		MSR control, r0
+ 640              	@ 0 "" 2
+ 173:src/scheduler.c **** 	__ASM volatile ("isb 0xF":::"memory");			// instruction sync block
+ 641              		.loc 1 173 2 view .LVU152
+ 642              	@ 173 "src/scheduler.c" 1
+ 643 002e BFF36F8F 		isb 0xF
+ 644              	@ 0 "" 2
+ 174:src/scheduler.c **** 
+ 175:src/scheduler.c **** 	idleTask();								// run idle task first
+ 645              		.loc 1 175 2 view .LVU153
+ 646              		.thumb
+ 647              		.syntax unified
+ 648 0032 FFF7FEFF 		bl	idleTask
+ 649              	.LVL36:
+ 650              	.L46:
+ 651 0036 00BF     		.align	2
+ 652              	.L45:
+ 653 0038 00ED00E0 		.word	-536810240
+ 654 003c 00000000 		.word	idle_task
+ 655              		.cfi_endproc
+ 656              	.LFE145:
+ 658              		.global	stack_ptr
+ 659              		.global	next_task
+ 660              		.section	.bss.next_task,"aw",%nobits
+ 661              		.align	2
+ 662              		.set	.LANCHOR1,. + 0
+ 665              	next_task:
+ 666 0000 00000000 		.space	4
+ 667              		.section	.bss.stack_ptr,"aw",%nobits
+ 668              		.align	2
+ 669              		.set	.LANCHOR0,. + 0
+ 672              	stack_ptr:
+ 673 0000 00000000 		.space	4
+ 674              		.text
+ 675              	.Letext0:
+ 676              		.file 4 "driver/Device/stm32f401xc.h"
+ 677              		.file 5 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 678              		.file 6 "inc/task.h"
+ARM GAS  /tmp/cchXHjty.s 			page 70
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 scheduler.c
-     /tmp/ccOmIOdq.s:18     .text.set_PendSV:0000000000000000 $t
-     /tmp/ccOmIOdq.s:25     .text.set_PendSV:0000000000000000 set_PendSV
-     /tmp/ccOmIOdq.s:44     .text.set_PendSV:000000000000000c $d
-     /tmp/ccOmIOdq.s:49     .text.update_task_delay:0000000000000000 $t
-     /tmp/ccOmIOdq.s:55     .text.update_task_delay:0000000000000000 update_task_delay
-     /tmp/ccOmIOdq.s:142    .text.update_task_delay:000000000000003c $d
-     /tmp/ccOmIOdq.s:147    .text.getCurrentTask:0000000000000000 $t
-     /tmp/ccOmIOdq.s:154    .text.getCurrentTask:0000000000000000 getCurrentTask
-     /tmp/ccOmIOdq.s:177    .text.switch_task:0000000000000000 $t
-     /tmp/ccOmIOdq.s:184    .text.switch_task:0000000000000000 switch_task
-     /tmp/ccOmIOdq.s:265    .text.switch_task:000000000000003c $d
-     /tmp/ccOmIOdq.s:273    .text.PendSV_Handler:0000000000000000 $t
-     /tmp/ccOmIOdq.s:280    .text.PendSV_Handler:0000000000000000 PendSV_Handler
-     /tmp/ccOmIOdq.s:348    .text.PendSV_Handler:000000000000002c $d
-     /tmp/ccOmIOdq.s:353    .text.task_delay:0000000000000000 $t
-     /tmp/ccOmIOdq.s:360    .text.task_delay:0000000000000000 task_delay
-     /tmp/ccOmIOdq.s:441    .text.SysTick_Handler:0000000000000000 $t
-     /tmp/ccOmIOdq.s:448    .text.SysTick_Handler:0000000000000000 SysTick_Handler
-     /tmp/ccOmIOdq.s:471    .text.idleTask:0000000000000000 $t
-     /tmp/ccOmIOdq.s:478    .text.idleTask:0000000000000000 idleTask
-     /tmp/ccOmIOdq.s:536    .text.idleTask:000000000000001c $d
-     /tmp/ccOmIOdq.s:541    .text.start_scheduler:0000000000000000 $t
-     /tmp/ccOmIOdq.s:548    .text.start_scheduler:0000000000000000 start_scheduler
-     /tmp/ccOmIOdq.s:629    .text.start_scheduler:0000000000000038 $d
-     /tmp/ccOmIOdq.s:648    .bss.stack_ptr:0000000000000000 stack_ptr
-     /tmp/ccOmIOdq.s:641    .bss.next_task:0000000000000000 next_task
-     /tmp/ccOmIOdq.s:637    .bss.next_task:0000000000000000 $d
-     /tmp/ccOmIOdq.s:644    .bss.stack_ptr:0000000000000000 $d
+     /tmp/cchXHjty.s:18     .text.set_PendSV:0000000000000000 $t
+     /tmp/cchXHjty.s:25     .text.set_PendSV:0000000000000000 set_PendSV
+     /tmp/cchXHjty.s:44     .text.set_PendSV:000000000000000c $d
+     /tmp/cchXHjty.s:49     .text.update_task_delay:0000000000000000 $t
+     /tmp/cchXHjty.s:55     .text.update_task_delay:0000000000000000 update_task_delay
+     /tmp/cchXHjty.s:142    .text.update_task_delay:000000000000003c $d
+     /tmp/cchXHjty.s:147    .text.getCurrentTask:0000000000000000 $t
+     /tmp/cchXHjty.s:154    .text.getCurrentTask:0000000000000000 getCurrentTask
+     /tmp/cchXHjty.s:177    .text.switch_task:0000000000000000 $t
+     /tmp/cchXHjty.s:184    .text.switch_task:0000000000000000 switch_task
+     /tmp/cchXHjty.s:289    .text.switch_task:0000000000000044 $d
+     /tmp/cchXHjty.s:297    .text.PendSV_Handler:0000000000000000 $t
+     /tmp/cchXHjty.s:304    .text.PendSV_Handler:0000000000000000 PendSV_Handler
+     /tmp/cchXHjty.s:372    .text.PendSV_Handler:000000000000002c $d
+     /tmp/cchXHjty.s:377    .text.task_delay:0000000000000000 $t
+     /tmp/cchXHjty.s:384    .text.task_delay:0000000000000000 task_delay
+     /tmp/cchXHjty.s:465    .text.SysTick_Handler:0000000000000000 $t
+     /tmp/cchXHjty.s:472    .text.SysTick_Handler:0000000000000000 SysTick_Handler
+     /tmp/cchXHjty.s:495    .text.idleTask:0000000000000000 $t
+     /tmp/cchXHjty.s:502    .text.idleTask:0000000000000000 idleTask
+     /tmp/cchXHjty.s:560    .text.idleTask:000000000000001c $d
+     /tmp/cchXHjty.s:565    .text.start_scheduler:0000000000000000 $t
+     /tmp/cchXHjty.s:572    .text.start_scheduler:0000000000000000 start_scheduler
+     /tmp/cchXHjty.s:653    .text.start_scheduler:0000000000000038 $d
+     /tmp/cchXHjty.s:672    .bss.stack_ptr:0000000000000000 stack_ptr
+     /tmp/cchXHjty.s:665    .bss.next_task:0000000000000000 next_task
+     /tmp/cchXHjty.s:661    .bss.next_task:0000000000000000 $d
+     /tmp/cchXHjty.s:668    .bss.stack_ptr:0000000000000000 $d
 
 UNDEFINED SYMBOLS
-removeFromBlockedList
+removeFromWaitingList
 addToReadyList
-BlockedHead
+WaitingHead
 ReadyHead
 idle_task
 removeFromReadyList
-addToBlockedList
+addToWaitingList
 create_idle_task

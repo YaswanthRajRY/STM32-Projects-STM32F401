@@ -53,6 +53,7 @@ void task_3(void)                       // this function toggles Port B pin 7
     while (1)
     {
         GPIOB->ODR ^= GPIO_ODR_OD7;
+        //blink(7);
         task_delay(500);
     }
 }
