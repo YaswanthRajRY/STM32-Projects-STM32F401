@@ -135,7 +135,7 @@ void task_delay(uint32_t ms)
 	TCB_Typedef* current_task = getCurrentTask();
 
 	current_task->delay = ms;				// update task delay
-	current_task->state = BLOCKED;				// change task state to blocked
+	current_task->state = WAITING;				// change task state to blocked
 
 	removeFromReadyList(&current_task);
 	addToWaitingList(&current_task);

@@ -5,13 +5,13 @@ void task_2(void);
 void task_3(void);
 void blink(uint32_t pos);
 
-Mutex_Typedef* mutex;
+Semaphore_Typedef* semaphore;
 
 int main()
 {
     SystemInit();                       // Initialize system
     
-    mutex = createMutex();
+    semaphore = semaphore_create(1);
 
     Log_s("Priority Preemptive scheduler Program.\n");
 
@@ -34,7 +34,11 @@ void task_1(void)                       // this function toggles Port B pin 5
 {
     while (1)
     {
-        blink(5);
+        if(semaphore_wait(&semaphore, 0))
+        {
+            blink(5);
+            semaphore_signal(&semaphore);
+        }
         task_delay(1000);
     }
 }
@@ -43,7 +47,11 @@ void task_2(void)                       // this function toggles Port B pin 6
 {
     while (1)
     {
-        blink(6);
+        if(semaphore_wait(&semaphore, 0))
+        {
+            blink(6);
+            semaphore_signal(&semaphore);
+        }   
         task_delay(1000);
     }
 }
@@ -52,19 +60,20 @@ void task_3(void)                       // this function toggles Port B pin 7
 {
     while (1)
     {
-        //GPIOB->ODR ^= GPIO_ODR_OD7;
-        blink(7);
+        if (semaphore_wait(&semaphore, 0))
+        {
+            blink(7);
+            semaphore_signal(&semaphore);
+        }
         task_delay(1000);
     }
 }
 
 void blink(uint32_t pos)
 {
-    MutexTake(&mutex);
     for (uint8_t i=0; i<6; i++)
     {
         GPIOB->ODR ^= (1 << pos);
         task_delay(100);
     }
-    MutexGive(&mutex);
 }

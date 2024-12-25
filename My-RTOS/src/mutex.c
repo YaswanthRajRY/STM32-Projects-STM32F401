@@ -1,10 +1,10 @@
 #include "mutex.h"
 
 extern TCB_Typedef* getCurrentTask(void);       // define in scheduler.c
+extern uint32_t getSystemTime();
 extern TCB_Typedef* idle_task;			// defined in task.c
 extern ready_task_list* ReadyHead;      // defined in task.c
 
-extern uint32_t getSystemTime();
 
 /********************************* Function to add task in mutex waiting List *******************************/
 void pushWaitingQueue(mutexList** mutexListHead, TCB_Typedef* current_task)

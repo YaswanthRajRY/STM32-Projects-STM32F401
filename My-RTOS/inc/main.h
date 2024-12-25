@@ -4,6 +4,7 @@
 #include "task.h"
 #include "Log.h"
 #include "mutex.h"
+#include "semaphore.h"
 #include "scheduler.h"
 #include "stm32f401xc.h"
 
