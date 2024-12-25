@@ -20,4 +20,6 @@ void task_delay(uint32_t ms);
 */
 TCB_Typedef* getCurrentTask(void);
 
+uint32_t getSystemTime(void);
+
 #endif

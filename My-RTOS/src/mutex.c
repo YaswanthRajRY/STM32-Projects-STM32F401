@@ -4,6 +4,8 @@ extern TCB_Typedef* getCurrentTask(void);       // define in scheduler.c
 extern TCB_Typedef* idle_task;			// defined in task.c
 extern ready_task_list* ReadyHead;      // defined in task.c
 
+extern uint32_t getSystemTime();
+
 /********************************* Function to add task in mutex waiting List *******************************/
 void pushWaitingQueue(mutexList** mutexListHead, TCB_Typedef* current_task)
 {
@@ -33,9 +35,8 @@ TCB_Typedef* popWaitingQueue(mutexList** mutexListHead)
     }
 
     TCB_Typedef* next_task = (*mutexListHead)->head;    // copy the first node
-    next_task->next = NULL;                             // detach from mutex list
-
     (*mutexListHead)->head = next_task->next;           // move to next node in mutex list
+    next_task->next = NULL;                             // detach from mutex list
     
     return next_task;       // return the poped node
 }
@@ -52,6 +53,7 @@ void MutexTake(Mutex_Typedef** mutex)
         (*mutex)->lock = 1;         // set lock
         (*mutex)->owner = current_task;
         (*mutex)->priority = current_task->priority;        // copy mutex aquired task priority for priority inheritance
+        __enable_irq();
         return;
     }
     else
@@ -101,9 +103,9 @@ void MutexGive(Mutex_Typedef** mutex)
             (*mutex)->owner = next_task;            // change the task that aquired mutex lock
             (*mutex)->priority = next_task->priority;       // copy task priority for priority inheritance
 
-            SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;        // trigger PendSV interrupt for context switching
         }
     }
+    //SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;        // trigger PendSV interrupt for context switching
     __enable_irq();
 }
 

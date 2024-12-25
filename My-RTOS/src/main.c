@@ -52,22 +52,19 @@ void task_3(void)                       // this function toggles Port B pin 7
 {
     while (1)
     {
-        GPIOB->ODR ^= GPIO_ODR_OD7;
-        //blink(7);
-        task_delay(500);
+        //GPIOB->ODR ^= GPIO_ODR_OD7;
+        blink(7);
+        task_delay(1000);
     }
 }
 
 void blink(uint32_t pos)
 {
-    while (1)
+    MutexTake(&mutex);
+    for (uint8_t i=0; i<6; i++)
     {
-        MutexTake(&mutex);
-        for (uint8_t i=0; i<8; i++)
-        {
-            GPIOB->ODR ^= (1 << pos);
-            task_delay(500);
-        }
-        MutexGive(&mutex);
+        GPIOB->ODR ^= (1 << pos);
+        task_delay(100);
     }
+    MutexGive(&mutex);
 }

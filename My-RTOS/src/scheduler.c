@@ -8,6 +8,7 @@ extern waiting_task_list* WaitingHead;
 TCB_Typedef* next_task = NULL;		// used to iterate through circulat linked list
 
 uint32_t stack_ptr;						// stores task stack address during context switching
+uint32_t ticks = 0;
 
 /********************************** Function to get current running task *************************************/
 TCB_Typedef* getCurrentTask()
@@ -15,6 +16,11 @@ TCB_Typedef* getCurrentTask()
 	TCB_Typedef* currentTask;
     __ASM volatile("MOV %0, r12" : "=r" (currentTask));
     return currentTask;
+}
+
+uint32_t getSystemTime()
+{
+	return ticks;
 }
 
 /**************************************** Function to switch task ********************************************/
@@ -142,6 +148,7 @@ void task_delay(uint32_t ms)
 /************************************* Function for SysTick_Handler ******************************************/
 void SysTick_Handler(void) 
 {
+	ticks++;
 	update_task_delay();							// update task tick
     	set_PendSV();								// set PendSV to trigger interrupt
 }
