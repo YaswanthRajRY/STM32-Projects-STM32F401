@@ -36,7 +36,7 @@ Mutex_Typedef* createMutex(void);
 /*
     task aquire mutex, if its already using by other task added to the mutex list  
 */
-void MutexTake(Mutex_Typedef** mutex);
+uint32_t MutexTake(Mutex_Typedef** mutex,  uint32_t timeout_ms);
 
 /*
    task leaving the mutex. next task waiting for the mutex will aquire the mutex  

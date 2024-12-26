@@ -5,13 +5,13 @@ void task_2(void);
 void task_3(void);
 void blink(uint32_t pos);
 
-Semaphore_Typedef* semaphore;
+Mutex_Typedef* mutex;
 
 int main()
 {
     SystemInit();                       // Initialize system
     
-    semaphore = semaphore_create(1);
+    mutex = createMutex();
 
     Log_s("Priority Preemptive scheduler Program.\n");
 
@@ -34,10 +34,10 @@ void task_1(void)                       // this function toggles Port B pin 5
 {
     while (1)
     {
-        if(semaphore_wait(&semaphore, 0))
+        if(MutexTake(&mutex, 0))
         {
             blink(5);
-            semaphore_signal(&semaphore);
+            MutexGive(&mutex);
         }
         task_delay(1000);
     }
@@ -47,10 +47,10 @@ void task_2(void)                       // this function toggles Port B pin 6
 {
     while (1)
     {
-        if(semaphore_wait(&semaphore, 0))
+        if(MutexTake(&mutex, 0))
         {
             blink(6);
-            semaphore_signal(&semaphore);
+            MutexGive(&mutex);
         }   
         task_delay(1000);
     }
@@ -60,10 +60,10 @@ void task_3(void)                       // this function toggles Port B pin 7
 {
     while (1)
     {
-        if (semaphore_wait(&semaphore, 0))
+        if (MutexTake(&mutex, 0))
         {
             blink(7);
-            semaphore_signal(&semaphore);
+            MutexGive(&mutex);
         }
         task_delay(1000);
     }

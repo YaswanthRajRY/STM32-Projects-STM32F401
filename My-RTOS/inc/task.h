@@ -52,7 +52,6 @@ enum state
     RUNNING,
     READY,
     WAITING,
-    BLOCKED,
     SUSPENDED
 };
 

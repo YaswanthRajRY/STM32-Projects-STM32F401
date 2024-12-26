@@ -42,11 +42,12 @@ TCB_Typedef* popWaitingQueue(mutexList** mutexListHead)
 }
 
 /************************************** Function to aquire mutex lock ***************************************/
-void MutexTake(Mutex_Typedef** mutex)
+uint32_t MutexTake(Mutex_Typedef** mutex, uint32_t timeout_ms)
 {
     __disable_irq();
 
     TCB_Typedef* current_task = getCurrentTask();       // get current task
+    uint32_t start = getSystemTime();
     
     if (!((*mutex)->lock))
     {
@@ -54,11 +55,11 @@ void MutexTake(Mutex_Typedef** mutex)
         (*mutex)->owner = current_task;
         (*mutex)->priority = current_task->priority;        // copy mutex aquired task priority for priority inheritance
         __enable_irq();
-        return;
+        return 1;
     }
     else
     {
-        current_task->state = BLOCKED;      // change state from running to waiting / blocked
+        current_task->state = WAITING;      // change state from running to waiting / blocked
         pushWaitingQueue(&((*mutex)->waiting_task), current_task);      // push to mutex list
 
         if (current_task->priority < (*mutex)->priority)
@@ -69,6 +70,56 @@ void MutexTake(Mutex_Typedef** mutex)
         SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;        // trigger PendSV interrupt for context switching
     }
     __enable_irq();
+
+    while (1)
+    {
+        if (timeout_ms == 0)
+        {
+            return 1;
+        }
+
+        if (!((*mutex)->lock))
+        {
+            __disable_irq();
+            (*mutex)->lock = 1;         // set lock
+            (*mutex)->owner = current_task;
+            (*mutex)->priority = current_task->priority;        // copy mutex aquired task priority for priority inheritance
+            __enable_irq();
+            return 1;
+        }
+        
+        if ((getSystemTime() - start) >= timeout_ms)
+        {
+            __disable_irq();
+            if (current_task == (*mutex)->waiting_task->head)
+            {
+                (*mutex)->waiting_task->head = current_task->next;
+            }
+            else
+            {
+                TCB_Typedef* temp = (*mutex)->waiting_task->head;
+                TCB_Typedef* prev = NULL;
+                while (temp != NULL && temp != current_task)
+                {
+                    prev = temp;
+                    temp = temp->next;
+                }
+                if (temp == NULL)
+                {
+                    __enable_irq();
+                    return 1;
+                }
+                prev->next = temp->next;
+                current_task = temp;
+            }
+            current_task->next = NULL;
+            current_task->state = READY;
+            addToReadyList(&current_task);
+            Log_s("Timeout");
+            __enable_irq();
+            return 0;
+        }
+    }
 }
 
 /************************************** Function to return mutex lock ***************************************/
