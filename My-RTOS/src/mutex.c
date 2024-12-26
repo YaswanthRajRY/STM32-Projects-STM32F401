@@ -60,14 +60,20 @@ uint32_t MutexTake(Mutex_Typedef** mutex, uint32_t timeout_ms)
     else
     {
         current_task->state = WAITING;      // change state from running to waiting / blocked
-        pushWaitingQueue(&((*mutex)->waiting_task), current_task);      // push to mutex list
-
+        
         if (current_task->priority < (*mutex)->priority)
         {
             (*mutex)->owner->priority = current_task->priority;         // waiting task priority is higher than mutex aquired task do priority inheritance
         }
 
         SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;        // trigger PendSV interrupt for context switching
+        
+        if (timeout_ms == 0)
+        {
+            pushWaitingQueue(&((*mutex)->waiting_task), current_task);      // push to mutex list
+            __enable_irq();
+            return 1;
+        }
     }
     __enable_irq();
 
@@ -90,33 +96,6 @@ uint32_t MutexTake(Mutex_Typedef** mutex, uint32_t timeout_ms)
         
         if ((getSystemTime() - start) >= timeout_ms)
         {
-            __disable_irq();
-            if (current_task == (*mutex)->waiting_task->head)
-            {
-                (*mutex)->waiting_task->head = current_task->next;
-            }
-            else
-            {
-                TCB_Typedef* temp = (*mutex)->waiting_task->head;
-                TCB_Typedef* prev = NULL;
-                while (temp != NULL && temp != current_task)
-                {
-                    prev = temp;
-                    temp = temp->next;
-                }
-                if (temp == NULL)
-                {
-                    __enable_irq();
-                    return 1;
-                }
-                prev->next = temp->next;
-                current_task = temp;
-            }
-            current_task->next = NULL;
-            current_task->state = READY;
-            addToReadyList(&current_task);
-            Log_s("Timeout");
-            __enable_irq();
             return 0;
         }
     }

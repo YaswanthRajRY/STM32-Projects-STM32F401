@@ -19,7 +19,7 @@ BUILD_DIR = build
 # source^M
 ######################################
 # C sources
-C_SOURCES = $(wildcard src/*.c)
+C_SOURCES = main.c $(wildcard src/*.c)
 
 # ASM sources
 ASM_SOURCES = startup/startup_stm32f401ccux.s $(wildcard src/*.s)

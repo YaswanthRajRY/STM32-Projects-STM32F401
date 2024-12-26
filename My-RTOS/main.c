@@ -39,7 +39,7 @@ void task_1(void)                       // this function toggles Port B pin 5
             blink(5);
             MutexGive(&mutex);
         }
-        task_delay(1000);
+        task_delay(2000);
     }
 }
 
@@ -71,7 +71,7 @@ void task_3(void)                       // this function toggles Port B pin 7
 
 void blink(uint32_t pos)
 {
-    for (uint8_t i=0; i<6; i++)
+    for (uint8_t i=0; i<2; i++)
     {
         GPIOB->ODR ^= (1 << pos);
         task_delay(100);
