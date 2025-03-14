@@ -1,0 +1,464 @@
+ARM GAS  /tmp/ccYgH0ck.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.timer11_init,"ax",%progbits
+  18              		.align	1
+  19              		.global	timer11_init
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	timer11_init:
+  27              	.LFB135:
+  28              		.file 1 "src/main.c"
+   1:src/main.c    **** #include "stm32f401xc.h"
+   2:src/main.c    **** 
+   3:src/main.c    **** void timer11_init();
+   4:src/main.c    **** void Delay_us(uint16_t us);
+   5:src/main.c    **** void Delay_ms(uint16_t ms);
+   6:src/main.c    **** void uart_send_msg(char*);
+   7:src/main.c    **** 
+   8:src/main.c    **** int main()
+   9:src/main.c    **** {
+  10:src/main.c    ****     timer11_init();
+  11:src/main.c    **** 
+  12:src/main.c    ****     RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+  13:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+  14:src/main.c    **** 
+  15:src/main.c    ****     GPIOA->MODER |= GPIO_MODER_MODE9_1 | GPIO_MODER_MODE10_1;
+  16:src/main.c    ****     GPIOA->AFR[1] |= (7 << 4) | (7 << 8);
+  17:src/main.c    **** 
+  18:src/main.c    ****     USART1->BRR = 16000000 / 9600;
+  19:src/main.c    ****     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
+  20:src/main.c    **** 
+  21:src/main.c    ****     uart_send_msg("\n\n\rRunning application 1 from 0x08004000\n\n\r");
+  22:src/main.c    **** 
+  23:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; 
+  24:src/main.c    **** 
+  25:src/main.c    ****     GPIOB->MODER &= ~(3 << 8);
+  26:src/main.c    ****     GPIOB->MODER |= (1 << 8);
+  27:src/main.c    **** 
+  28:src/main.c    ****     while (1)
+  29:src/main.c    ****     {
+  30:src/main.c    ****         GPIOB->ODR ^= (1 << 4);
+ARM GAS  /tmp/ccYgH0ck.s 			page 2
+
+
+  31:src/main.c    **** 
+  32:src/main.c    ****         Delay_ms(1000);
+  33:src/main.c    ****     }
+  34:src/main.c    **** }
+  35:src/main.c    **** 
+  36:src/main.c    **** void timer11_init()
+  37:src/main.c    **** {
+  29              		.loc 1 37 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  38:src/main.c    ****     RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+  34              		.loc 1 38 5 view .LVU1
+  35              		.loc 1 38 18 is_stmt 0 view .LVU2
+  36 0000 074A     		ldr	r2, .L2
+  37 0002 536C     		ldr	r3, [r2, #68]
+  38 0004 43F48023 		orr	r3, r3, #262144
+  39 0008 5364     		str	r3, [r2, #68]
+  39:src/main.c    ****     
+  40:src/main.c    ****     TIM11->PSC = 15;
+  40              		.loc 1 40 5 is_stmt 1 view .LVU3
+  41              		.loc 1 40 16 is_stmt 0 view .LVU4
+  42 000a 064B     		ldr	r3, .L2+4
+  43 000c 0F22     		movs	r2, #15
+  44 000e 9A62     		str	r2, [r3, #40]
+  41:src/main.c    ****     TIM11->ARR = 0xFFFF;
+  45              		.loc 1 41 5 is_stmt 1 view .LVU5
+  46              		.loc 1 41 16 is_stmt 0 view .LVU6
+  47 0010 4FF6FF72 		movw	r2, #65535
+  48 0014 DA62     		str	r2, [r3, #44]
+  42:src/main.c    ****     TIM11->CR1 |= TIM_CR1_CEN;
+  49              		.loc 1 42 5 is_stmt 1 view .LVU7
+  50              		.loc 1 42 16 is_stmt 0 view .LVU8
+  51 0016 1A68     		ldr	r2, [r3]
+  52 0018 42F00102 		orr	r2, r2, #1
+  53 001c 1A60     		str	r2, [r3]
+  43:src/main.c    **** }
+  54              		.loc 1 43 1 view .LVU9
+  55 001e 7047     		bx	lr
+  56              	.L3:
+  57              		.align	2
+  58              	.L2:
+  59 0020 00380240 		.word	1073887232
+  60 0024 00480140 		.word	1073825792
+  61              		.cfi_endproc
+  62              	.LFE135:
+  64              		.section	.text.Delay_us,"ax",%progbits
+  65              		.align	1
+  66              		.global	Delay_us
+  67              		.syntax unified
+  68              		.thumb
+  69              		.thumb_func
+  70              		.fpu fpv4-sp-d16
+  72              	Delay_us:
+  73              	.LVL0:
+  74              	.LFB136:
+ARM GAS  /tmp/ccYgH0ck.s 			page 3
+
+
+  44:src/main.c    **** 
+  45:src/main.c    **** void Delay_us(uint16_t us)
+  46:src/main.c    **** {
+  75              		.loc 1 46 1 is_stmt 1 view -0
+  76              		.cfi_startproc
+  77              		@ args = 0, pretend = 0, frame = 0
+  78              		@ frame_needed = 0, uses_anonymous_args = 0
+  79              		@ link register save eliminated.
+  47:src/main.c    ****     TIM11->CNT = 0;
+  80              		.loc 1 47 5 view .LVU11
+  81              		.loc 1 47 16 is_stmt 0 view .LVU12
+  82 0000 034B     		ldr	r3, .L6
+  83 0002 0022     		movs	r2, #0
+  84 0004 5A62     		str	r2, [r3, #36]
+  48:src/main.c    ****     while (TIM11->CNT < us);
+  85              		.loc 1 48 5 is_stmt 1 view .LVU13
+  86              	.L5:
+  87              		.loc 1 48 28 discriminator 1 view .LVU14
+  88              		.loc 1 48 11 discriminator 1 view .LVU15
+  89              		.loc 1 48 17 is_stmt 0 discriminator 1 view .LVU16
+  90 0006 024B     		ldr	r3, .L6
+  91 0008 5B6A     		ldr	r3, [r3, #36]
+  92              		.loc 1 48 11 discriminator 1 view .LVU17
+  93 000a 8342     		cmp	r3, r0
+  94 000c FBD3     		bcc	.L5
+  49:src/main.c    **** }
+  95              		.loc 1 49 1 view .LVU18
+  96 000e 7047     		bx	lr
+  97              	.L7:
+  98              		.align	2
+  99              	.L6:
+ 100 0010 00480140 		.word	1073825792
+ 101              		.cfi_endproc
+ 102              	.LFE136:
+ 104              		.section	.text.Delay_ms,"ax",%progbits
+ 105              		.align	1
+ 106              		.global	Delay_ms
+ 107              		.syntax unified
+ 108              		.thumb
+ 109              		.thumb_func
+ 110              		.fpu fpv4-sp-d16
+ 112              	Delay_ms:
+ 113              	.LVL1:
+ 114              	.LFB137:
+  50:src/main.c    **** 
+  51:src/main.c    **** void Delay_ms(uint16_t ms)
+  52:src/main.c    **** {
+ 115              		.loc 1 52 1 is_stmt 1 view -0
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 0
+ 118              		@ frame_needed = 0, uses_anonymous_args = 0
+ 119              		.loc 1 52 1 is_stmt 0 view .LVU20
+ 120 0000 38B5     		push	{r3, r4, r5, lr}
+ 121              	.LCFI0:
+ 122              		.cfi_def_cfa_offset 16
+ 123              		.cfi_offset 3, -16
+ 124              		.cfi_offset 4, -12
+ARM GAS  /tmp/ccYgH0ck.s 			page 4
+
+
+ 125              		.cfi_offset 5, -8
+ 126              		.cfi_offset 14, -4
+ 127 0002 0546     		mov	r5, r0
+  53:src/main.c    ****     for (uint16_t i = 0; i < ms; i++)
+ 128              		.loc 1 53 5 is_stmt 1 view .LVU21
+ 129              	.LBB2:
+ 130              		.loc 1 53 10 view .LVU22
+ 131              	.LVL2:
+ 132              		.loc 1 53 19 is_stmt 0 view .LVU23
+ 133 0004 0024     		movs	r4, #0
+ 134              		.loc 1 53 5 view .LVU24
+ 135 0006 05E0     		b	.L9
+ 136              	.LVL3:
+ 137              	.L10:
+  54:src/main.c    ****     {
+  55:src/main.c    ****         Delay_us(1000);
+ 138              		.loc 1 55 9 is_stmt 1 discriminator 3 view .LVU25
+ 139 0008 4FF47A70 		mov	r0, #1000
+ 140 000c FFF7FEFF 		bl	Delay_us
+ 141              	.LVL4:
+  53:src/main.c    ****     for (uint16_t i = 0; i < ms; i++)
+ 142              		.loc 1 53 34 discriminator 3 view .LVU26
+  53:src/main.c    ****     for (uint16_t i = 0; i < ms; i++)
+ 143              		.loc 1 53 35 is_stmt 0 discriminator 3 view .LVU27
+ 144 0010 0134     		adds	r4, r4, #1
+ 145              	.LVL5:
+  53:src/main.c    ****     for (uint16_t i = 0; i < ms; i++)
+ 146              		.loc 1 53 35 discriminator 3 view .LVU28
+ 147 0012 A4B2     		uxth	r4, r4
+ 148              	.LVL6:
+ 149              	.L9:
+  53:src/main.c    ****     for (uint16_t i = 0; i < ms; i++)
+ 150              		.loc 1 53 26 is_stmt 1 discriminator 1 view .LVU29
+  53:src/main.c    ****     for (uint16_t i = 0; i < ms; i++)
+ 151              		.loc 1 53 5 is_stmt 0 discriminator 1 view .LVU30
+ 152 0014 AC42     		cmp	r4, r5
+ 153 0016 F7D3     		bcc	.L10
+ 154              	.LBE2:
+  56:src/main.c    ****     }
+  57:src/main.c    **** }
+ 155              		.loc 1 57 1 view .LVU31
+ 156 0018 38BD     		pop	{r3, r4, r5, pc}
+ 157              		.loc 1 57 1 view .LVU32
+ 158              		.cfi_endproc
+ 159              	.LFE137:
+ 161              		.section	.text.uart_send_msg,"ax",%progbits
+ 162              		.align	1
+ 163              		.global	uart_send_msg
+ 164              		.syntax unified
+ 165              		.thumb
+ 166              		.thumb_func
+ 167              		.fpu fpv4-sp-d16
+ 169              	uart_send_msg:
+ 170              	.LVL7:
+ 171              	.LFB138:
+  58:src/main.c    **** 
+  59:src/main.c    **** void uart_send_msg(char* s)
+ARM GAS  /tmp/ccYgH0ck.s 			page 5
+
+
+  60:src/main.c    **** {
+ 172              		.loc 1 60 1 is_stmt 1 view -0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176              		@ link register save eliminated.
+  61:src/main.c    ****     while(*s)
+ 177              		.loc 1 61 5 view .LVU34
+ 178              		.loc 1 61 10 is_stmt 0 view .LVU35
+ 179 0000 07E0     		b	.L13
+ 180              	.L14:
+  62:src/main.c    ****     {
+  63:src/main.c    ****         while (!(USART1->SR & USART_SR_TXE));
+ 181              		.loc 1 63 45 is_stmt 1 discriminator 1 view .LVU36
+ 182              		.loc 1 63 15 discriminator 1 view .LVU37
+ 183              		.loc 1 63 24 is_stmt 0 discriminator 1 view .LVU38
+ 184 0002 064B     		ldr	r3, .L15
+ 185 0004 1B68     		ldr	r3, [r3]
+ 186              		.loc 1 63 15 discriminator 1 view .LVU39
+ 187 0006 13F0800F 		tst	r3, #128
+ 188 000a FAD0     		beq	.L14
+  64:src/main.c    **** 
+  65:src/main.c    ****         USART1->DR = (uint8_t)*s;
+ 189              		.loc 1 65 9 is_stmt 1 view .LVU40
+ 190              		.loc 1 65 20 is_stmt 0 view .LVU41
+ 191 000c 034B     		ldr	r3, .L15
+ 192 000e 5A60     		str	r2, [r3, #4]
+  66:src/main.c    ****         s++;
+ 193              		.loc 1 66 9 is_stmt 1 view .LVU42
+ 194              		.loc 1 66 10 is_stmt 0 view .LVU43
+ 195 0010 0130     		adds	r0, r0, #1
+ 196              	.LVL8:
+ 197              	.L13:
+  61:src/main.c    ****     {
+ 198              		.loc 1 61 10 is_stmt 1 view .LVU44
+  61:src/main.c    ****     {
+ 199              		.loc 1 61 11 is_stmt 0 view .LVU45
+ 200 0012 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+  61:src/main.c    ****     {
+ 201              		.loc 1 61 10 view .LVU46
+ 202 0014 002A     		cmp	r2, #0
+ 203 0016 F4D1     		bne	.L14
+  67:src/main.c    ****     }
+  68:src/main.c    **** }
+ 204              		.loc 1 68 1 view .LVU47
+ 205 0018 7047     		bx	lr
+ 206              	.L16:
+ 207 001a 00BF     		.align	2
+ 208              	.L15:
+ 209 001c 00100140 		.word	1073811456
+ 210              		.cfi_endproc
+ 211              	.LFE138:
+ 213              		.section	.rodata.main.str1.4,"aMS",%progbits,1
+ 214              		.align	2
+ 215              	.LC0:
+ 216 0000 0A0A0D52 		.ascii	"\012\012\015Running application 1 from 0x08004000\012"
+ 216      756E6E69 
+ARM GAS  /tmp/ccYgH0ck.s 			page 6
+
+
+ 216      6E672061 
+ 216      70706C69 
+ 216      63617469 
+ 217 0029 0A0D00   		.ascii	"\012\015\000"
+ 218              		.section	.text.main,"ax",%progbits
+ 219              		.align	1
+ 220              		.global	main
+ 221              		.syntax unified
+ 222              		.thumb
+ 223              		.thumb_func
+ 224              		.fpu fpv4-sp-d16
+ 226              	main:
+ 227              	.LFB134:
+   9:src/main.c    ****     timer11_init();
+ 228              		.loc 1 9 1 is_stmt 1 view -0
+ 229              		.cfi_startproc
+ 230              		@ Volatile: function does not return.
+ 231              		@ args = 0, pretend = 0, frame = 0
+ 232              		@ frame_needed = 0, uses_anonymous_args = 0
+ 233 0000 08B5     		push	{r3, lr}
+ 234              	.LCFI1:
+ 235              		.cfi_def_cfa_offset 8
+ 236              		.cfi_offset 3, -8
+ 237              		.cfi_offset 14, -4
+  10:src/main.c    **** 
+ 238              		.loc 1 10 5 view .LVU49
+ 239 0002 FFF7FEFF 		bl	timer11_init
+ 240              	.LVL9:
+  12:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+ 241              		.loc 1 12 5 view .LVU50
+  12:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+ 242              		.loc 1 12 18 is_stmt 0 view .LVU51
+ 243 0006 1B4C     		ldr	r4, .L20
+ 244 0008 636C     		ldr	r3, [r4, #68]
+ 245 000a 43F01003 		orr	r3, r3, #16
+ 246 000e 6364     		str	r3, [r4, #68]
+  13:src/main.c    **** 
+ 247              		.loc 1 13 5 is_stmt 1 view .LVU52
+  13:src/main.c    **** 
+ 248              		.loc 1 13 18 is_stmt 0 view .LVU53
+ 249 0010 236B     		ldr	r3, [r4, #48]
+ 250 0012 43F00103 		orr	r3, r3, #1
+ 251 0016 2363     		str	r3, [r4, #48]
+  15:src/main.c    ****     GPIOA->AFR[1] |= (7 << 4) | (7 << 8);
+ 252              		.loc 1 15 5 is_stmt 1 view .LVU54
+  15:src/main.c    ****     GPIOA->AFR[1] |= (7 << 4) | (7 << 8);
+ 253              		.loc 1 15 18 is_stmt 0 view .LVU55
+ 254 0018 174B     		ldr	r3, .L20+4
+ 255 001a 1A68     		ldr	r2, [r3]
+ 256 001c 42F42012 		orr	r2, r2, #2621440
+ 257 0020 1A60     		str	r2, [r3]
+  16:src/main.c    **** 
+ 258              		.loc 1 16 5 is_stmt 1 view .LVU56
+  16:src/main.c    **** 
+ 259              		.loc 1 16 19 is_stmt 0 view .LVU57
+ 260 0022 5A6A     		ldr	r2, [r3, #36]
+ 261 0024 42F4EE62 		orr	r2, r2, #1904
+ARM GAS  /tmp/ccYgH0ck.s 			page 7
+
+
+ 262 0028 5A62     		str	r2, [r3, #36]
+  18:src/main.c    ****     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
+ 263              		.loc 1 18 5 is_stmt 1 view .LVU58
+  18:src/main.c    ****     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
+ 264              		.loc 1 18 17 is_stmt 0 view .LVU59
+ 265 002a 144A     		ldr	r2, .L20+8
+ 266 002c 40F28263 		movw	r3, #1666
+ 267 0030 9360     		str	r3, [r2, #8]
+  19:src/main.c    **** 
+ 268              		.loc 1 19 5 is_stmt 1 view .LVU60
+  19:src/main.c    **** 
+ 269              		.loc 1 19 17 is_stmt 0 view .LVU61
+ 270 0032 D368     		ldr	r3, [r2, #12]
+ 271 0034 43F40053 		orr	r3, r3, #8192
+ 272 0038 43F00803 		orr	r3, r3, #8
+ 273 003c D360     		str	r3, [r2, #12]
+  21:src/main.c    **** 
+ 274              		.loc 1 21 5 is_stmt 1 view .LVU62
+ 275 003e 1048     		ldr	r0, .L20+12
+ 276 0040 FFF7FEFF 		bl	uart_send_msg
+ 277              	.LVL10:
+  23:src/main.c    **** 
+ 278              		.loc 1 23 5 view .LVU63
+  23:src/main.c    **** 
+ 279              		.loc 1 23 18 is_stmt 0 view .LVU64
+ 280 0044 236B     		ldr	r3, [r4, #48]
+ 281 0046 43F00203 		orr	r3, r3, #2
+ 282 004a 2363     		str	r3, [r4, #48]
+  25:src/main.c    ****     GPIOB->MODER |= (1 << 8);
+ 283              		.loc 1 25 5 is_stmt 1 view .LVU65
+  25:src/main.c    ****     GPIOB->MODER |= (1 << 8);
+ 284              		.loc 1 25 18 is_stmt 0 view .LVU66
+ 285 004c 0D4B     		ldr	r3, .L20+16
+ 286 004e 1A68     		ldr	r2, [r3]
+ 287 0050 22F44072 		bic	r2, r2, #768
+ 288 0054 1A60     		str	r2, [r3]
+  26:src/main.c    **** 
+ 289              		.loc 1 26 5 is_stmt 1 view .LVU67
+  26:src/main.c    **** 
+ 290              		.loc 1 26 18 is_stmt 0 view .LVU68
+ 291 0056 1A68     		ldr	r2, [r3]
+ 292 0058 42F48072 		orr	r2, r2, #256
+ 293 005c 1A60     		str	r2, [r3]
+ 294              	.L18:
+  28:src/main.c    ****     {
+ 295              		.loc 1 28 5 is_stmt 1 discriminator 1 view .LVU69
+  30:src/main.c    **** 
+ 296              		.loc 1 30 9 discriminator 1 view .LVU70
+  30:src/main.c    **** 
+ 297              		.loc 1 30 20 is_stmt 0 discriminator 1 view .LVU71
+ 298 005e 094A     		ldr	r2, .L20+16
+ 299 0060 5369     		ldr	r3, [r2, #20]
+ 300 0062 83F01003 		eor	r3, r3, #16
+ 301 0066 5361     		str	r3, [r2, #20]
+  32:src/main.c    ****     }
+ 302              		.loc 1 32 9 is_stmt 1 discriminator 1 view .LVU72
+ 303 0068 4FF47A70 		mov	r0, #1000
+ARM GAS  /tmp/ccYgH0ck.s 			page 8
+
+
+ 304 006c FFF7FEFF 		bl	Delay_ms
+ 305              	.LVL11:
+  28:src/main.c    ****     {
+ 306              		.loc 1 28 11 discriminator 1 view .LVU73
+ 307 0070 F5E7     		b	.L18
+ 308              	.L21:
+ 309 0072 00BF     		.align	2
+ 310              	.L20:
+ 311 0074 00380240 		.word	1073887232
+ 312 0078 00000240 		.word	1073872896
+ 313 007c 00100140 		.word	1073811456
+ 314 0080 00000000 		.word	.LC0
+ 315 0084 00040240 		.word	1073873920
+ 316              		.cfi_endproc
+ 317              	.LFE134:
+ 319              		.text
+ 320              	.Letext0:
+ 321              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 322              		.file 3 "driver/Device/stm32f401xc.h"
+ARM GAS  /tmp/ccYgH0ck.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/ccYgH0ck.s:18     .text.timer11_init:0000000000000000 $t
+     /tmp/ccYgH0ck.s:26     .text.timer11_init:0000000000000000 timer11_init
+     /tmp/ccYgH0ck.s:59     .text.timer11_init:0000000000000020 $d
+     /tmp/ccYgH0ck.s:65     .text.Delay_us:0000000000000000 $t
+     /tmp/ccYgH0ck.s:72     .text.Delay_us:0000000000000000 Delay_us
+     /tmp/ccYgH0ck.s:100    .text.Delay_us:0000000000000010 $d
+     /tmp/ccYgH0ck.s:105    .text.Delay_ms:0000000000000000 $t
+     /tmp/ccYgH0ck.s:112    .text.Delay_ms:0000000000000000 Delay_ms
+     /tmp/ccYgH0ck.s:162    .text.uart_send_msg:0000000000000000 $t
+     /tmp/ccYgH0ck.s:169    .text.uart_send_msg:0000000000000000 uart_send_msg
+     /tmp/ccYgH0ck.s:209    .text.uart_send_msg:000000000000001c $d
+     /tmp/ccYgH0ck.s:214    .rodata.main.str1.4:0000000000000000 $d
+     /tmp/ccYgH0ck.s:219    .text.main:0000000000000000 $t
+     /tmp/ccYgH0ck.s:226    .text.main:0000000000000000 main
+     /tmp/ccYgH0ck.s:311    .text.main:0000000000000074 $d
+
+NO UNDEFINED SYMBOLS

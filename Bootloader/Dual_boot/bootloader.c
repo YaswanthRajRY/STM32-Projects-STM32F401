@@ -38,11 +38,11 @@ void bootloader_Reset_Handler()
     USART1->BRR = 16000000 / 9600;
     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
 
-    uart_send_msg("\n\rRunning Bootloader:\n\n\rPress button to run application 1");
+    uart_send_msg("\n\rRunning Bootloader");
 
     RCC->AHB1ENR |= 0x1; // Enable GPIO A clock
     GPIOA->MODER &= ~(0x3); // Set as input mode
-    GPIOA->PUPDR |= 0x1; // pull-down
+    GPIOA->PUPDR |= 0x1; // pull-up
 
     uint32_t timeout = 0;
     uint8_t flag = 1;

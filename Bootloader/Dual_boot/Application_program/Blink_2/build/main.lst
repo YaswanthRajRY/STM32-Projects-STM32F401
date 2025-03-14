@@ -1,4 +1,4 @@
-ARM GAS  /tmp/ccdJsAX5.s 			page 1
+ARM GAS  /tmp/cciYDRxh.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -33,7 +33,7 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
    3:src/main.c    **** void timer11_init();
    4:src/main.c    **** void Delay_us(uint16_t us);
    5:src/main.c    **** void Delay_ms(uint16_t ms);
-   6:src/main.c    **** void uart_send_msg_app(char*);
+   6:src/main.c    **** void uart_send_msg(char*);
    7:src/main.c    **** 
    8:src/main.c    **** int main()
    9:src/main.c    **** {
@@ -48,17 +48,17 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
   18:src/main.c    ****     USART1->BRR = 16000000 / 9600;
   19:src/main.c    ****     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
   20:src/main.c    **** 
-  21:src/main.c    ****     uart_send_msg_app("\n\n\rRunning application 1 from 0x08004000\n\n\r");
+  21:src/main.c    ****     uart_send_msg("\n\n\rRunning application 2 from 0x08008000\n\n\r");
   22:src/main.c    **** 
   23:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; 
   24:src/main.c    **** 
-  25:src/main.c    ****     GPIOB->MODER &= ~(3 << 8);
-  26:src/main.c    ****     GPIOB->MODER |= (1 << 8);
+  25:src/main.c    ****     GPIOB->MODER &= ~(3 << 16);
+  26:src/main.c    ****     GPIOB->MODER |= (1 << 16);
   27:src/main.c    **** 
   28:src/main.c    ****     while (1)
   29:src/main.c    ****     {
-  30:src/main.c    ****         GPIOB->ODR ^= (1 << 4);
-ARM GAS  /tmp/ccdJsAX5.s 			page 2
+  30:src/main.c    ****         GPIOB->ODR ^= (1 << 8);
+ARM GAS  /tmp/cciYDRxh.s 			page 2
 
 
   31:src/main.c    **** 
@@ -118,7 +118,7 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
   72              	Delay_us:
   73              	.LVL0:
   74              	.LFB136:
-ARM GAS  /tmp/ccdJsAX5.s 			page 3
+ARM GAS  /tmp/cciYDRxh.s 			page 3
 
 
   44:src/main.c    **** 
@@ -178,7 +178,7 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
  122              		.cfi_def_cfa_offset 16
  123              		.cfi_offset 3, -16
  124              		.cfi_offset 4, -12
-ARM GAS  /tmp/ccdJsAX5.s 			page 4
+ARM GAS  /tmp/cciYDRxh.s 			page 4
 
 
  125              		.cfi_offset 5, -8
@@ -226,19 +226,19 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
  157              		.loc 1 57 1 view .LVU32
  158              		.cfi_endproc
  159              	.LFE137:
- 161              		.section	.text.uart_send_msg_app,"ax",%progbits
+ 161              		.section	.text.uart_send_msg,"ax",%progbits
  162              		.align	1
- 163              		.global	uart_send_msg_app
+ 163              		.global	uart_send_msg
  164              		.syntax unified
  165              		.thumb
  166              		.thumb_func
  167              		.fpu fpv4-sp-d16
- 169              	uart_send_msg_app:
+ 169              	uart_send_msg:
  170              	.LVL7:
  171              	.LFB138:
   58:src/main.c    **** 
-  59:src/main.c    **** void uart_send_msg_app(char* s)
-ARM GAS  /tmp/ccdJsAX5.s 			page 5
+  59:src/main.c    **** void uart_send_msg(char* s)
+ARM GAS  /tmp/cciYDRxh.s 			page 5
 
 
   60:src/main.c    **** {
@@ -284,7 +284,7 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
  202 0014 002A     		cmp	r2, #0
  203 0016 F4D1     		bne	.L14
   67:src/main.c    ****     }
-  68:src/main.c    **** }
+  68:src/main.c    **** }...
  204              		.loc 1 68 1 view .LVU47
  205 0018 7047     		bx	lr
  206              	.L16:
@@ -296,9 +296,9 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
  213              		.section	.rodata.main.str1.4,"aMS",%progbits,1
  214              		.align	2
  215              	.LC0:
- 216 0000 0A0A0D52 		.ascii	"\012\012\015Running application 1 from 0x08004000\012"
+ 216 0000 0A0A0D52 		.ascii	"\012\012\015Running application 2 from 0x08008000\012"
  216      756E6E69 
-ARM GAS  /tmp/ccdJsAX5.s 			page 6
+ARM GAS  /tmp/cciYDRxh.s 			page 6
 
 
  216      6E672061 
@@ -314,7 +314,7 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
  224              		.fpu fpv4-sp-d16
  226              	main:
  227              	.LFB134:
-   9:src/main.c    ****     timer11_init();
+   9:src/main.c    **** {
  228              		.loc 1 9 1 is_stmt 1 view -0
  229              		.cfi_startproc
  230              		@ Volatile: function does not return.
@@ -325,105 +325,105 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
  235              		.cfi_def_cfa_offset 8
  236              		.cfi_offset 3, -8
  237              		.cfi_offset 14, -4
-  10:src/main.c    **** 
+  10:src/main.c    ****     timer11_init();
  238              		.loc 1 10 5 view .LVU49
  239 0002 FFF7FEFF 		bl	timer11_init
  240              	.LVL9:
-  12:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+  12:src/main.c    ****     RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
  241              		.loc 1 12 5 view .LVU50
-  12:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+  12:src/main.c    ****     RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
  242              		.loc 1 12 18 is_stmt 0 view .LVU51
  243 0006 1B4C     		ldr	r4, .L20
  244 0008 636C     		ldr	r3, [r4, #68]
  245 000a 43F01003 		orr	r3, r3, #16
  246 000e 6364     		str	r3, [r4, #68]
-  13:src/main.c    **** 
+  13:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
  247              		.loc 1 13 5 is_stmt 1 view .LVU52
-  13:src/main.c    **** 
+  13:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
  248              		.loc 1 13 18 is_stmt 0 view .LVU53
  249 0010 236B     		ldr	r3, [r4, #48]
  250 0012 43F00103 		orr	r3, r3, #1
  251 0016 2363     		str	r3, [r4, #48]
-  15:src/main.c    ****     GPIOA->AFR[1] |= (7 << 4) | (7 << 8);
+  15:src/main.c    ****     GPIOA->MODER |= GPIO_MODER_MODE9_1 | GPIO_MODER_MODE10_1;
  252              		.loc 1 15 5 is_stmt 1 view .LVU54
-  15:src/main.c    ****     GPIOA->AFR[1] |= (7 << 4) | (7 << 8);
+  15:src/main.c    ****     GPIOA->MODER |= GPIO_MODER_MODE9_1 | GPIO_MODER_MODE10_1;
  253              		.loc 1 15 18 is_stmt 0 view .LVU55
  254 0018 174B     		ldr	r3, .L20+4
  255 001a 1A68     		ldr	r2, [r3]
  256 001c 42F42012 		orr	r2, r2, #2621440
  257 0020 1A60     		str	r2, [r3]
-  16:src/main.c    **** 
+  16:src/main.c    ****     GPIOA->AFR[1] |= (7 << 4) | (7 << 8);
  258              		.loc 1 16 5 is_stmt 1 view .LVU56
-  16:src/main.c    **** 
+  16:src/main.c    ****     GPIOA->AFR[1] |= (7 << 4) | (7 << 8);
  259              		.loc 1 16 19 is_stmt 0 view .LVU57
  260 0022 5A6A     		ldr	r2, [r3, #36]
  261 0024 42F4EE62 		orr	r2, r2, #1904
-ARM GAS  /tmp/ccdJsAX5.s 			page 7
+ARM GAS  /tmp/cciYDRxh.s 			page 7
 
 
  262 0028 5A62     		str	r2, [r3, #36]
-  18:src/main.c    ****     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
+  18:src/main.c    ****     USART1->BRR = 16000000 / 9600;
  263              		.loc 1 18 5 is_stmt 1 view .LVU58
-  18:src/main.c    ****     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
+  18:src/main.c    ****     USART1->BRR = 16000000 / 9600;
  264              		.loc 1 18 17 is_stmt 0 view .LVU59
  265 002a 144A     		ldr	r2, .L20+8
  266 002c 40F28263 		movw	r3, #1666
  267 0030 9360     		str	r3, [r2, #8]
-  19:src/main.c    **** 
+  19:src/main.c    ****     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
  268              		.loc 1 19 5 is_stmt 1 view .LVU60
-  19:src/main.c    **** 
+  19:src/main.c    ****     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
  269              		.loc 1 19 17 is_stmt 0 view .LVU61
  270 0032 D368     		ldr	r3, [r2, #12]
  271 0034 43F40053 		orr	r3, r3, #8192
  272 0038 43F00803 		orr	r3, r3, #8
  273 003c D360     		str	r3, [r2, #12]
-  21:src/main.c    **** 
+  21:src/main.c    ****     uart_send_msg("\n\n\rRunning application 2 from 0x08008000\n\n\r");
  274              		.loc 1 21 5 is_stmt 1 view .LVU62
  275 003e 1048     		ldr	r0, .L20+12
- 276 0040 FFF7FEFF 		bl	uart_send_msg_app
+ 276 0040 FFF7FEFF 		bl	uart_send_msg
  277              	.LVL10:
-  23:src/main.c    **** 
+  23:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; 
  278              		.loc 1 23 5 view .LVU63
-  23:src/main.c    **** 
+  23:src/main.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; 
  279              		.loc 1 23 18 is_stmt 0 view .LVU64
  280 0044 236B     		ldr	r3, [r4, #48]
  281 0046 43F00203 		orr	r3, r3, #2
  282 004a 2363     		str	r3, [r4, #48]
-  25:src/main.c    ****     GPIOB->MODER |= (1 << 8);
+  25:src/main.c    ****     GPIOB->MODER &= ~(3 << 16);
  283              		.loc 1 25 5 is_stmt 1 view .LVU65
-  25:src/main.c    ****     GPIOB->MODER |= (1 << 8);
+  25:src/main.c    ****     GPIOB->MODER &= ~(3 << 16);
  284              		.loc 1 25 18 is_stmt 0 view .LVU66
  285 004c 0D4B     		ldr	r3, .L20+16
  286 004e 1A68     		ldr	r2, [r3]
- 287 0050 22F44072 		bic	r2, r2, #768
+ 287 0050 22F44032 		bic	r2, r2, #196608
  288 0054 1A60     		str	r2, [r3]
-  26:src/main.c    **** 
+  26:src/main.c    ****     GPIOB->MODER |= (1 << 16);
  289              		.loc 1 26 5 is_stmt 1 view .LVU67
-  26:src/main.c    **** 
+  26:src/main.c    ****     GPIOB->MODER |= (1 << 16);
  290              		.loc 1 26 18 is_stmt 0 view .LVU68
  291 0056 1A68     		ldr	r2, [r3]
- 292 0058 42F48072 		orr	r2, r2, #256
+ 292 0058 42F48032 		orr	r2, r2, #65536
  293 005c 1A60     		str	r2, [r3]
  294              	.L18:
-  28:src/main.c    ****     {
+  28:src/main.c    ****     while (1)
  295              		.loc 1 28 5 is_stmt 1 discriminator 1 view .LVU69
-  30:src/main.c    **** 
+  30:src/main.c    ****         GPIOB->ODR ^= (1 << 8);
  296              		.loc 1 30 9 discriminator 1 view .LVU70
-  30:src/main.c    **** 
+  30:src/main.c    ****         GPIOB->ODR ^= (1 << 8);
  297              		.loc 1 30 20 is_stmt 0 discriminator 1 view .LVU71
  298 005e 094A     		ldr	r2, .L20+16
  299 0060 5369     		ldr	r3, [r2, #20]
- 300 0062 83F01003 		eor	r3, r3, #16
+ 300 0062 83F48073 		eor	r3, r3, #256
  301 0066 5361     		str	r3, [r2, #20]
-  32:src/main.c    ****     }
+  32:src/main.c    ****         Delay_ms(1000);
  302              		.loc 1 32 9 is_stmt 1 discriminator 1 view .LVU72
  303 0068 4FF47A70 		mov	r0, #1000
-ARM GAS  /tmp/ccdJsAX5.s 			page 8
+ARM GAS  /tmp/cciYDRxh.s 			page 8
 
 
  304 006c FFF7FEFF 		bl	Delay_ms
  305              	.LVL11:
-  28:src/main.c    ****     {
+  28:src/main.c    ****     while (1)
  306              		.loc 1 28 11 discriminator 1 view .LVU73
  307 0070 F5E7     		b	.L18
  308              	.L21:
@@ -440,25 +440,25 @@ ARM GAS  /tmp/ccdJsAX5.s 			page 1
  320              	.Letext0:
  321              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
  322              		.file 3 "driver/Device/stm32f401xc.h"
-ARM GAS  /tmp/ccdJsAX5.s 			page 9
+ARM GAS  /tmp/cciYDRxh.s 			page 9
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.c
-     /tmp/ccdJsAX5.s:18     .text.timer11_init:0000000000000000 $t
-     /tmp/ccdJsAX5.s:26     .text.timer11_init:0000000000000000 timer11_init
-     /tmp/ccdJsAX5.s:59     .text.timer11_init:0000000000000020 $d
-     /tmp/ccdJsAX5.s:65     .text.Delay_us:0000000000000000 $t
-     /tmp/ccdJsAX5.s:72     .text.Delay_us:0000000000000000 Delay_us
-     /tmp/ccdJsAX5.s:100    .text.Delay_us:0000000000000010 $d
-     /tmp/ccdJsAX5.s:105    .text.Delay_ms:0000000000000000 $t
-     /tmp/ccdJsAX5.s:112    .text.Delay_ms:0000000000000000 Delay_ms
-     /tmp/ccdJsAX5.s:162    .text.uart_send_msg_app:0000000000000000 $t
-     /tmp/ccdJsAX5.s:169    .text.uart_send_msg_app:0000000000000000 uart_send_msg_app
-     /tmp/ccdJsAX5.s:209    .text.uart_send_msg_app:000000000000001c $d
-     /tmp/ccdJsAX5.s:214    .rodata.main.str1.4:0000000000000000 $d
-     /tmp/ccdJsAX5.s:219    .text.main:0000000000000000 $t
-     /tmp/ccdJsAX5.s:226    .text.main:0000000000000000 main
-     /tmp/ccdJsAX5.s:311    .text.main:0000000000000074 $d
+     /tmp/cciYDRxh.s:18     .text.timer11_init:0000000000000000 $t
+     /tmp/cciYDRxh.s:26     .text.timer11_init:0000000000000000 timer11_init
+     /tmp/cciYDRxh.s:59     .text.timer11_init:0000000000000020 $d
+     /tmp/cciYDRxh.s:65     .text.Delay_us:0000000000000000 $t
+     /tmp/cciYDRxh.s:72     .text.Delay_us:0000000000000000 Delay_us
+     /tmp/cciYDRxh.s:100    .text.Delay_us:0000000000000010 $d
+     /tmp/cciYDRxh.s:105    .text.Delay_ms:0000000000000000 $t
+     /tmp/cciYDRxh.s:112    .text.Delay_ms:0000000000000000 Delay_ms
+     /tmp/cciYDRxh.s:162    .text.uart_send_msg:0000000000000000 $t
+     /tmp/cciYDRxh.s:169    .text.uart_send_msg:0000000000000000 uart_send_msg
+     /tmp/cciYDRxh.s:209    .text.uart_send_msg:000000000000001c $d
+     /tmp/cciYDRxh.s:214    .rodata.main.str1.4:0000000000000000 $d
+     /tmp/cciYDRxh.s:219    .text.main:0000000000000000 $t
+     /tmp/cciYDRxh.s:226    .text.main:0000000000000000 main
+     /tmp/cciYDRxh.s:311    .text.main:0000000000000074 $d
 
 NO UNDEFINED SYMBOLS
