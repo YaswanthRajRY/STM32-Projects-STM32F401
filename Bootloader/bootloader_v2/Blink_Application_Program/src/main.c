@@ -18,16 +18,16 @@ int main()
     USART1->BRR = 16000000 / 9600;
     USART1->CR1 |= USART_CR1_TE | USART_CR1_UE;
 
-    uart_send_msg_app("\n\n\rRunning application 1 from 0x08004000\n\n\r");
+    uart_send_msg_app("\n\rRunning blink...\n\r");
 
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; 
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN;
 
-    GPIOB->MODER &= ~(3 << 8);
-    GPIOB->MODER |= (1 << 8);
+    GPIOC->MODER &= ~(3 << 26);
+    GPIOC->MODER |= (1 << 26);
 
     while (1)
     {
-        GPIOB->ODR ^= (1 << 4);
+        GPIOC->ODR ^= (1 << 13);
 
         Delay_ms(1000);
     }

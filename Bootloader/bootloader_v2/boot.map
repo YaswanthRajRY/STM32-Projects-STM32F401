@@ -1,0 +1,176 @@
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+RAM              0x0000000020000000 0x0000000000010000 xrw
+FLASH            0x0000000008000000 0x0000000000040000 xr
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/arm-none-eabi/10.3.1/libgcc.a
+LOAD bootloader.o
+                0x0000000020010000                _estack = (ORIGIN (RAM) + LENGTH (RAM))
+                0x0000000000000200                _Min_Heap_Size = 0x200
+                0x0000000000000400                _Min_Stack_Size = 0x400
+
+.isr_vector     0x0000000008000000        0x8
+                0x0000000008000000                . = ALIGN (0x4)
+ *(.isr_vector)
+ .isr_vector    0x0000000008000000        0x8 bootloader.o
+                0x0000000008000000                bootloader_vector_table
+                0x0000000008000008                . = ALIGN (0x4)
+
+.text           0x0000000008000008      0x458
+                0x0000000008000008                . = ALIGN (0x4)
+ *(.text)
+ .text          0x0000000008000008      0x458 bootloader.o
+                0x0000000008000008                bootloader_Reset_Handler
+                0x0000000008000118                uart_init
+                0x0000000008000178                uart_send_msg
+                0x00000000080001b8                update_firmware
+                0x0000000008000300                erase_sector
+                0x000000000800036c                uart_receive
+                0x00000000080003d4                check_crc
+ *(.text*)
+ *(.glue_7)
+ .glue_7        0x0000000008000460        0x0 linker stubs
+ *(.glue_7t)
+ .glue_7t       0x0000000008000460        0x0 linker stubs
+ *(.eh_frame)
+ *(.init)
+ *(.fini)
+                0x0000000008000460                . = ALIGN (0x4)
+                0x0000000008000460                _etext = .
+
+.vfp11_veneer   0x0000000008000460        0x0
+ .vfp11_veneer  0x0000000008000460        0x0 linker stubs
+
+.v4_bx          0x0000000008000460        0x0
+ .v4_bx         0x0000000008000460        0x0 linker stubs
+
+.iplt           0x0000000008000460        0x0
+ .iplt          0x0000000008000460        0x0 bootloader.o
+
+.rodata         0x0000000008000460      0x100
+                0x0000000008000460                . = ALIGN (0x4)
+ *(.rodata)
+ .rodata        0x0000000008000460      0x100 bootloader.o
+ *(.rodata*)
+                0x0000000008000560                . = ALIGN (0x4)
+
+.rel.dyn        0x0000000008000560        0x0
+ .rel.iplt      0x0000000008000560        0x0 bootloader.o
+
+.ARM.extab      0x0000000008000560        0x0
+                0x0000000008000560                . = ALIGN (0x4)
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+                0x0000000008000560                . = ALIGN (0x4)
+
+.ARM            0x0000000008000560        0x0
+                0x0000000008000560                . = ALIGN (0x4)
+                0x0000000008000560                __exidx_start = .
+ *(.ARM.exidx*)
+                0x0000000008000560                __exidx_end = .
+                0x0000000008000560                . = ALIGN (0x4)
+
+.preinit_array  0x0000000008000560        0x0
+                0x0000000008000560                . = ALIGN (0x4)
+                [!provide]                        PROVIDE (__preinit_array_start = .)
+ *(.preinit_array*)
+                [!provide]                        PROVIDE (__preinit_array_end = .)
+                0x0000000008000560                . = ALIGN (0x4)
+
+.init_array     0x0000000008000560        0x0
+                0x0000000008000560                . = ALIGN (0x4)
+                [!provide]                        PROVIDE (__init_array_start = .)
+ *(SORT_BY_NAME(.init_array.*))
+ *(.init_array*)
+                [!provide]                        PROVIDE (__init_array_end = .)
+                0x0000000008000560                . = ALIGN (0x4)
+
+.fini_array     0x0000000008000560        0x0
+                0x0000000008000560                . = ALIGN (0x4)
+                [!provide]                        PROVIDE (__fini_array_start = .)
+ *(SORT_BY_NAME(.fini_array.*))
+ *(.fini_array*)
+                [!provide]                        PROVIDE (__fini_array_end = .)
+                0x0000000008000560                . = ALIGN (0x4)
+                0x0000000008000560                _sidata = LOADADDR (.data)
+
+.data           0x0000000020000000        0x0 load address 0x0000000008000560
+                0x0000000020000000                . = ALIGN (0x4)
+                0x0000000020000000                _sdata = .
+ *(.data)
+ .data          0x0000000020000000        0x0 bootloader.o
+ *(.data*)
+ *(.RamFunc)
+ *(.RamFunc*)
+                0x0000000020000000                . = ALIGN (0x4)
+                0x0000000020000000                _edata = .
+
+.igot.plt       0x0000000020000000        0x0 load address 0x0000000008000560
+ .igot.plt      0x0000000020000000        0x0 bootloader.o
+                0x0000000020000000                . = ALIGN (0x4)
+
+.bss            0x0000000020000000        0x0 load address 0x0000000008000560
+                0x0000000020000000                _sbss = .
+                0x0000000020000000                __bss_start__ = _sbss
+ *(.bss)
+ .bss           0x0000000020000000        0x0 bootloader.o
+ *(.bss*)
+ *(COMMON)
+                0x0000000020000000                . = ALIGN (0x4)
+                0x0000000020000000                _ebss = .
+                0x0000000020000000                __bss_end__ = _ebss
+
+._user_heap_stack
+                0x0000000020000000      0x600 load address 0x0000000008000560
+                0x0000000020000000                . = ALIGN (0x8)
+                [!provide]                        PROVIDE (end = .)
+                [!provide]                        PROVIDE (_end = .)
+                0x0000000020000200                . = (. + _Min_Heap_Size)
+ *fill*         0x0000000020000000      0x200 
+                0x0000000020000600                . = (. + _Min_Stack_Size)
+ *fill*         0x0000000020000200      0x400 
+                0x0000000020000600                . = ALIGN (0x8)
+
+/DISCARD/
+ libc.a(*)
+ libm.a(*)
+ libgcc.a(*)
+
+.ARM.attributes
+                0x0000000000000000       0x2e
+ *(.ARM.attributes)
+ .ARM.attributes
+                0x0000000000000000       0x2e bootloader.o
+OUTPUT(boot.elf elf32-littlearm)
+LOAD linker stubs
+LOAD /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/libc.a
+LOAD /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/libm.a
+LOAD /usr/lib/gcc/arm-none-eabi/10.3.1/libgcc.a
+
+.debug_info     0x0000000000000000      0x8d1
+ .debug_info    0x0000000000000000      0x8d1 bootloader.o
+
+.debug_abbrev   0x0000000000000000      0x227
+ .debug_abbrev  0x0000000000000000      0x227 bootloader.o
+
+.debug_aranges  0x0000000000000000       0x20
+ .debug_aranges
+                0x0000000000000000       0x20 bootloader.o
+
+.debug_line     0x0000000000000000      0x3dd
+ .debug_line    0x0000000000000000      0x3dd bootloader.o
+
+.debug_str      0x0000000000000000      0x457
+ .debug_str     0x0000000000000000      0x457 bootloader.o
+                                        0x4a4 (size before relaxing)
+
+.comment        0x0000000000000000       0x33
+ .comment       0x0000000000000000       0x33 bootloader.o
+                                         0x34 (size before relaxing)
+
+.debug_frame    0x0000000000000000      0x110
+ .debug_frame   0x0000000000000000      0x110 bootloader.o

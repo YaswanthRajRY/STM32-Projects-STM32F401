@@ -43,7 +43,7 @@ void bootloader_Reset_Handler()
 
     RCC->AHB1ENR |= 0x1; // Enable GPIO A clock
     GPIOA->MODER &= ~(0x3); // Set as input mode
-    GPIOA->PUPDR |= 0x1; // pull-down
+    GPIOA->PUPDR |= 0x1; // pull-up
 
     if (!(GPIOA->IDR & 1))
     {
@@ -120,7 +120,7 @@ void update_firmware()
     FLASH->CR |= FLASH_CR_PSIZE_1; // write 4 bytes
     FLASH->CR |= FLASH_CR_PG; // Enable flash programming mode
 
-    uart_send_msg("Ready to flash firmware - - - > ");
+    uart_send_msg("Flash new firmware - - - > ");
     while (1)
     {
         uint16_t received_byte = uart_receive(buffer, 256);
