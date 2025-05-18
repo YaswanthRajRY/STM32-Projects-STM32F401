@@ -1,0 +1,180 @@
+ARM GAS  /tmp/ccO7EjVq.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"log.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text._write,"ax",%progbits
+  18              		.align	1
+  19              		.global	_write
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	_write:
+  27              	.LVL0:
+  28              	.LFB137:
+  29              		.file 1 "src/log.c"
+   1:src/log.c     **** #include <stdio.h>
+   2:src/log.c     **** #include "stm32f401xc.h"
+   3:src/log.c     **** 
+   4:src/log.c     **** // For GCC-based toolchains (STM32CubeIDE, PlatformIO)
+   5:src/log.c     **** int _write(int fd, char *ptr, int len)
+   6:src/log.c     **** {
+  30              		.loc 1 6 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 6 1 is_stmt 0 view .LVU1
+  35 0000 1046     		mov	r0, r2
+  36              	.LVL1:
+   7:src/log.c     ****     (void)fd;
+  37              		.loc 1 7 5 is_stmt 1 view .LVU2
+   8:src/log.c     ****     for (int i = 0; i < len; i++) 
+  38              		.loc 1 8 5 view .LVU3
+  39              	.LBB2:
+  40              		.loc 1 8 10 view .LVU4
+  41              		.loc 1 8 14 is_stmt 0 view .LVU5
+  42 0002 4FF0000C 		mov	ip, #0
+  43              	.LVL2:
+  44              		.loc 1 8 21 is_stmt 1 view .LVU6
+  45              		.loc 1 8 5 is_stmt 0 view .LVU7
+  46 0006 9445     		cmp	ip, r2
+  47 0008 1FDA     		bge	.L11
+  48              	.LBE2:
+   6:src/log.c     ****     (void)fd;
+  49              		.loc 1 6 1 view .LVU8
+ARM GAS  /tmp/ccO7EjVq.s 			page 2
+
+
+  50 000a 00B5     		push	{lr}
+  51              	.LCFI0:
+  52              		.cfi_def_cfa_offset 4
+  53              		.cfi_offset 14, -4
+  54 000c 0CE0     		b	.L6
+  55              	.LVL3:
+  56              	.L5:
+  57              	.LBB3:
+   9:src/log.c     ****     {
+  10:src/log.c     ****         // Convert '\n' to "\r\n" for UART terminals
+  11:src/log.c     ****         if (ptr[i] == '\n')
+  12:src/log.c     ****         {
+  13:src/log.c     ****             while (!(USART2->SR & USART_SR_TXE));
+  14:src/log.c     ****             USART2->DR = '\r';
+  15:src/log.c     ****         }
+  16:src/log.c     **** 
+  17:src/log.c     ****         // Send character
+  18:src/log.c     ****         while (!(USART2->SR & USART_SR_TXE));
+  58              		.loc 1 18 45 is_stmt 1 discriminator 1 view .LVU9
+  59              		.loc 1 18 15 discriminator 1 view .LVU10
+  60              		.loc 1 18 24 is_stmt 0 discriminator 1 view .LVU11
+  61 000e 0F4B     		ldr	r3, .L13
+  62 0010 1B68     		ldr	r3, [r3]
+  63              		.loc 1 18 15 discriminator 1 view .LVU12
+  64 0012 13F0800F 		tst	r3, #128
+  65 0016 FAD0     		beq	.L5
+  19:src/log.c     ****         USART2->DR = ptr[i];
+  66              		.loc 1 19 9 is_stmt 1 discriminator 2 view .LVU13
+  67              		.loc 1 19 25 is_stmt 0 discriminator 2 view .LVU14
+  68 0018 9EF80020 		ldrb	r2, [lr]	@ zero_extendqisi2
+  69              		.loc 1 19 20 discriminator 2 view .LVU15
+  70 001c 0B4B     		ldr	r3, .L13
+  71 001e 5A60     		str	r2, [r3, #4]
+   8:src/log.c     ****     {
+  72              		.loc 1 8 30 is_stmt 1 discriminator 2 view .LVU16
+   8:src/log.c     ****     {
+  73              		.loc 1 8 31 is_stmt 0 discriminator 2 view .LVU17
+  74 0020 0CF1010C 		add	ip, ip, #1
+  75              	.LVL4:
+   8:src/log.c     ****     {
+  76              		.loc 1 8 21 is_stmt 1 discriminator 2 view .LVU18
+   8:src/log.c     ****     {
+  77              		.loc 1 8 5 is_stmt 0 discriminator 2 view .LVU19
+  78 0024 8445     		cmp	ip, r0
+  79 0026 0EDA     		bge	.L12
+  80              	.L6:
+  11:src/log.c     ****         {
+  81              		.loc 1 11 9 is_stmt 1 view .LVU20
+  11:src/log.c     ****         {
+  82              		.loc 1 11 16 is_stmt 0 view .LVU21
+  83 0028 01EB0C0E 		add	lr, r1, ip
+  84 002c 11F80C30 		ldrb	r3, [r1, ip]	@ zero_extendqisi2
+  11:src/log.c     ****         {
+  85              		.loc 1 11 12 view .LVU22
+  86 0030 0A2B     		cmp	r3, #10
+  87 0032 ECD1     		bne	.L5
+  88              	.L4:
+ARM GAS  /tmp/ccO7EjVq.s 			page 3
+
+
+  13:src/log.c     ****             USART2->DR = '\r';
+  89              		.loc 1 13 49 is_stmt 1 discriminator 1 view .LVU23
+  13:src/log.c     ****             USART2->DR = '\r';
+  90              		.loc 1 13 19 discriminator 1 view .LVU24
+  13:src/log.c     ****             USART2->DR = '\r';
+  91              		.loc 1 13 28 is_stmt 0 discriminator 1 view .LVU25
+  92 0034 054B     		ldr	r3, .L13
+  93 0036 1B68     		ldr	r3, [r3]
+  13:src/log.c     ****             USART2->DR = '\r';
+  94              		.loc 1 13 19 discriminator 1 view .LVU26
+  95 0038 13F0800F 		tst	r3, #128
+  96 003c FAD0     		beq	.L4
+  14:src/log.c     ****         }
+  97              		.loc 1 14 13 is_stmt 1 view .LVU27
+  14:src/log.c     ****         }
+  98              		.loc 1 14 24 is_stmt 0 view .LVU28
+  99 003e 034B     		ldr	r3, .L13
+ 100 0040 0D22     		movs	r2, #13
+ 101 0042 5A60     		str	r2, [r3, #4]
+ 102 0044 E3E7     		b	.L5
+ 103              	.L12:
+  14:src/log.c     ****         }
+ 104              		.loc 1 14 24 view .LVU29
+ 105              	.LBE3:
+  20:src/log.c     ****     }
+  21:src/log.c     ****     return len;
+ 106              		.loc 1 21 5 is_stmt 1 view .LVU30
+  22:src/log.c     **** }...
+ 107              		.loc 1 22 1 is_stmt 0 view .LVU31
+ 108 0046 5DF804FB 		ldr	pc, [sp], #4
+ 109              	.L11:
+ 110              	.LCFI1:
+ 111              		.cfi_def_cfa_offset 0
+ 112              		.cfi_restore 14
+ 113              		.loc 1 22 1 view .LVU32
+ 114 004a 7047     		bx	lr
+ 115              	.L14:
+ 116              		.align	2
+ 117              	.L13:
+ 118 004c 00440040 		.word	1073759232
+ 119              		.cfi_endproc
+ 120              	.LFE137:
+ 122              		.text
+ 123              	.Letext0:
+ 124              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 125              		.file 3 "/usr/include/newlib/sys/_stdint.h"
+ 126              		.file 4 "driver/Device/stm32f401xc.h"
+ARM GAS  /tmp/ccO7EjVq.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 log.c
+     /tmp/ccO7EjVq.s:18     .text._write:0000000000000000 $t
+     /tmp/ccO7EjVq.s:26     .text._write:0000000000000000 _write
+     /tmp/ccO7EjVq.s:118    .text._write:000000000000004c $d
+
+NO UNDEFINED SYMBOLS

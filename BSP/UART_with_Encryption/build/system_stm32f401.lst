@@ -1,0 +1,619 @@
+ARM GAS  /tmp/cc9LOucR.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"system_stm32f401.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.SetSystemClock,"ax",%progbits
+  18              		.align	1
+  19              		.global	SetSystemClock
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	SetSystemClock:
+  27              	.LFB134:
+  28              		.file 1 "src/system_stm32f401.c"
+   1:src/system_stm32f401.c **** #include "stm32f401xc.h"
+   2:src/system_stm32f401.c **** 
+   3:src/system_stm32f401.c **** #define PLLM (25U)
+   4:src/system_stm32f401.c **** #define PLLN (252U << 6)
+   5:src/system_stm32f401.c **** #define PLLP (1U << 17)
+   6:src/system_stm32f401.c **** 
+   7:src/system_stm32f401.c **** #define HSI_VALUE    ((uint32_t)16000000)
+   8:src/system_stm32f401.c **** #define HSE_VALUE    ((uint32_t)25000000)
+   9:src/system_stm32f401.c **** 
+  10:src/system_stm32f401.c **** uint32_t SystemCoreClock = 16000000;
+  11:src/system_stm32f401.c **** uint32_t APB1peripheralClock;
+  12:src/system_stm32f401.c **** uint32_t APB2peripheralClock;
+  13:src/system_stm32f401.c **** 
+  14:src/system_stm32f401.c **** static const uint8_t  AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
+  15:src/system_stm32f401.c **** static const uint8_t  APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
+  16:src/system_stm32f401.c **** 
+  17:src/system_stm32f401.c **** /**
+  18:src/system_stm32f401.c ****  * @brief This function uses HSE oscillator and PLL uaes as the system clock.
+  19:src/system_stm32f401.c ****  * 
+  20:src/system_stm32f401.c ****  * System core clock: 48Mhz
+  21:src/system_stm32f401.c ****  * APB1 pheripheral clock: 48Mhz
+  22:src/system_stm32f401.c ****  * APB2 pheripheral clock: 48Mhz
+  23:src/system_stm32f401.c ****  */
+  24:src/system_stm32f401.c **** void SetSystemClock(void)
+  25:src/system_stm32f401.c **** {
+  29              		.loc 1 25 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+ARM GAS  /tmp/cc9LOucR.s 			page 2
+
+
+  26:src/system_stm32f401.c ****     // Enable HSE clock
+  27:src/system_stm32f401.c ****     RCC->CR |= RCC_CR_HSEON;
+  34              		.loc 1 27 5 view .LVU1
+  35              		.loc 1 27 13 is_stmt 0 view .LVU2
+  36 0000 1D4A     		ldr	r2, .L5
+  37 0002 1368     		ldr	r3, [r2]
+  38 0004 43F48033 		orr	r3, r3, #65536
+  39 0008 1360     		str	r3, [r2]
+  28:src/system_stm32f401.c ****     while (!(RCC->CR & RCC_CR_HSERDY));
+  40              		.loc 1 28 5 is_stmt 1 view .LVU3
+  41              	.L2:
+  42              		.loc 1 28 39 discriminator 1 view .LVU4
+  43              		.loc 1 28 11 discriminator 1 view .LVU5
+  44              		.loc 1 28 17 is_stmt 0 discriminator 1 view .LVU6
+  45 000a 1B4B     		ldr	r3, .L5
+  46 000c 1B68     		ldr	r3, [r3]
+  47              		.loc 1 28 11 discriminator 1 view .LVU7
+  48 000e 13F4003F 		tst	r3, #131072
+  49 0012 FAD0     		beq	.L2
+  29:src/system_stm32f401.c ****     
+  30:src/system_stm32f401.c ****     // Set HSE as a PLL clock source
+  31:src/system_stm32f401.c ****     RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_HSE;
+  50              		.loc 1 31 5 is_stmt 1 view .LVU8
+  51              		.loc 1 31 18 is_stmt 0 view .LVU9
+  52 0014 184B     		ldr	r3, .L5
+  53 0016 5A68     		ldr	r2, [r3, #4]
+  54 0018 42F48002 		orr	r2, r2, #4194304
+  55 001c 5A60     		str	r2, [r3, #4]
+  32:src/system_stm32f401.c **** 
+  33:src/system_stm32f401.c ****     // Enable PWR pheripheral clock and set VOS scale as mode 2
+  34:src/system_stm32f401.c ****     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+  56              		.loc 1 34 5 is_stmt 1 view .LVU10
+  57              		.loc 1 34 18 is_stmt 0 view .LVU11
+  58 001e 1A6C     		ldr	r2, [r3, #64]
+  59 0020 42F08052 		orr	r2, r2, #268435456
+  60 0024 1A64     		str	r2, [r3, #64]
+  35:src/system_stm32f401.c ****     PWR->CR |= PWR_CR_VOS_1;
+  61              		.loc 1 35 5 is_stmt 1 view .LVU12
+  62              		.loc 1 35 13 is_stmt 0 view .LVU13
+  63 0026 1549     		ldr	r1, .L5+4
+  64 0028 0A68     		ldr	r2, [r1]
+  65 002a 42F40042 		orr	r2, r2, #32768
+  66 002e 0A60     		str	r2, [r1]
+  36:src/system_stm32f401.c **** 
+  37:src/system_stm32f401.c ****     // Set flash latency as 2WS and enable data cache, prefech and instruction cache
+  38:src/system_stm32f401.c ****     FLASH->ACR |= FLASH_ACR_LATENCY_2WS | FLASH_ACR_DCEN | FLASH_ACR_PRFTEN | FLASH_ACR_ICEN;
+  67              		.loc 1 38 5 is_stmt 1 view .LVU14
+  68              		.loc 1 38 16 is_stmt 0 view .LVU15
+  69 0030 01F5E631 		add	r1, r1, #117760
+  70 0034 0A68     		ldr	r2, [r1]
+  71 0036 42F4E062 		orr	r2, r2, #1792
+  72 003a 42F00202 		orr	r2, r2, #2
+  73 003e 0A60     		str	r2, [r1]
+  39:src/system_stm32f401.c **** 
+  40:src/system_stm32f401.c ****     // Set clock multiplication and division factor
+  41:src/system_stm32f401.c ****     RCC->PLLCFGR |= PLLM | PLLN | PLLP;
+  74              		.loc 1 41 5 is_stmt 1 view .LVU16
+ARM GAS  /tmp/cc9LOucR.s 			page 3
+
+
+  75              		.loc 1 41 18 is_stmt 0 view .LVU17
+  76 0040 5968     		ldr	r1, [r3, #4]
+  77 0042 0F4A     		ldr	r2, .L5+8
+  78 0044 0A43     		orrs	r2, r2, r1
+  79 0046 5A60     		str	r2, [r3, #4]
+  42:src/system_stm32f401.c **** 
+  43:src/system_stm32f401.c ****     RCC->CFGR |= RCC_CFGR_HPRE_DIV1 | RCC_CFGR_PPRE1_DIV1 | RCC_CFGR_PPRE2_DIV1;
+  80              		.loc 1 43 5 is_stmt 1 view .LVU18
+  81              		.loc 1 43 15 is_stmt 0 view .LVU19
+  82 0048 9A68     		ldr	r2, [r3, #8]
+  83 004a 9A60     		str	r2, [r3, #8]
+  44:src/system_stm32f401.c **** 
+  45:src/system_stm32f401.c ****     // Enable PLL and set PLL as system core clock
+  46:src/system_stm32f401.c ****     RCC->CR |= RCC_CR_PLLON;
+  84              		.loc 1 46 5 is_stmt 1 view .LVU20
+  85              		.loc 1 46 13 is_stmt 0 view .LVU21
+  86 004c 1A68     		ldr	r2, [r3]
+  87 004e 42F08072 		orr	r2, r2, #16777216
+  88 0052 1A60     		str	r2, [r3]
+  47:src/system_stm32f401.c ****     while (!(RCC->CR & RCC_CR_PLLRDY));
+  89              		.loc 1 47 5 is_stmt 1 view .LVU22
+  90              	.L3:
+  91              		.loc 1 47 39 discriminator 1 view .LVU23
+  92              		.loc 1 47 11 discriminator 1 view .LVU24
+  93              		.loc 1 47 17 is_stmt 0 discriminator 1 view .LVU25
+  94 0054 084B     		ldr	r3, .L5
+  95 0056 1B68     		ldr	r3, [r3]
+  96              		.loc 1 47 11 discriminator 1 view .LVU26
+  97 0058 13F0007F 		tst	r3, #33554432
+  98 005c FAD0     		beq	.L3
+  48:src/system_stm32f401.c **** 
+  49:src/system_stm32f401.c ****     RCC->CFGR |= RCC_CFGR_SW_PLL;
+  99              		.loc 1 49 5 is_stmt 1 view .LVU27
+ 100              		.loc 1 49 15 is_stmt 0 view .LVU28
+ 101 005e 064A     		ldr	r2, .L5
+ 102 0060 9368     		ldr	r3, [r2, #8]
+ 103 0062 43F00203 		orr	r3, r3, #2
+ 104 0066 9360     		str	r3, [r2, #8]
+  50:src/system_stm32f401.c ****     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_1);
+ 105              		.loc 1 50 5 is_stmt 1 view .LVU29
+ 106              	.L4:
+ 107              		.loc 1 50 57 discriminator 1 view .LVU30
+ 108              		.loc 1 50 11 discriminator 1 view .LVU31
+ 109              		.loc 1 50 16 is_stmt 0 discriminator 1 view .LVU32
+ 110 0068 034B     		ldr	r3, .L5
+ 111 006a 9B68     		ldr	r3, [r3, #8]
+ 112              		.loc 1 50 23 discriminator 1 view .LVU33
+ 113 006c 03F00C03 		and	r3, r3, #12
+ 114              		.loc 1 50 11 discriminator 1 view .LVU34
+ 115 0070 082B     		cmp	r3, #8
+ 116 0072 F9D1     		bne	.L4
+  51:src/system_stm32f401.c **** }
+ 117              		.loc 1 51 1 view .LVU35
+ 118 0074 7047     		bx	lr
+ 119              	.L6:
+ 120 0076 00BF     		.align	2
+ 121              	.L5:
+ARM GAS  /tmp/cc9LOucR.s 			page 4
+
+
+ 122 0078 00380240 		.word	1073887232
+ 123 007c 00700040 		.word	1073770496
+ 124 0080 193F0200 		.word	147225
+ 125              		.cfi_endproc
+ 126              	.LFE134:
+ 128              		.section	.text.SystemCoreClockUpdate,"ax",%progbits
+ 129              		.align	1
+ 130              		.global	SystemCoreClockUpdate
+ 131              		.syntax unified
+ 132              		.thumb
+ 133              		.thumb_func
+ 134              		.fpu fpv4-sp-d16
+ 136              	SystemCoreClockUpdate:
+ 137              	.LFB135:
+  52:src/system_stm32f401.c **** 
+  53:src/system_stm32f401.c **** /**
+  54:src/system_stm32f401.c ****  * @brief Updates SystemCoreClock, APB1peripheralClock and APB2peripheralClock variables
+  55:src/system_stm32f401.c ****  *        according to Clock Register Values.
+  56:src/system_stm32f401.c ****  * 
+  57:src/system_stm32f401.c ****  * @param SystemCoreClock
+  58:src/system_stm32f401.c ****  * @param APB1peripheralClock
+  59:src/system_stm32f401.c ****  * @param APB2peripheralClock
+  60:src/system_stm32f401.c **** */
+  61:src/system_stm32f401.c **** void SystemCoreClockUpdate(void)
+  62:src/system_stm32f401.c **** {
+ 138              		.loc 1 62 1 is_stmt 1 view -0
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142              		@ link register save eliminated.
+ 143 0000 10B4     		push	{r4}
+ 144              	.LCFI0:
+ 145              		.cfi_def_cfa_offset 4
+ 146              		.cfi_offset 4, -4
+  63:src/system_stm32f401.c ****     uint32_t tmp = 0, pllvco = 0, pllp = 2, pllsource = 0, pllm = 2;
+ 147              		.loc 1 63 5 view .LVU37
+ 148              	.LVL0:
+  64:src/system_stm32f401.c **** 
+  65:src/system_stm32f401.c ****     // Get clock source
+  66:src/system_stm32f401.c ****     tmp = RCC->CFGR & RCC_CFGR_SWS;
+ 149              		.loc 1 66 5 view .LVU38
+ 150              		.loc 1 66 14 is_stmt 0 view .LVU39
+ 151 0002 2B4B     		ldr	r3, .L16
+ 152 0004 9B68     		ldr	r3, [r3, #8]
+ 153              		.loc 1 66 9 view .LVU40
+ 154 0006 03F00C03 		and	r3, r3, #12
+ 155              	.LVL1:
+  67:src/system_stm32f401.c **** 
+  68:src/system_stm32f401.c ****     switch (tmp)
+ 156              		.loc 1 68 5 is_stmt 1 view .LVU41
+ 157 000a 042B     		cmp	r3, #4
+ 158 000c 26D0     		beq	.L8
+ 159 000e 082B     		cmp	r3, #8
+ 160 0010 28D0     		beq	.L9
+ 161 0012 1BB1     		cbz	r3, .L15
+  69:src/system_stm32f401.c ****     {
+  70:src/system_stm32f401.c ****         // HSI used as system clock source
+ARM GAS  /tmp/cc9LOucR.s 			page 5
+
+
+  71:src/system_stm32f401.c ****         case 0x00:
+  72:src/system_stm32f401.c ****                     SystemCoreClock = HSI_VALUE;
+  73:src/system_stm32f401.c ****                     break;
+  74:src/system_stm32f401.c **** 
+  75:src/system_stm32f401.c ****         // HSE used as system clock source
+  76:src/system_stm32f401.c ****         case 0x04:
+  77:src/system_stm32f401.c ****                     SystemCoreClock = HSE_VALUE;
+  78:src/system_stm32f401.c ****                     break;
+  79:src/system_stm32f401.c **** 
+  80:src/system_stm32f401.c ****         // PLL used as system clock source
+  81:src/system_stm32f401.c ****         case 0x08:
+  82:src/system_stm32f401.c ****                     pllsource = (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC) >> 22;
+  83:src/system_stm32f401.c ****                     pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+  84:src/system_stm32f401.c ****       
+  85:src/system_stm32f401.c ****                     if (pllsource != 0)
+  86:src/system_stm32f401.c ****                     {
+  87:src/system_stm32f401.c ****                         pllvco = (HSE_VALUE / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6); // 
+  88:src/system_stm32f401.c ****                     }
+  89:src/system_stm32f401.c ****                     else
+  90:src/system_stm32f401.c ****                     {
+  91:src/system_stm32f401.c ****                         pllvco = (HSI_VALUE / pllm) * ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> 6); // 
+  92:src/system_stm32f401.c ****                     }
+  93:src/system_stm32f401.c **** 
+  94:src/system_stm32f401.c ****                     pllp = (((RCC->PLLCFGR & RCC_PLLCFGR_PLLP) >>16) + 1 ) *2;
+  95:src/system_stm32f401.c ****                     SystemCoreClock = pllvco/pllp;
+  96:src/system_stm32f401.c ****                     break;
+  97:src/system_stm32f401.c **** 
+  98:src/system_stm32f401.c ****         default:
+  99:src/system_stm32f401.c ****                     SystemCoreClock = HSI_VALUE;
+ 162              		.loc 1 99 21 view .LVU42
+ 163              		.loc 1 99 37 is_stmt 0 view .LVU43
+ 164 0014 274B     		ldr	r3, .L16+4
+ 165              	.LVL2:
+ 166              		.loc 1 99 37 view .LVU44
+ 167 0016 284A     		ldr	r2, .L16+8
+ 168 0018 1A60     		str	r2, [r3]
+ 100:src/system_stm32f401.c ****                     break;
+ 169              		.loc 1 100 21 is_stmt 1 view .LVU45
+ 170 001a 02E0     		b	.L11
+ 171              	.LVL3:
+ 172              	.L15:
+  72:src/system_stm32f401.c ****                     break;
+ 173              		.loc 1 72 21 view .LVU46
+  72:src/system_stm32f401.c ****                     break;
+ 174              		.loc 1 72 37 is_stmt 0 view .LVU47
+ 175 001c 254B     		ldr	r3, .L16+4
+ 176              	.LVL4:
+  72:src/system_stm32f401.c ****                     break;
+ 177              		.loc 1 72 37 view .LVU48
+ 178 001e 264A     		ldr	r2, .L16+8
+ 179 0020 1A60     		str	r2, [r3]
+  73:src/system_stm32f401.c **** 
+ 180              		.loc 1 73 21 is_stmt 1 view .LVU49
+ 181              	.LVL5:
+ 182              	.L11:
+ 101:src/system_stm32f401.c ****     }
+ 102:src/system_stm32f401.c **** 
+ARM GAS  /tmp/cc9LOucR.s 			page 6
+
+
+ 103:src/system_stm32f401.c ****     // Compute HCLK frequency
+ 104:src/system_stm32f401.c ****     tmp = AHBPrescTable[((RCC->CFGR & RCC_CFGR_HPRE) >> 4)]; // Get HCLK prescaler
+ 183              		.loc 1 104 5 view .LVU50
+ 184              		.loc 1 104 30 is_stmt 0 view .LVU51
+ 185 0022 234A     		ldr	r2, .L16
+ 186 0024 9368     		ldr	r3, [r2, #8]
+ 187              		.loc 1 104 54 view .LVU52
+ 188 0026 C3F30313 		ubfx	r3, r3, #4, #4
+ 189              		.loc 1 104 24 view .LVU53
+ 190 002a 2449     		ldr	r1, .L16+12
+ 191 002c C85C     		ldrb	r0, [r1, r3]	@ zero_extendqisi2
+ 192              	.LVL6:
+ 105:src/system_stm32f401.c ****     // HCLK frequency
+ 106:src/system_stm32f401.c ****     SystemCoreClock >>= tmp;
+ 193              		.loc 1 106 5 is_stmt 1 view .LVU54
+ 194              		.loc 1 106 21 is_stmt 0 view .LVU55
+ 195 002e 2149     		ldr	r1, .L16+4
+ 196 0030 0B68     		ldr	r3, [r1]
+ 197 0032 C340     		lsrs	r3, r3, r0
+ 198 0034 0B60     		str	r3, [r1]
+ 107:src/system_stm32f401.c **** 
+ 108:src/system_stm32f401.c ****     // Compute ABP1 pheripheral clock
+ 109:src/system_stm32f401.c ****     tmp = APBPrescTable[((RCC->CFGR & RCC_CFGR_PPRE1) >> 10)]; // Get APB1 prescaler
+ 199              		.loc 1 109 5 is_stmt 1 view .LVU56
+ 200              		.loc 1 109 30 is_stmt 0 view .LVU57
+ 201 0036 9168     		ldr	r1, [r2, #8]
+ 202              		.loc 1 109 55 view .LVU58
+ 203 0038 C1F38221 		ubfx	r1, r1, #10, #3
+ 204              		.loc 1 109 24 view .LVU59
+ 205 003c 2048     		ldr	r0, .L16+16
+ 206              	.LVL7:
+ 207              		.loc 1 109 24 view .LVU60
+ 208 003e 415C     		ldrb	r1, [r0, r1]	@ zero_extendqisi2
+ 209              	.LVL8:
+ 110:src/system_stm32f401.c ****     // APB1 peripheral clock
+ 111:src/system_stm32f401.c ****     APB1peripheralClock = SystemCoreClock >> tmp;
+ 210              		.loc 1 111 5 is_stmt 1 view .LVU61
+ 211              		.loc 1 111 43 is_stmt 0 view .LVU62
+ 212 0040 23FA01F1 		lsr	r1, r3, r1
+ 213              	.LVL9:
+ 214              		.loc 1 111 25 view .LVU63
+ 215 0044 1F4C     		ldr	r4, .L16+20
+ 216 0046 2160     		str	r1, [r4]
+ 112:src/system_stm32f401.c **** 
+ 113:src/system_stm32f401.c ****     // Compute APB2 pheripheral clock
+ 114:src/system_stm32f401.c ****     tmp = APBPrescTable[((RCC->CFGR & RCC_CFGR_PPRE2) >> 13)]; // Get APB1 prescaler
+ 217              		.loc 1 114 5 is_stmt 1 view .LVU64
+ 218              		.loc 1 114 30 is_stmt 0 view .LVU65
+ 219 0048 9268     		ldr	r2, [r2, #8]
+ 220              		.loc 1 114 55 view .LVU66
+ 221 004a C2F34232 		ubfx	r2, r2, #13, #3
+ 222              		.loc 1 114 24 view .LVU67
+ 223 004e 825C     		ldrb	r2, [r0, r2]	@ zero_extendqisi2
+ 224              	.LVL10:
+ 115:src/system_stm32f401.c ****     // APB1 peripheral clock
+ 116:src/system_stm32f401.c ****     APB2peripheralClock = SystemCoreClock >> tmp;
+ 225              		.loc 1 116 5 is_stmt 1 view .LVU68
+ARM GAS  /tmp/cc9LOucR.s 			page 7
+
+
+ 226              		.loc 1 116 43 is_stmt 0 view .LVU69
+ 227 0050 D340     		lsrs	r3, r3, r2
+ 228              		.loc 1 116 25 view .LVU70
+ 229 0052 1D4A     		ldr	r2, .L16+24
+ 230              	.LVL11:
+ 231              		.loc 1 116 25 view .LVU71
+ 232 0054 1360     		str	r3, [r2]
+ 117:src/system_stm32f401.c **** }
+ 233              		.loc 1 117 1 view .LVU72
+ 234 0056 5DF8044B 		ldr	r4, [sp], #4
+ 235              	.LCFI1:
+ 236              		.cfi_remember_state
+ 237              		.cfi_restore 4
+ 238              		.cfi_def_cfa_offset 0
+ 239 005a 7047     		bx	lr
+ 240              	.LVL12:
+ 241              	.L8:
+ 242              	.LCFI2:
+ 243              		.cfi_restore_state
+  77:src/system_stm32f401.c ****                     break;
+ 244              		.loc 1 77 21 is_stmt 1 view .LVU73
+  77:src/system_stm32f401.c ****                     break;
+ 245              		.loc 1 77 37 is_stmt 0 view .LVU74
+ 246 005c 154B     		ldr	r3, .L16+4
+ 247              	.LVL13:
+  77:src/system_stm32f401.c ****                     break;
+ 248              		.loc 1 77 37 view .LVU75
+ 249 005e 1B4A     		ldr	r2, .L16+28
+ 250 0060 1A60     		str	r2, [r3]
+  78:src/system_stm32f401.c **** 
+ 251              		.loc 1 78 21 is_stmt 1 view .LVU76
+ 252 0062 DEE7     		b	.L11
+ 253              	.LVL14:
+ 254              	.L9:
+  82:src/system_stm32f401.c ****                     pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+ 255              		.loc 1 82 21 view .LVU77
+  82:src/system_stm32f401.c ****                     pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+ 256              		.loc 1 82 37 is_stmt 0 view .LVU78
+ 257 0064 124B     		ldr	r3, .L16
+ 258              	.LVL15:
+  82:src/system_stm32f401.c ****                     pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
+ 259              		.loc 1 82 37 view .LVU79
+ 260 0066 5968     		ldr	r1, [r3, #4]
+ 261              	.LVL16:
+  83:src/system_stm32f401.c ****       
+ 262              		.loc 1 83 21 is_stmt 1 view .LVU80
+  83:src/system_stm32f401.c ****       
+ 263              		.loc 1 83 31 is_stmt 0 view .LVU81
+ 264 0068 5A68     		ldr	r2, [r3, #4]
+  83:src/system_stm32f401.c ****       
+ 265              		.loc 1 83 26 view .LVU82
+ 266 006a 02F03F02 		and	r2, r2, #63
+ 267              	.LVL17:
+  85:src/system_stm32f401.c ****                     {
+ 268              		.loc 1 85 21 is_stmt 1 view .LVU83
+  85:src/system_stm32f401.c ****                     {
+ 269              		.loc 1 85 24 is_stmt 0 view .LVU84
+ARM GAS  /tmp/cc9LOucR.s 			page 8
+
+
+ 270 006e 11F4800F 		tst	r1, #4194304
+ 271 0072 13D0     		beq	.L12
+  87:src/system_stm32f401.c ****                     }
+ 272              		.loc 1 87 25 is_stmt 1 view .LVU85
+  87:src/system_stm32f401.c ****                     }
+ 273              		.loc 1 87 45 is_stmt 0 view .LVU86
+ 274 0074 154B     		ldr	r3, .L16+28
+ 275 0076 B3FBF2F3 		udiv	r3, r3, r2
+  87:src/system_stm32f401.c ****                     }
+ 276              		.loc 1 87 60 view .LVU87
+ 277 007a 0D4A     		ldr	r2, .L16
+ 278              	.LVL18:
+  87:src/system_stm32f401.c ****                     }
+ 279              		.loc 1 87 60 view .LVU88
+ 280 007c 5268     		ldr	r2, [r2, #4]
+  87:src/system_stm32f401.c ****                     }
+ 281              		.loc 1 87 90 view .LVU89
+ 282 007e C2F38812 		ubfx	r2, r2, #6, #9
+  87:src/system_stm32f401.c ****                     }
+ 283              		.loc 1 87 32 view .LVU90
+ 284 0082 02FB03F3 		mul	r3, r2, r3
+ 285              	.LVL19:
+ 286              	.L13:
+  94:src/system_stm32f401.c ****                     SystemCoreClock = pllvco/pllp;
+ 287              		.loc 1 94 21 is_stmt 1 view .LVU91
+  94:src/system_stm32f401.c ****                     SystemCoreClock = pllvco/pllp;
+ 288              		.loc 1 94 34 is_stmt 0 view .LVU92
+ 289 0086 0A4A     		ldr	r2, .L16
+ 290 0088 5268     		ldr	r2, [r2, #4]
+  94:src/system_stm32f401.c ****                     SystemCoreClock = pllvco/pllp;
+ 291              		.loc 1 94 64 view .LVU93
+ 292 008a C2F30142 		ubfx	r2, r2, #16, #2
+  94:src/system_stm32f401.c ****                     SystemCoreClock = pllvco/pllp;
+ 293              		.loc 1 94 70 view .LVU94
+ 294 008e 0132     		adds	r2, r2, #1
+  94:src/system_stm32f401.c ****                     SystemCoreClock = pllvco/pllp;
+ 295              		.loc 1 94 26 view .LVU95
+ 296 0090 5200     		lsls	r2, r2, #1
+ 297              	.LVL20:
+  95:src/system_stm32f401.c ****                     break;
+ 298              		.loc 1 95 21 is_stmt 1 view .LVU96
+  95:src/system_stm32f401.c ****                     break;
+ 299              		.loc 1 95 45 is_stmt 0 view .LVU97
+ 300 0092 B3FBF2F3 		udiv	r3, r3, r2
+ 301              	.LVL21:
+  95:src/system_stm32f401.c ****                     break;
+ 302              		.loc 1 95 37 view .LVU98
+ 303 0096 074A     		ldr	r2, .L16+4
+ 304              	.LVL22:
+  95:src/system_stm32f401.c ****                     break;
+ 305              		.loc 1 95 37 view .LVU99
+ 306 0098 1360     		str	r3, [r2]
+  96:src/system_stm32f401.c **** 
+ 307              		.loc 1 96 21 is_stmt 1 view .LVU100
+ 308 009a C2E7     		b	.L11
+ 309              	.LVL23:
+ 310              	.L12:
+ARM GAS  /tmp/cc9LOucR.s 			page 9
+
+
+  91:src/system_stm32f401.c ****                     }
+ 311              		.loc 1 91 25 view .LVU101
+  91:src/system_stm32f401.c ****                     }
+ 312              		.loc 1 91 45 is_stmt 0 view .LVU102
+ 313 009c 064B     		ldr	r3, .L16+8
+ 314 009e B3FBF2F3 		udiv	r3, r3, r2
+  91:src/system_stm32f401.c ****                     }
+ 315              		.loc 1 91 60 view .LVU103
+ 316 00a2 034A     		ldr	r2, .L16
+ 317              	.LVL24:
+  91:src/system_stm32f401.c ****                     }
+ 318              		.loc 1 91 60 view .LVU104
+ 319 00a4 5268     		ldr	r2, [r2, #4]
+  91:src/system_stm32f401.c ****                     }
+ 320              		.loc 1 91 90 view .LVU105
+ 321 00a6 C2F38812 		ubfx	r2, r2, #6, #9
+  91:src/system_stm32f401.c ****                     }
+ 322              		.loc 1 91 32 view .LVU106
+ 323 00aa 02FB03F3 		mul	r3, r2, r3
+ 324              	.LVL25:
+  91:src/system_stm32f401.c ****                     }
+ 325              		.loc 1 91 32 view .LVU107
+ 326 00ae EAE7     		b	.L13
+ 327              	.L17:
+ 328              		.align	2
+ 329              	.L16:
+ 330 00b0 00380240 		.word	1073887232
+ 331 00b4 00000000 		.word	.LANCHOR0
+ 332 00b8 0024F400 		.word	16000000
+ 333 00bc 00000000 		.word	.LANCHOR1
+ 334 00c0 00000000 		.word	.LANCHOR2
+ 335 00c4 00000000 		.word	.LANCHOR3
+ 336 00c8 00000000 		.word	.LANCHOR4
+ 337 00cc 40787D01 		.word	25000000
+ 338              		.cfi_endproc
+ 339              	.LFE135:
+ 341              		.section	.text.SystemInit,"ax",%progbits
+ 342              		.align	1
+ 343              		.global	SystemInit
+ 344              		.syntax unified
+ 345              		.thumb
+ 346              		.thumb_func
+ 347              		.fpu fpv4-sp-d16
+ 349              	SystemInit:
+ 350              	.LFB136:
+ 118:src/system_stm32f401.c **** 
+ 119:src/system_stm32f401.c **** void SystemInit(void)
+ 120:src/system_stm32f401.c **** {
+ 351              		.loc 1 120 1 is_stmt 1 view -0
+ 352              		.cfi_startproc
+ 353              		@ args = 0, pretend = 0, frame = 0
+ 354              		@ frame_needed = 0, uses_anonymous_args = 0
+ 355 0000 08B5     		push	{r3, lr}
+ 356              	.LCFI3:
+ 357              		.cfi_def_cfa_offset 8
+ 358              		.cfi_offset 3, -8
+ 359              		.cfi_offset 14, -4
+ARM GAS  /tmp/cc9LOucR.s 			page 10
+
+
+ 121:src/system_stm32f401.c ****     SetSystemClock();
+ 360              		.loc 1 121 5 view .LVU109
+ 361 0002 FFF7FEFF 		bl	SetSystemClock
+ 362              	.LVL26:
+ 122:src/system_stm32f401.c ****     SystemCoreClockUpdate();
+ 363              		.loc 1 122 5 view .LVU110
+ 364 0006 FFF7FEFF 		bl	SystemCoreClockUpdate
+ 365              	.LVL27:
+ 123:src/system_stm32f401.c **** }...
+ 366              		.loc 1 123 1 is_stmt 0 view .LVU111
+ 367 000a 08BD     		pop	{r3, pc}
+ 368              		.cfi_endproc
+ 369              	.LFE136:
+ 371              		.global	APB2peripheralClock
+ 372              		.global	APB1peripheralClock
+ 373              		.global	SystemCoreClock
+ 374              		.section	.bss.APB1peripheralClock,"aw",%nobits
+ 375              		.align	2
+ 376              		.set	.LANCHOR3,. + 0
+ 379              	APB1peripheralClock:
+ 380 0000 00000000 		.space	4
+ 381              		.section	.bss.APB2peripheralClock,"aw",%nobits
+ 382              		.align	2
+ 383              		.set	.LANCHOR4,. + 0
+ 386              	APB2peripheralClock:
+ 387 0000 00000000 		.space	4
+ 388              		.section	.data.SystemCoreClock,"aw"
+ 389              		.align	2
+ 390              		.set	.LANCHOR0,. + 0
+ 393              	SystemCoreClock:
+ 394 0000 0024F400 		.word	16000000
+ 395              		.section	.rodata.AHBPrescTable,"a"
+ 396              		.align	2
+ 397              		.set	.LANCHOR1,. + 0
+ 400              	AHBPrescTable:
+ 401 0000 00000000 		.ascii	"\000\000\000\000\000\000\000\000\001\002\003\004\006"
+ 401      00000000 
+ 401      01020304 
+ 401      06
+ 402 000d 070809   		.ascii	"\007\010\011"
+ 403              		.section	.rodata.APBPrescTable,"a"
+ 404              		.align	2
+ 405              		.set	.LANCHOR2,. + 0
+ 408              	APBPrescTable:
+ 409 0000 00000000 		.ascii	"\000\000\000\000\001\002\003\004"
+ 409      01020304 
+ 410              		.text
+ 411              	.Letext0:
+ 412              		.file 2 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ 413              		.file 3 "driver/Device/system_stm32f401.h"
+ 414              		.file 4 "driver/Device/stm32f401xc.h"
+ARM GAS  /tmp/cc9LOucR.s 			page 11
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 system_stm32f401.c
+     /tmp/cc9LOucR.s:18     .text.SetSystemClock:0000000000000000 $t
+     /tmp/cc9LOucR.s:26     .text.SetSystemClock:0000000000000000 SetSystemClock
+     /tmp/cc9LOucR.s:122    .text.SetSystemClock:0000000000000078 $d
+     /tmp/cc9LOucR.s:129    .text.SystemCoreClockUpdate:0000000000000000 $t
+     /tmp/cc9LOucR.s:136    .text.SystemCoreClockUpdate:0000000000000000 SystemCoreClockUpdate
+     /tmp/cc9LOucR.s:330    .text.SystemCoreClockUpdate:00000000000000b0 $d
+     /tmp/cc9LOucR.s:342    .text.SystemInit:0000000000000000 $t
+     /tmp/cc9LOucR.s:349    .text.SystemInit:0000000000000000 SystemInit
+     /tmp/cc9LOucR.s:386    .bss.APB2peripheralClock:0000000000000000 APB2peripheralClock
+     /tmp/cc9LOucR.s:379    .bss.APB1peripheralClock:0000000000000000 APB1peripheralClock
+     /tmp/cc9LOucR.s:393    .data.SystemCoreClock:0000000000000000 SystemCoreClock
+     /tmp/cc9LOucR.s:375    .bss.APB1peripheralClock:0000000000000000 $d
+     /tmp/cc9LOucR.s:382    .bss.APB2peripheralClock:0000000000000000 $d
+     /tmp/cc9LOucR.s:389    .data.SystemCoreClock:0000000000000000 $d
+     /tmp/cc9LOucR.s:396    .rodata.AHBPrescTable:0000000000000000 $d
+     /tmp/cc9LOucR.s:400    .rodata.AHBPrescTable:0000000000000000 AHBPrescTable
+     /tmp/cc9LOucR.s:404    .rodata.APBPrescTable:0000000000000000 $d
+     /tmp/cc9LOucR.s:408    .rodata.APBPrescTable:0000000000000000 APBPrescTable
+
+NO UNDEFINED SYMBOLS

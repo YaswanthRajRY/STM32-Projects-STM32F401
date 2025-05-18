@@ -1,0 +1,531 @@
+ARM GAS  /tmp/cc1LG9im.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.rodata.uart1_aes_encrypt.str1.4,"aMS",%progbits,1
+  18              		.align	2
+  19              	.LC0:
+  20 0000 456E6372 		.ascii	"Encrypted: \000"
+  20      79707465 
+  20      643A2000 
+  21              		.align	2
+  22              	.LC1:
+  23 000c 255800   		.ascii	"%X\000"
+  24              		.section	.text.uart1_aes_encrypt,"ax",%progbits
+  25              		.align	1
+  26              		.global	uart1_aes_encrypt
+  27              		.arch armv7e-m
+  28              		.syntax unified
+  29              		.thumb
+  30              		.thumb_func
+  31              		.fpu fpv4-sp-d16
+  33              	uart1_aes_encrypt:
+  34              	.LVL0:
+  35              	.LFB138:
+  36              		.file 1 "app/main.c"
+   1:app/main.c    **** #include "main.h"
+   2:app/main.c    **** 
+   3:app/main.c    **** void uart1_aes_encrypt(uint8_t* dt);
+   4:app/main.c    **** void uart1_aes_decrypt(uint8_t* dt);
+   5:app/main.c    **** uint8_t uart1_rx(void);
+   6:app/main.c    **** 
+   7:app/main.c    **** uint8_t a[16]; 
+   8:app/main.c    **** 
+   9:app/main.c    **** int main()
+  10:app/main.c    **** {
+  11:app/main.c    ****     SystemInit();
+  12:app/main.c    ****     aes_init();
+  13:app/main.c    ****     uart1_init(115200);
+  14:app/main.c    ****     uart2_init(115200);
+  15:app/main.c    ****     //uart6_init(115200);
+  16:app/main.c    ****     
+  17:app/main.c    ****     printf("******** UART with AES encryption ********\n");
+  18:app/main.c    **** 
+  19:app/main.c    ****     uint8_t str[16] = "Hello, World! :)";
+  20:app/main.c    ****     printf("Original: %s\n", str);
+ARM GAS  /tmp/cc1LG9im.s 			page 2
+
+
+  21:app/main.c    ****     uart1_aes_encrypt(str);
+  22:app/main.c    **** 
+  23:app/main.c    ****     uart1_aes_decrypt(a);
+  24:app/main.c    **** 
+  25:app/main.c    ****     while (1)
+  26:app/main.c    ****     {
+  27:app/main.c    **** 
+  28:app/main.c    ****     }
+  29:app/main.c    **** }
+  30:app/main.c    **** 
+  31:app/main.c    **** void uart1_aes_encrypt(uint8_t* dt)
+  32:app/main.c    **** {
+  37              		.loc 1 32 1 view -0
+  38              		.cfi_startproc
+  39              		@ args = 0, pretend = 0, frame = 0
+  40              		@ frame_needed = 0, uses_anonymous_args = 0
+  41              		.loc 1 32 1 is_stmt 0 view .LVU1
+  42 0000 38B5     		push	{r3, r4, r5, lr}
+  43              	.LCFI0:
+  44              		.cfi_def_cfa_offset 16
+  45              		.cfi_offset 3, -16
+  46              		.cfi_offset 4, -12
+  47              		.cfi_offset 5, -8
+  48              		.cfi_offset 14, -4
+  33:app/main.c    ****     uint8_t* tx = aes_encryption(dt);
+  49              		.loc 1 33 5 is_stmt 1 view .LVU2
+  50              		.loc 1 33 19 is_stmt 0 view .LVU3
+  51 0002 FFF7FEFF 		bl	aes_encryption
+  52              	.LVL1:
+  53              		.loc 1 33 19 view .LVU4
+  54 0006 0546     		mov	r5, r0
+  55              	.LVL2:
+  34:app/main.c    ****     printf("Encrypted: ");
+  56              		.loc 1 34 5 is_stmt 1 view .LVU5
+  57 0008 1248     		ldr	r0, .L8
+  58              	.LVL3:
+  59              		.loc 1 34 5 is_stmt 0 view .LVU6
+  60 000a FFF7FEFF 		bl	printf
+  61              	.LVL4:
+  35:app/main.c    ****     for(int i=0; i<16; i++)
+  62              		.loc 1 35 5 is_stmt 1 view .LVU7
+  63              	.LBB2:
+  64              		.loc 1 35 9 view .LVU8
+  65              		.loc 1 35 13 is_stmt 0 view .LVU9
+  66 000e 0024     		movs	r4, #0
+  67              		.loc 1 35 5 view .LVU10
+  68 0010 04E0     		b	.L2
+  69              	.LVL5:
+  70              	.L3:
+  36:app/main.c    ****     {
+  37:app/main.c    ****         printf("%X", tx[i]);
+  71              		.loc 1 37 9 is_stmt 1 discriminator 3 view .LVU11
+  72 0012 295D     		ldrb	r1, [r5, r4]	@ zero_extendqisi2
+  73 0014 1048     		ldr	r0, .L8+4
+  74 0016 FFF7FEFF 		bl	printf
+  75              	.LVL6:
+  35:app/main.c    ****     for(int i=0; i<16; i++)
+ARM GAS  /tmp/cc1LG9im.s 			page 3
+
+
+  76              		.loc 1 35 24 discriminator 3 view .LVU12
+  35:app/main.c    ****     for(int i=0; i<16; i++)
+  77              		.loc 1 35 25 is_stmt 0 discriminator 3 view .LVU13
+  78 001a 0134     		adds	r4, r4, #1
+  79              	.LVL7:
+  80              	.L2:
+  35:app/main.c    ****     for(int i=0; i<16; i++)
+  81              		.loc 1 35 18 is_stmt 1 discriminator 1 view .LVU14
+  35:app/main.c    ****     for(int i=0; i<16; i++)
+  82              		.loc 1 35 5 is_stmt 0 discriminator 1 view .LVU15
+  83 001c 0F2C     		cmp	r4, #15
+  84 001e F8DD     		ble	.L3
+  85              	.LBE2:
+  38:app/main.c    ****     }
+  39:app/main.c    ****     printf("\n");
+  86              		.loc 1 39 5 is_stmt 1 view .LVU16
+  87 0020 0A20     		movs	r0, #10
+  88 0022 FFF7FEFF 		bl	putchar
+  89              	.LVL8:
+  40:app/main.c    **** 
+  41:app/main.c    ****     for (int i=0; i<16; i++)
+  90              		.loc 1 41 5 view .LVU17
+  91              	.LBB3:
+  92              		.loc 1 41 10 view .LVU18
+  93              		.loc 1 41 14 is_stmt 0 view .LVU19
+  94 0026 0022     		movs	r2, #0
+  95              		.loc 1 41 5 view .LVU20
+  96 0028 11E0     		b	.L4
+  97              	.LVL9:
+  98              	.L5:
+  42:app/main.c    ****     {
+  43:app/main.c    ****         while (!(USART1->SR & USART_SR_TXE));
+  99              		.loc 1 43 45 is_stmt 1 discriminator 1 view .LVU21
+ 100              		.loc 1 43 15 discriminator 1 view .LVU22
+ 101              		.loc 1 43 24 is_stmt 0 discriminator 1 view .LVU23
+ 102 002a 0C4B     		ldr	r3, .L8+8
+ 103 002c 1B68     		ldr	r3, [r3]
+ 104              		.loc 1 43 15 discriminator 1 view .LVU24
+ 105 002e 13F0800F 		tst	r3, #128
+ 106 0032 FAD0     		beq	.L5
+  44:app/main.c    ****         USART1->DR = (uint8_t)tx[i];
+ 107              		.loc 1 44 9 is_stmt 1 view .LVU25
+ 108              		.loc 1 44 33 is_stmt 0 view .LVU26
+ 109 0034 A95C     		ldrb	r1, [r5, r2]	@ zero_extendqisi2
+ 110              		.loc 1 44 20 view .LVU27
+ 111 0036 094B     		ldr	r3, .L8+8
+ 112 0038 5960     		str	r1, [r3, #4]
+  45:app/main.c    **** 
+  46:app/main.c    ****         while (!(USART1->SR & USART_SR_RXNE));
+ 113              		.loc 1 46 9 is_stmt 1 view .LVU28
+ 114              	.L6:
+ 115              		.loc 1 46 46 discriminator 1 view .LVU29
+ 116              		.loc 1 46 15 discriminator 1 view .LVU30
+ 117              		.loc 1 46 24 is_stmt 0 discriminator 1 view .LVU31
+ 118 003a 084B     		ldr	r3, .L8+8
+ 119 003c 1B68     		ldr	r3, [r3]
+ 120              		.loc 1 46 15 discriminator 1 view .LVU32
+ARM GAS  /tmp/cc1LG9im.s 			page 4
+
+
+ 121 003e 13F0200F 		tst	r3, #32
+ 122 0042 FAD0     		beq	.L6
+  47:app/main.c    ****         a[i] = USART1->DR;
+ 123              		.loc 1 47 9 is_stmt 1 discriminator 2 view .LVU33
+ 124              		.loc 1 47 22 is_stmt 0 discriminator 2 view .LVU34
+ 125 0044 054B     		ldr	r3, .L8+8
+ 126 0046 5968     		ldr	r1, [r3, #4]
+ 127              		.loc 1 47 14 discriminator 2 view .LVU35
+ 128 0048 054B     		ldr	r3, .L8+12
+ 129 004a 9954     		strb	r1, [r3, r2]
+  41:app/main.c    ****     {
+ 130              		.loc 1 41 25 is_stmt 1 discriminator 2 view .LVU36
+  41:app/main.c    ****     {
+ 131              		.loc 1 41 26 is_stmt 0 discriminator 2 view .LVU37
+ 132 004c 0132     		adds	r2, r2, #1
+ 133              	.LVL10:
+ 134              	.L4:
+  41:app/main.c    ****     {
+ 135              		.loc 1 41 19 is_stmt 1 discriminator 1 view .LVU38
+  41:app/main.c    ****     {
+ 136              		.loc 1 41 5 is_stmt 0 discriminator 1 view .LVU39
+ 137 004e 0F2A     		cmp	r2, #15
+ 138 0050 EBDD     		ble	.L5
+ 139              	.LBE3:
+  48:app/main.c    ****     }
+  49:app/main.c    **** }
+ 140              		.loc 1 49 1 view .LVU40
+ 141 0052 38BD     		pop	{r3, r4, r5, pc}
+ 142              	.LVL11:
+ 143              	.L9:
+ 144              		.loc 1 49 1 view .LVU41
+ 145              		.align	2
+ 146              	.L8:
+ 147 0054 00000000 		.word	.LC0
+ 148 0058 0C000000 		.word	.LC1
+ 149 005c 00100140 		.word	1073811456
+ 150 0060 00000000 		.word	.LANCHOR0
+ 151              		.cfi_endproc
+ 152              	.LFE138:
+ 154              		.section	.rodata.uart1_aes_decrypt.str1.4,"aMS",%progbits,1
+ 155              		.align	2
+ 156              	.LC2:
+ 157 0000 44656372 		.ascii	"Decrypted: \000"
+ 157      79707465 
+ 157      643A2000 
+ 158              		.section	.text.uart1_aes_decrypt,"ax",%progbits
+ 159              		.align	1
+ 160              		.global	uart1_aes_decrypt
+ 161              		.syntax unified
+ 162              		.thumb
+ 163              		.thumb_func
+ 164              		.fpu fpv4-sp-d16
+ 166              	uart1_aes_decrypt:
+ 167              	.LVL12:
+ 168              	.LFB139:
+  50:app/main.c    **** 
+  51:app/main.c    **** void uart1_aes_decrypt(uint8_t* dt)
+ARM GAS  /tmp/cc1LG9im.s 			page 5
+
+
+  52:app/main.c    **** {
+ 169              		.loc 1 52 1 is_stmt 1 view -0
+ 170              		.cfi_startproc
+ 171              		@ args = 0, pretend = 0, frame = 0
+ 172              		@ frame_needed = 0, uses_anonymous_args = 0
+ 173              		.loc 1 52 1 is_stmt 0 view .LVU43
+ 174 0000 38B5     		push	{r3, r4, r5, lr}
+ 175              	.LCFI1:
+ 176              		.cfi_def_cfa_offset 16
+ 177              		.cfi_offset 3, -16
+ 178              		.cfi_offset 4, -12
+ 179              		.cfi_offset 5, -8
+ 180              		.cfi_offset 14, -4
+  53:app/main.c    ****     uint8_t* rx = aes_decryption(dt);
+ 181              		.loc 1 53 5 is_stmt 1 view .LVU44
+ 182              		.loc 1 53 19 is_stmt 0 view .LVU45
+ 183 0002 FFF7FEFF 		bl	aes_decryption
+ 184              	.LVL13:
+ 185              		.loc 1 53 19 view .LVU46
+ 186 0006 0546     		mov	r5, r0
+ 187              	.LVL14:
+  54:app/main.c    ****     printf("Decrypted: ");
+ 188              		.loc 1 54 5 is_stmt 1 view .LVU47
+ 189 0008 0748     		ldr	r0, .L14
+ 190              	.LVL15:
+ 191              		.loc 1 54 5 is_stmt 0 view .LVU48
+ 192 000a FFF7FEFF 		bl	printf
+ 193              	.LVL16:
+  55:app/main.c    ****     for(int i=0; i<16; i++)
+ 194              		.loc 1 55 5 is_stmt 1 view .LVU49
+ 195              	.LBB4:
+ 196              		.loc 1 55 9 view .LVU50
+ 197              		.loc 1 55 13 is_stmt 0 view .LVU51
+ 198 000e 0024     		movs	r4, #0
+ 199              		.loc 1 55 5 view .LVU52
+ 200 0010 03E0     		b	.L11
+ 201              	.LVL17:
+ 202              	.L12:
+  56:app/main.c    ****     {
+  57:app/main.c    ****         printf("%c", rx[i]);
+ 203              		.loc 1 57 9 is_stmt 1 discriminator 3 view .LVU53
+ 204 0012 285D     		ldrb	r0, [r5, r4]	@ zero_extendqisi2
+ 205 0014 FFF7FEFF 		bl	putchar
+ 206              	.LVL18:
+  55:app/main.c    ****     for(int i=0; i<16; i++)
+ 207              		.loc 1 55 24 discriminator 3 view .LVU54
+  55:app/main.c    ****     for(int i=0; i<16; i++)
+ 208              		.loc 1 55 25 is_stmt 0 discriminator 3 view .LVU55
+ 209 0018 0134     		adds	r4, r4, #1
+ 210              	.LVL19:
+ 211              	.L11:
+  55:app/main.c    ****     for(int i=0; i<16; i++)
+ 212              		.loc 1 55 18 is_stmt 1 discriminator 1 view .LVU56
+  55:app/main.c    ****     for(int i=0; i<16; i++)
+ 213              		.loc 1 55 5 is_stmt 0 discriminator 1 view .LVU57
+ 214 001a 0F2C     		cmp	r4, #15
+ 215 001c F9DD     		ble	.L12
+ARM GAS  /tmp/cc1LG9im.s 			page 6
+
+
+ 216              	.LBE4:
+  58:app/main.c    ****     }
+  59:app/main.c    ****     printf("\n");
+ 217              		.loc 1 59 5 is_stmt 1 view .LVU58
+ 218 001e 0A20     		movs	r0, #10
+ 219 0020 FFF7FEFF 		bl	putchar
+ 220              	.LVL20:
+  60:app/main.c    **** }
+ 221              		.loc 1 60 1 is_stmt 0 view .LVU59
+ 222 0024 38BD     		pop	{r3, r4, r5, pc}
+ 223              	.LVL21:
+ 224              	.L15:
+ 225              		.loc 1 60 1 view .LVU60
+ 226 0026 00BF     		.align	2
+ 227              	.L14:
+ 228 0028 00000000 		.word	.LC2
+ 229              		.cfi_endproc
+ 230              	.LFE139:
+ 232              		.section	.rodata.main.str1.4,"aMS",%progbits,1
+ 233              		.align	2
+ 234              	.LC3:
+ 235 0000 2A2A2A2A 		.ascii	"******** UART with AES encryption ********\000"
+ 235      2A2A2A2A 
+ 235      20554152 
+ 235      54207769 
+ 235      74682041 
+ 236 002b 00       		.align	2
+ 237              	.LC5:
+ 238 002c 4F726967 		.ascii	"Original: %s\012\000"
+ 238      696E616C 
+ 238      3A202573 
+ 238      0A00
+ 239 003a 0000     		.align	2
+ 240              	.LC4:
+ 241 003c 48656C6C 		.ascii	"Hello, World! :)\000"
+ 241      6F2C2057 
+ 241      6F726C64 
+ 241      21203A29 
+ 241      00
+ 242              		.section	.text.main,"ax",%progbits
+ 243              		.align	1
+ 244              		.global	main
+ 245              		.syntax unified
+ 246              		.thumb
+ 247              		.thumb_func
+ 248              		.fpu fpv4-sp-d16
+ 250              	main:
+ 251              	.LFB137:
+  10:app/main.c    ****     SystemInit();
+ 252              		.loc 1 10 1 is_stmt 1 view -0
+ 253              		.cfi_startproc
+ 254              		@ Volatile: function does not return.
+ 255              		@ args = 0, pretend = 0, frame = 16
+ 256              		@ frame_needed = 0, uses_anonymous_args = 0
+ 257 0000 00B5     		push	{lr}
+ 258              	.LCFI2:
+ 259              		.cfi_def_cfa_offset 4
+ARM GAS  /tmp/cc1LG9im.s 			page 7
+
+
+ 260              		.cfi_offset 14, -4
+ 261 0002 85B0     		sub	sp, sp, #20
+ 262              	.LCFI3:
+ 263              		.cfi_def_cfa_offset 24
+  11:app/main.c    ****     aes_init();
+ 264              		.loc 1 11 5 view .LVU62
+ 265 0004 FFF7FEFF 		bl	SystemInit
+ 266              	.LVL22:
+  12:app/main.c    ****     uart1_init(115200);
+ 267              		.loc 1 12 5 view .LVU63
+ 268 0008 FFF7FEFF 		bl	aes_init
+ 269              	.LVL23:
+  13:app/main.c    ****     uart2_init(115200);
+ 270              		.loc 1 13 5 view .LVU64
+ 271 000c 4FF4E130 		mov	r0, #115200
+ 272 0010 FFF7FEFF 		bl	uart1_init
+ 273              	.LVL24:
+  14:app/main.c    ****     //uart6_init(115200);
+ 274              		.loc 1 14 5 view .LVU65
+ 275 0014 4FF4E130 		mov	r0, #115200
+ 276 0018 FFF7FEFF 		bl	uart2_init
+ 277              	.LVL25:
+  17:app/main.c    **** 
+ 278              		.loc 1 17 5 view .LVU66
+ 279 001c 0948     		ldr	r0, .L19
+ 280 001e FFF7FEFF 		bl	puts
+ 281              	.LVL26:
+  19:app/main.c    ****     printf("Original: %s\n", str);
+ 282              		.loc 1 19 5 view .LVU67
+  19:app/main.c    ****     printf("Original: %s\n", str);
+ 283              		.loc 1 19 13 is_stmt 0 view .LVU68
+ 284 0022 094B     		ldr	r3, .L19+4
+ 285 0024 6C46     		mov	r4, sp
+ 286 0026 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 287 0028 84E80F00 		stm	r4, {r0, r1, r2, r3}
+  20:app/main.c    ****     uart1_aes_encrypt(str);
+ 288              		.loc 1 20 5 is_stmt 1 view .LVU69
+ 289 002c 2146     		mov	r1, r4
+ 290 002e 0748     		ldr	r0, .L19+8
+ 291 0030 FFF7FEFF 		bl	printf
+ 292              	.LVL27:
+  21:app/main.c    **** 
+ 293              		.loc 1 21 5 view .LVU70
+ 294 0034 2046     		mov	r0, r4
+ 295 0036 FFF7FEFF 		bl	uart1_aes_encrypt
+ 296              	.LVL28:
+  23:app/main.c    **** 
+ 297              		.loc 1 23 5 view .LVU71
+ 298 003a 0548     		ldr	r0, .L19+12
+ 299 003c FFF7FEFF 		bl	uart1_aes_decrypt
+ 300              	.LVL29:
+ 301              	.L17:
+  25:app/main.c    ****     {
+ 302              		.loc 1 25 5 discriminator 1 view .LVU72
+  28:app/main.c    **** }
+ 303              		.loc 1 28 5 discriminator 1 view .LVU73
+  25:app/main.c    ****     {
+ARM GAS  /tmp/cc1LG9im.s 			page 8
+
+
+ 304              		.loc 1 25 11 discriminator 1 view .LVU74
+ 305 0040 FEE7     		b	.L17
+ 306              	.L20:
+ 307 0042 00BF     		.align	2
+ 308              	.L19:
+ 309 0044 00000000 		.word	.LC3
+ 310 0048 3C000000 		.word	.LC4
+ 311 004c 2C000000 		.word	.LC5
+ 312 0050 00000000 		.word	.LANCHOR0
+ 313              		.cfi_endproc
+ 314              	.LFE137:
+ 316              		.section	.text.uart1_rx,"ax",%progbits
+ 317              		.align	1
+ 318              		.global	uart1_rx
+ 319              		.syntax unified
+ 320              		.thumb
+ 321              		.thumb_func
+ 322              		.fpu fpv4-sp-d16
+ 324              	uart1_rx:
+ 325              	.LFB140:
+  61:app/main.c    **** 
+  62:app/main.c    **** uint8_t uart1_rx()
+  63:app/main.c    **** {
+ 326              		.loc 1 63 1 view -0
+ 327              		.cfi_startproc
+ 328              		@ args = 0, pretend = 0, frame = 0
+ 329              		@ frame_needed = 0, uses_anonymous_args = 0
+ 330              		@ link register save eliminated.
+ 331              	.L22:
+  64:app/main.c    ****     while(!(USART1->SR & USART_SR_RXNE));
+ 332              		.loc 1 64 41 discriminator 1 view .LVU76
+ 333              		.loc 1 64 10 discriminator 1 view .LVU77
+ 334              		.loc 1 64 19 is_stmt 0 discriminator 1 view .LVU78
+ 335 0000 044B     		ldr	r3, .L23
+ 336 0002 1B68     		ldr	r3, [r3]
+ 337              		.loc 1 64 10 discriminator 1 view .LVU79
+ 338 0004 13F0200F 		tst	r3, #32
+ 339 0008 FAD0     		beq	.L22
+  65:app/main.c    ****     return USART1->DR;
+ 340              		.loc 1 65 5 is_stmt 1 view .LVU80
+ 341              		.loc 1 65 18 is_stmt 0 view .LVU81
+ 342 000a 024B     		ldr	r3, .L23
+ 343 000c 5868     		ldr	r0, [r3, #4]
+  66:app/main.c    **** }
+ 344              		.loc 1 66 1 view .LVU82
+ 345 000e C0B2     		uxtb	r0, r0
+ 346 0010 7047     		bx	lr
+ 347              	.L24:
+ 348 0012 00BF     		.align	2
+ 349              	.L23:
+ 350 0014 00100140 		.word	1073811456
+ 351              		.cfi_endproc
+ 352              	.LFE140:
+ 354              		.global	a
+ 355              		.section	.bss.a,"aw",%nobits
+ 356              		.align	2
+ 357              		.set	.LANCHOR0,. + 0
+ARM GAS  /tmp/cc1LG9im.s 			page 9
+
+
+ 360              	a:
+ 361 0000 00000000 		.space	16
+ 361      00000000 
+ 361      00000000 
+ 361      00000000 
+ 362              		.text
+ 363              	.Letext0:
+ 364              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 365              		.file 3 "/usr/include/newlib/sys/_stdint.h"
+ 366              		.file 4 "driver/Device/stm32f401xc.h"
+ 367              		.file 5 "inc/aes.h"
+ 368              		.file 6 "/usr/include/newlib/stdio.h"
+ 369              		.file 7 "driver/Device/system_stm32f401.h"
+ 370              		.file 8 "inc/uart.h"
+ 371              		.file 9 "<built-in>"
+ARM GAS  /tmp/cc1LG9im.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/cc1LG9im.s:18     .rodata.uart1_aes_encrypt.str1.4:0000000000000000 $d
+     /tmp/cc1LG9im.s:25     .text.uart1_aes_encrypt:0000000000000000 $t
+     /tmp/cc1LG9im.s:33     .text.uart1_aes_encrypt:0000000000000000 uart1_aes_encrypt
+     /tmp/cc1LG9im.s:147    .text.uart1_aes_encrypt:0000000000000054 $d
+     /tmp/cc1LG9im.s:155    .rodata.uart1_aes_decrypt.str1.4:0000000000000000 $d
+     /tmp/cc1LG9im.s:159    .text.uart1_aes_decrypt:0000000000000000 $t
+     /tmp/cc1LG9im.s:166    .text.uart1_aes_decrypt:0000000000000000 uart1_aes_decrypt
+     /tmp/cc1LG9im.s:228    .text.uart1_aes_decrypt:0000000000000028 $d
+     /tmp/cc1LG9im.s:233    .rodata.main.str1.4:0000000000000000 $d
+     /tmp/cc1LG9im.s:243    .text.main:0000000000000000 $t
+     /tmp/cc1LG9im.s:250    .text.main:0000000000000000 main
+     /tmp/cc1LG9im.s:309    .text.main:0000000000000044 $d
+     /tmp/cc1LG9im.s:317    .text.uart1_rx:0000000000000000 $t
+     /tmp/cc1LG9im.s:324    .text.uart1_rx:0000000000000000 uart1_rx
+     /tmp/cc1LG9im.s:350    .text.uart1_rx:0000000000000014 $d
+     /tmp/cc1LG9im.s:360    .bss.a:0000000000000000 a
+     /tmp/cc1LG9im.s:356    .bss.a:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+aes_encryption
+printf
+putchar
+aes_decryption
+SystemInit
+aes_init
+uart1_init
+uart2_init
+puts

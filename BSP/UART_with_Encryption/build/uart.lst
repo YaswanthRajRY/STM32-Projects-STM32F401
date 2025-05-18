@@ -1,0 +1,352 @@
+ARM GAS  /tmp/ccHwjFmx.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 27, 1
+   3              		.eabi_attribute 28, 1
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"uart.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.uart1_init,"ax",%progbits
+  18              		.align	1
+  19              		.global	uart1_init
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv4-sp-d16
+  26              	uart1_init:
+  27              	.LVL0:
+  28              	.LFB134:
+  29              		.file 1 "src/uart.c"
+   1:src/uart.c    **** #include "uart.h"
+   2:src/uart.c    **** 
+   3:src/uart.c    **** /**
+   4:src/uart.c    ****  * @brief uart1_init function initializes uart 1 (pin: A9 A10) in Tx & Rx mode.
+   5:src/uart.c    ****  *        also initializes GPIOA for uart function.
+   6:src/uart.c    ****  * 
+   7:src/uart.c    ****  * @param baud_rate argument passed to the function used to set user defined baudrate
+   8:src/uart.c    ****  * 
+   9:src/uart.c    ****  * @param APB2peripheralClock has value of APB2 peripheral clock
+  10:src/uart.c    ****  */
+  11:src/uart.c    **** void uart1_init(uint32_t baud_rate)
+  12:src/uart.c    **** {
+  30              		.loc 1 12 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+  13:src/uart.c    ****     // Enable GPIO and USART1 peripheral clock
+  14:src/uart.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+  35              		.loc 1 14 5 view .LVU1
+  36              		.loc 1 14 18 is_stmt 0 view .LVU2
+  37 0000 134B     		ldr	r3, .L2
+  38 0002 1A6B     		ldr	r2, [r3, #48]
+  39 0004 42F00102 		orr	r2, r2, #1
+  40 0008 1A63     		str	r2, [r3, #48]
+  15:src/uart.c    ****     RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+  41              		.loc 1 15 5 is_stmt 1 view .LVU3
+  42              		.loc 1 15 18 is_stmt 0 view .LVU4
+  43 000a 5A6C     		ldr	r2, [r3, #68]
+ARM GAS  /tmp/ccHwjFmx.s 			page 2
+
+
+  44 000c 42F01002 		orr	r2, r2, #16
+  45 0010 5A64     		str	r2, [r3, #68]
+  16:src/uart.c    **** 
+  17:src/uart.c    ****     // Configure GPIOA pin 9 & 10 as alternate function mode
+  18:src/uart.c    ****     GPIOA->MODER &= ~(GPIO_MODER_MODE10 | GPIO_MODER_MODE9);
+  46              		.loc 1 18 5 is_stmt 1 view .LVU5
+  47              		.loc 1 18 18 is_stmt 0 view .LVU6
+  48 0012 A3F56053 		sub	r3, r3, #14336
+  49 0016 1A68     		ldr	r2, [r3]
+  50 0018 22F47012 		bic	r2, r2, #3932160
+  51 001c 1A60     		str	r2, [r3]
+  19:src/uart.c    ****     GPIOA->MODER |= GPIO_MODER_MODE10_1 | GPIO_MODER_MODE9_1;
+  52              		.loc 1 19 5 is_stmt 1 view .LVU7
+  53              		.loc 1 19 18 is_stmt 0 view .LVU8
+  54 001e 1A68     		ldr	r2, [r3]
+  55 0020 42F42012 		orr	r2, r2, #2621440
+  56 0024 1A60     		str	r2, [r3]
+  20:src/uart.c    ****     GPIOA->AFR[1] &= ~((0xF << (1 * 4)) | (0xF << (2 * 4)));
+  57              		.loc 1 20 5 is_stmt 1 view .LVU9
+  58              		.loc 1 20 19 is_stmt 0 view .LVU10
+  59 0026 5A6A     		ldr	r2, [r3, #36]
+  60 0028 22F47F62 		bic	r2, r2, #4080
+  61 002c 5A62     		str	r2, [r3, #36]
+  21:src/uart.c    ****     GPIOA->AFR[1] |= (7 << (1 * 4)) | (7 << (2 * 4));
+  62              		.loc 1 21 5 is_stmt 1 view .LVU11
+  63              		.loc 1 21 19 is_stmt 0 view .LVU12
+  64 002e 5A6A     		ldr	r2, [r3, #36]
+  65 0030 42F4EE62 		orr	r2, r2, #1904
+  66 0034 5A62     		str	r2, [r3, #36]
+  22:src/uart.c    **** 
+  23:src/uart.c    ****     // Configure USART1
+  24:src/uart.c    ****     USART1->BRR = (APB2peripheralClock + baud_rate / 2) / baud_rate;
+  67              		.loc 1 24 5 is_stmt 1 view .LVU13
+  68              		.loc 1 24 40 is_stmt 0 view .LVU14
+  69 0036 074B     		ldr	r3, .L2+4
+  70 0038 1B68     		ldr	r3, [r3]
+  71 003a 03EB5003 		add	r3, r3, r0, lsr #1
+  72              		.loc 1 24 57 view .LVU15
+  73 003e B3FBF0F0 		udiv	r0, r3, r0
+  74              	.LVL1:
+  75              		.loc 1 24 17 view .LVU16
+  76 0042 054B     		ldr	r3, .L2+8
+  77 0044 9860     		str	r0, [r3, #8]
+  25:src/uart.c    ****     USART1->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
+  78              		.loc 1 25 5 is_stmt 1 view .LVU17
+  79              		.loc 1 25 17 is_stmt 0 view .LVU18
+  80 0046 42F20C02 		movw	r2, #8204
+  81 004a DA60     		str	r2, [r3, #12]
+  26:src/uart.c    **** }
+  82              		.loc 1 26 1 view .LVU19
+  83 004c 7047     		bx	lr
+  84              	.L3:
+  85 004e 00BF     		.align	2
+  86              	.L2:
+  87 0050 00380240 		.word	1073887232
+  88 0054 00000000 		.word	APB2peripheralClock
+  89 0058 00100140 		.word	1073811456
+ARM GAS  /tmp/ccHwjFmx.s 			page 3
+
+
+  90              		.cfi_endproc
+  91              	.LFE134:
+  93              		.section	.text.uart2_init,"ax",%progbits
+  94              		.align	1
+  95              		.global	uart2_init
+  96              		.syntax unified
+  97              		.thumb
+  98              		.thumb_func
+  99              		.fpu fpv4-sp-d16
+ 101              	uart2_init:
+ 102              	.LVL2:
+ 103              	.LFB135:
+  27:src/uart.c    **** 
+  28:src/uart.c    **** /**
+  29:src/uart.c    ****  * @brief uart2_init function initializes uart 2 (pin: A2 A3) in Tx & Rx mode.
+  30:src/uart.c    ****  *        also initializes GPIOA for uart function.
+  31:src/uart.c    ****  * 
+  32:src/uart.c    ****  * @param baud_rate argument passed to the function used to set user defined baudrate
+  33:src/uart.c    ****  * 
+  34:src/uart.c    ****  * @param APB1peripheralClock has value of APB1 peripheral clock
+  35:src/uart.c    ****  */
+  36:src/uart.c    **** void uart2_init(uint32_t baud_rate)
+  37:src/uart.c    **** {
+ 104              		.loc 1 37 1 is_stmt 1 view -0
+ 105              		.cfi_startproc
+ 106              		@ args = 0, pretend = 0, frame = 0
+ 107              		@ frame_needed = 0, uses_anonymous_args = 0
+ 108              		@ link register save eliminated.
+  38:src/uart.c    ****     // Enable GPIO and USART2 peripheral clock
+  39:src/uart.c    ****     RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+ 109              		.loc 1 39 5 view .LVU21
+ 110              		.loc 1 39 18 is_stmt 0 view .LVU22
+ 111 0000 134B     		ldr	r3, .L5
+ 112 0002 1A6C     		ldr	r2, [r3, #64]
+ 113 0004 42F40032 		orr	r2, r2, #131072
+ 114 0008 1A64     		str	r2, [r3, #64]
+  40:src/uart.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+ 115              		.loc 1 40 5 is_stmt 1 view .LVU23
+ 116              		.loc 1 40 18 is_stmt 0 view .LVU24
+ 117 000a 1A6B     		ldr	r2, [r3, #48]
+ 118 000c 42F00102 		orr	r2, r2, #1
+ 119 0010 1A63     		str	r2, [r3, #48]
+  41:src/uart.c    **** 
+  42:src/uart.c    ****     // Configure GPIOA pin 2 & 3 as alternate function mode
+  43:src/uart.c    ****     GPIOA->MODER &= ~(GPIO_MODER_MODE2 | GPIO_MODER_MODE3);
+ 120              		.loc 1 43 5 is_stmt 1 view .LVU25
+ 121              		.loc 1 43 18 is_stmt 0 view .LVU26
+ 122 0012 A3F56053 		sub	r3, r3, #14336
+ 123 0016 1A68     		ldr	r2, [r3]
+ 124 0018 22F0F002 		bic	r2, r2, #240
+ 125 001c 1A60     		str	r2, [r3]
+  44:src/uart.c    ****     GPIOA->MODER |= GPIO_MODER_MODE2_1 | GPIO_MODER_MODE3_1;
+ 126              		.loc 1 44 5 is_stmt 1 view .LVU27
+ 127              		.loc 1 44 18 is_stmt 0 view .LVU28
+ 128 001e 1A68     		ldr	r2, [r3]
+ 129 0020 42F0A002 		orr	r2, r2, #160
+ 130 0024 1A60     		str	r2, [r3]
+ARM GAS  /tmp/ccHwjFmx.s 			page 4
+
+
+  45:src/uart.c    ****     GPIOA->AFR[0] &= ~((0xF << (2 * 4)) | (0xF << (3 * 4)));
+ 131              		.loc 1 45 5 is_stmt 1 view .LVU29
+ 132              		.loc 1 45 19 is_stmt 0 view .LVU30
+ 133 0026 1A6A     		ldr	r2, [r3, #32]
+ 134 0028 22F47F42 		bic	r2, r2, #65280
+ 135 002c 1A62     		str	r2, [r3, #32]
+  46:src/uart.c    ****     GPIOA->AFR[0] |= (7 << (2 * 4)) | (7 << (3 * 4));
+ 136              		.loc 1 46 5 is_stmt 1 view .LVU31
+ 137              		.loc 1 46 19 is_stmt 0 view .LVU32
+ 138 002e 1A6A     		ldr	r2, [r3, #32]
+ 139 0030 42F4EE42 		orr	r2, r2, #30464
+ 140 0034 1A62     		str	r2, [r3, #32]
+  47:src/uart.c    **** 
+  48:src/uart.c    ****     // Configure USART1
+  49:src/uart.c    ****     USART2->BRR = (APB1peripheralClock + baud_rate / 2) / baud_rate;
+ 141              		.loc 1 49 5 is_stmt 1 view .LVU33
+ 142              		.loc 1 49 40 is_stmt 0 view .LVU34
+ 143 0036 074B     		ldr	r3, .L5+4
+ 144 0038 1B68     		ldr	r3, [r3]
+ 145 003a 03EB5003 		add	r3, r3, r0, lsr #1
+ 146              		.loc 1 49 57 view .LVU35
+ 147 003e B3FBF0F0 		udiv	r0, r3, r0
+ 148              	.LVL3:
+ 149              		.loc 1 49 17 view .LVU36
+ 150 0042 054B     		ldr	r3, .L5+8
+ 151 0044 9860     		str	r0, [r3, #8]
+  50:src/uart.c    ****     USART2->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
+ 152              		.loc 1 50 5 is_stmt 1 view .LVU37
+ 153              		.loc 1 50 17 is_stmt 0 view .LVU38
+ 154 0046 42F20C02 		movw	r2, #8204
+ 155 004a DA60     		str	r2, [r3, #12]
+  51:src/uart.c    **** }
+ 156              		.loc 1 51 1 view .LVU39
+ 157 004c 7047     		bx	lr
+ 158              	.L6:
+ 159 004e 00BF     		.align	2
+ 160              	.L5:
+ 161 0050 00380240 		.word	1073887232
+ 162 0054 00000000 		.word	APB1peripheralClock
+ 163 0058 00440040 		.word	1073759232
+ 164              		.cfi_endproc
+ 165              	.LFE135:
+ 167              		.section	.text.uart6_init,"ax",%progbits
+ 168              		.align	1
+ 169              		.global	uart6_init
+ 170              		.syntax unified
+ 171              		.thumb
+ 172              		.thumb_func
+ 173              		.fpu fpv4-sp-d16
+ 175              	uart6_init:
+ 176              	.LVL4:
+ 177              	.LFB136:
+  52:src/uart.c    **** 
+  53:src/uart.c    **** /**
+  54:src/uart.c    ****  * @brief uart6_init function initializes uart 6 (pin: A11 A12) in Tx & Rx mode.
+  55:src/uart.c    ****  *        also initializes GPIOA for uart function.
+  56:src/uart.c    ****  * 
+ARM GAS  /tmp/ccHwjFmx.s 			page 5
+
+
+  57:src/uart.c    ****  * @param baud_rate argument passed to the function used to set user defined baudrate
+  58:src/uart.c    ****  * 
+  59:src/uart.c    ****  * @param APB2peripheralClock has value of APB2 peripheral clock
+  60:src/uart.c    ****  */
+  61:src/uart.c    **** void uart6_init(uint32_t baud_rate)
+  62:src/uart.c    **** {
+ 178              		.loc 1 62 1 is_stmt 1 view -0
+ 179              		.cfi_startproc
+ 180              		@ args = 0, pretend = 0, frame = 0
+ 181              		@ frame_needed = 0, uses_anonymous_args = 0
+ 182              		@ link register save eliminated.
+  63:src/uart.c    ****     // Enable GPIO and USART6 peripheral clock
+  64:src/uart.c    ****     RCC->APB2ENR |= RCC_APB2ENR_USART6EN;
+ 183              		.loc 1 64 5 view .LVU41
+ 184              		.loc 1 64 18 is_stmt 0 view .LVU42
+ 185 0000 134B     		ldr	r3, .L8
+ 186 0002 5A6C     		ldr	r2, [r3, #68]
+ 187 0004 42F02002 		orr	r2, r2, #32
+ 188 0008 5A64     		str	r2, [r3, #68]
+  65:src/uart.c    ****     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN;
+ 189              		.loc 1 65 5 is_stmt 1 view .LVU43
+ 190              		.loc 1 65 18 is_stmt 0 view .LVU44
+ 191 000a 1A6B     		ldr	r2, [r3, #48]
+ 192 000c 42F00102 		orr	r2, r2, #1
+ 193 0010 1A63     		str	r2, [r3, #48]
+  66:src/uart.c    ****     
+  67:src/uart.c    ****     // Configure GPIOA pin 11 & 12 as alternate function mode
+  68:src/uart.c    ****     GPIOA->MODER &= ~(GPIO_MODER_MODE11 | GPIO_MODER_MODE12);
+ 194              		.loc 1 68 5 is_stmt 1 view .LVU45
+ 195              		.loc 1 68 18 is_stmt 0 view .LVU46
+ 196 0012 A3F56053 		sub	r3, r3, #14336
+ 197 0016 1A68     		ldr	r2, [r3]
+ 198 0018 22F07072 		bic	r2, r2, #62914560
+ 199 001c 1A60     		str	r2, [r3]
+  69:src/uart.c    ****     GPIOA->MODER |= GPIO_MODER_MODE11_1 | GPIO_MODER_MODE12_1;
+ 200              		.loc 1 69 5 is_stmt 1 view .LVU47
+ 201              		.loc 1 69 18 is_stmt 0 view .LVU48
+ 202 001e 1A68     		ldr	r2, [r3]
+ 203 0020 42F02072 		orr	r2, r2, #41943040
+ 204 0024 1A60     		str	r2, [r3]
+  70:src/uart.c    ****     GPIOA->AFR[1] &= ~((0xF << (3 * 4)) | (0xF << (4 * 4)));
+ 205              		.loc 1 70 5 is_stmt 1 view .LVU49
+ 206              		.loc 1 70 19 is_stmt 0 view .LVU50
+ 207 0026 5A6A     		ldr	r2, [r3, #36]
+ 208 0028 22F47F22 		bic	r2, r2, #1044480
+ 209 002c 5A62     		str	r2, [r3, #36]
+  71:src/uart.c    ****     GPIOA->AFR[1] |= (8 << (3 * 4)) | (8 << (4 * 4));
+ 210              		.loc 1 71 5 is_stmt 1 view .LVU51
+ 211              		.loc 1 71 19 is_stmt 0 view .LVU52
+ 212 002e 5A6A     		ldr	r2, [r3, #36]
+ 213 0030 42F40822 		orr	r2, r2, #557056
+ 214 0034 5A62     		str	r2, [r3, #36]
+  72:src/uart.c    ****     
+  73:src/uart.c    ****     // Configure USART6
+  74:src/uart.c    ****     USART6->BRR = (APB2peripheralClock + baud_rate / 2) / baud_rate;
+ 215              		.loc 1 74 5 is_stmt 1 view .LVU53
+ 216              		.loc 1 74 40 is_stmt 0 view .LVU54
+ARM GAS  /tmp/ccHwjFmx.s 			page 6
+
+
+ 217 0036 074B     		ldr	r3, .L8+4
+ 218 0038 1B68     		ldr	r3, [r3]
+ 219 003a 03EB5003 		add	r3, r3, r0, lsr #1
+ 220              		.loc 1 74 57 view .LVU55
+ 221 003e B3FBF0F0 		udiv	r0, r3, r0
+ 222              	.LVL5:
+ 223              		.loc 1 74 17 view .LVU56
+ 224 0042 054B     		ldr	r3, .L8+8
+ 225 0044 9860     		str	r0, [r3, #8]
+  75:src/uart.c    ****     USART6->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
+ 226              		.loc 1 75 5 is_stmt 1 view .LVU57
+ 227              		.loc 1 75 17 is_stmt 0 view .LVU58
+ 228 0046 42F20C02 		movw	r2, #8204
+ 229 004a DA60     		str	r2, [r3, #12]
+  76:src/uart.c    ****     
+  77:src/uart.c    **** }...
+ 230              		.loc 1 77 1 view .LVU59
+ 231 004c 7047     		bx	lr
+ 232              	.L9:
+ 233 004e 00BF     		.align	2
+ 234              	.L8:
+ 235 0050 00380240 		.word	1073887232
+ 236 0054 00000000 		.word	APB2peripheralClock
+ 237 0058 00140140 		.word	1073812480
+ 238              		.cfi_endproc
+ 239              	.LFE136:
+ 241              		.text
+ 242              	.Letext0:
+ 243              		.file 2 "driver/Device/system_stm32f401.h"
+ 244              		.file 3 "driver/Device/stm32f401xc.h"
+ 245              		.file 4 "/usr/lib/gcc/arm-none-eabi/10.3.1/include/stdint.h"
+ARM GAS  /tmp/ccHwjFmx.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 uart.c
+     /tmp/ccHwjFmx.s:18     .text.uart1_init:0000000000000000 $t
+     /tmp/ccHwjFmx.s:26     .text.uart1_init:0000000000000000 uart1_init
+     /tmp/ccHwjFmx.s:87     .text.uart1_init:0000000000000050 $d
+     /tmp/ccHwjFmx.s:94     .text.uart2_init:0000000000000000 $t
+     /tmp/ccHwjFmx.s:101    .text.uart2_init:0000000000000000 uart2_init
+     /tmp/ccHwjFmx.s:161    .text.uart2_init:0000000000000050 $d
+     /tmp/ccHwjFmx.s:168    .text.uart6_init:0000000000000000 $t
+     /tmp/ccHwjFmx.s:175    .text.uart6_init:0000000000000000 uart6_init
+     /tmp/ccHwjFmx.s:235    .text.uart6_init:0000000000000050 $d
+
+UNDEFINED SYMBOLS
+APB2peripheralClock
+APB1peripheralClock
